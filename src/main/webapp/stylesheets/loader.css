@@ -1,0 +1,119 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+
+  font-family: 'Open Sans', sans-serif;
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  /* Negative indent footer by its height */
+  margin: 0 auto -60px;
+  /* Pad bottom by footer height */
+  padding: 0 0 60px;
+}
+
+/* Set the fixed height of the footer here */
+#footer {
+  height: 60px;
+  background-color: #f5f5f5;
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+#wrap > .container {
+  padding: 60px 15px 0;
+}
+.container .credit {
+  margin: 20px 0;
+}
+
+#footer > .container {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+code {
+  font-size: 80%;
+}
+
+/** custom **/
+.navbar-default {
+    background-color: #111;
+}
+
+.navbar-default {
+    /* border-color: #c3c3c3; */
+    border-color: #cb0d07;
+}
+
+.navbar-default .navbar-brand {
+    color: #ffffff;
+    padding: 3px; 15px;
+}
+
+.navbar-default .navbar-nav > .active > a {
+    /* background-color: #405480; */
+    background-color: #099;
+    color: #ffffff;
+}
+
+.navbar-default .navbar-nav > .active > a:hover {
+    background-color: #fce45c;
+    color: #000000;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+    background-color: #fce45c;
+    color: #000000;
+}
+
+#footer {
+    background-color: #333333
+}
+
+#footer a {
+    color: #fce45c;
+}
+
+#logo {
+    height: 44px;
+}
+
+.btn-primary {
+    background-color: #cb0d07;
+    border-color: #c3c3c3;
+}
+
+.copyright {
+    float: left;
+}
+
+.logout {
+    float: right;
+    color: #ffffff;
+
+}
+
+/** login page specific **/
+.form-signin {
+    max-width: 330px;
+    padding: 15px;
+    margin: 0 auto;
+}
+
+/** home page specific **/
+#pending {
+    margin-top: 2em;
+    margin-bottom: 2em;
+}

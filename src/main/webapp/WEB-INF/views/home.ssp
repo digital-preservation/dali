@@ -1,0 +1,93 @@
+#set (navBarNav)
+<ul class="nav navbar-nav navbar-right">
+    <li class="active"><a href="#">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Nav header</li>
+            <li><a href="#">Separated link</a></li>
+            <li><a href="#">One more separated link</a></li>
+        </ul>
+    </li>
+</ul>
+#end
+
+<div>
+    <div id="pending" class="panel panel-default">
+        <div class="panel-heading"><h4>Units Awaiting Load</h4></div>
+        <div class="panel-body">
+            <form>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th/>
+                            <th>Location</th>
+                            <th>Label</th>
+                            <th>Size</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input type="checkbox"/>
+                            </td>
+                            <td>dri-upload1</td>
+                            <td>xyz.gpgz</td>
+                            <td>9.2 GB</td>
+                            <td>Fri, 4th October 2013</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="checkbox"/>
+                            </td>
+                            <td>dri-upload1</td>
+                            <td>nop.gpgz</td>
+                            <td>1.7 GB</td>
+                            <td>Fri, 4th October 2013</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-primary">Load</button>
+            </form>
+        </div>
+    </div>
+    <div id="loaded" class="panel panel-default">
+        <div class="panel-heading"><h5>Units Recently Loaded</h5></div>
+        <div class="panel-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Label</th>
+                        <th>Size</th>
+                        <th>Loaded</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Pre Holding</td>
+                        <td>abc.gpgz</td>
+                        <td>2.1GB</td>
+                        <td>Thu, 3rd October 2013</td>
+                        <td>dri-upload1</td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul class="pagination">
+                <li><a href="#">&laquo;</a></li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">&raquo;</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

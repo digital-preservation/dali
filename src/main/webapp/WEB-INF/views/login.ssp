@@ -1,0 +1,9 @@
+<form class="form-signin" action="login" method="post">
+    <h2 class="form-signin-heading">Please sign in</h2>
+    <input name="username" type="text" class="form-control" placeholder="DRI Username" autocomplete="on" pattern="[a-z0-9]{3,}" required autofocus>
+    <input name="password" type="password" class="form-control" placeholder="Password" pattern="[A-Za-z0-9_\-\+\!\.\,\\/]{3,}" required>
+    <label class="checkbox">
+        <input name="rememberMe" type="checkbox" value="true"> Remember me
+    </label>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+</form>
