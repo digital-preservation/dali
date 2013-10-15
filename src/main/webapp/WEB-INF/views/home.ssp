@@ -1,3 +1,10 @@
+<%@ var baseUrl: String = uri("/") %>
+
+#set (pageScripts)
+    <script src="${baseUrl}js/jquery-atmosphere.js"></script>
+    <script src="${baseUrl}js/home.js"></script>
+#end
+
 #set (navBarNav)
 <ul class="nav navbar-nav navbar-right">
     <li class="active"><a href="#">Home</a></li>
@@ -27,30 +34,21 @@
                     <thead>
                         <tr>
                             <th/>
-                            <th>Location</th>
+                            <th>Source</th>
                             <th>Label</th>
                             <th>Size</th>
                             <th>Date</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
+                    <tbody ng-controller="PendingUnitsCtrl">
+                        <tr ng-repeat="pendingUnit in pendingUnits">
                             <td>
                                 <input type="checkbox"/>
                             </td>
-                            <td>dri-upload1</td>
-                            <td>xyz.gpgz</td>
-                            <td>9.2 GB</td>
-                            <td>Fri, 4th October 2013</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input type="checkbox"/>
-                            </td>
-                            <td>dri-upload1</td>
-                            <td>nop.gpgz</td>
-                            <td>1.7 GB</td>
-                            <td>Fri, 4th October 2013</td>
+                            <td>{{pendingUnit.src}}</td>
+                            <td>{{pendingUnit.label}}</td>
+                            <td>{{pendingUnit.size}}</td>
+                            <td>{{pendingUnit.date}}</td>
                         </tr>
                     </tbody>
                 </table>
