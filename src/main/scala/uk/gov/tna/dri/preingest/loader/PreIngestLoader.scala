@@ -1,5 +1,6 @@
 package uk.gov.tna.dri.preingest.loader
 
+import _root_.akka.actor.{Actor, ActorRef}
 import org.scalatra._
 import org.scalatra.scalate.ScalateSupport
 import uk.gov.tna.dri.preingest.loader.auth.LDAPAuthenticationSupport
@@ -10,9 +11,20 @@ import org.json4s._
 import JsonDSL._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import grizzled.slf4j.Logging
+import uk.gov.tna.dri.preingest.loader.unit._
+import uk.gov.tna.dri.preingest.loader.unit.PendingUnit
+import org.scalatra.atmosphere.Disconnected
+import uk.gov.tna.dri.preingest.loader.unit.ListPendingUnits
+import org.scalatra.atmosphere.JsonMessage
+import uk.gov.tna.dri.preingest.loader.unit.Register
+import org.scalatra.atmosphere.TextMessage
+import scala.Some
+import uk.gov.tna.dri.preingest.loader.unit.PendingUnits
+import org.scalatra.atmosphere.Error
 
 
-class PreIngestLoader extends ScalatraServlet
+class PreIngestLoader(preIngestLoaderActor: ActorRef) extends ScalatraServlet
   with ScalateSupport with JValueResult
   with JacksonJsonSupport
   with SessionSupport
@@ -65,13 +77,13 @@ class PreIngestLoader extends ScalatraServlet
              println("RECEIVED TEXT: " + text)
 
            case JsonMessage(json) =>
-
             println("RECEIVED JSON: " + json)
 
             json match {
               case JObject(List(("action", JString(jValue)))) =>
                 jValue match {
                   case "pending" =>
+                    preIngestLoaderActor ! ListPendingUnits(uuid)
 
                   case u =>
                     println("unknown action: " + u)
@@ -82,26 +94,40 @@ class PreIngestLoader extends ScalatraServlet
          }
     }
   }
+}
 
-  /*
-   get("/woof") {
-     contentType="text/html"
-    ssp("woof.ssp","date" -> new java.util.Date)
-  } 
-  
-  case class Flower(slug: String, name: String) {
-    def toXML= <flower name={name}>{slug}</flower>
+class PreIngestLoaderActor(pendingUnitsActor: ActorRef) extends Actor with Logging {
+
+  pendingUnitsActor ! Listen
+
+  def receive = {
+    case lpu: ListPendingUnits =>
+        pendingUnitsActor ! lpu
+
+    case PendingUnits(clientId, pendingUnits) =>
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("pending", pendingUnits)), _.uuid == clientId) //send only to client
+
+    case Register(pendingUnit) =>
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("pendingAdd", pendingUnit))) //update everyone
+
+    case DeRegister(pendingUnit) =>
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("pendingRemove", pendingUnit))) //update everyone
+
   }
-  
-   val all = List(
-      Flower("yellow-tulip", "Yellow Tulip"),
-      Flower("red-rose", "Red & Rose"),
-      Flower("black-rose", "Black Rose"))
-   
-  get("/flowers"){
-     contentType="text/xml"
-    <flowers> 
-      { all.map(_.toXML) }
-     </flowers>
-  }*/
+
+  def toJson(action: String, pendingUnit: PendingUnit) : JValue = toJson(action, List(pendingUnit))
+
+  def toJson(action: String, pendingUnits: List[PendingUnit]) : JValue = {
+    (action ->
+      ("unit" ->
+        pendingUnits.map {
+          pendingUnit =>
+            ("src" -> pendingUnit.source) ~
+            ("label" -> pendingUnit.label) ~
+            ("size" -> "TODO") ~
+            ("date" -> "TODO")
+        }
+      )
+    )
+  }
 }

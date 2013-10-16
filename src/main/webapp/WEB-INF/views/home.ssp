@@ -40,7 +40,7 @@
                             <th>Date</th>
                         </tr>
                     </thead>
-                    <tbody ng-controller="PendingUnitsCtrl">
+                    <tbody id="pendingUnits" ng-controller="PendingUnitsCtrl">
                         <tr ng-repeat="pendingUnit in pendingUnits">
                             <td>
                                 <input type="checkbox"/>

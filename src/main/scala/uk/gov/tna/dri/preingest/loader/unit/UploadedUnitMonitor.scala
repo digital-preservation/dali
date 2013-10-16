@@ -2,6 +2,7 @@ package uk.gov.tna.dri.preingest.loader.unit
 
 import akka.actor.Actor
 import scalax.file.Path
+import grizzled.slf4j.Logging
 
 //received events
 case object ScheduledExecution
@@ -9,7 +10,7 @@ case object ScheduledExecution
 //sent events
 case class PendingUploadedUnits(pending: List[PendingUnit])
 
-class UploadedUnitMonitor extends Actor {
+class UploadedUnitMonitor extends Actor with Logging {
 
   val uploadLocation = "/dri-upload" //TODO replace with config
 
@@ -42,12 +43,17 @@ class UploadedUnitMonitor extends Actor {
   }
 
   def findPendingUnits(path: Path): List[PendingUnit] = {
-    val uploadedUnits = path * ("*.gpgz") //TODO make configurable
-    val processingUploadedUnits = path * ("*.gpgz.processing")
+    if(path.isDirectory) {
+      val uploadedUnits = path * ("*.gpgz") //TODO make configurable
+      val processingUploadedUnits = path * ("*.gpgz.processing")
 
-    //filter out the ones we are already processing
-    val nonProcessingUploadedUnits = uploadedUnits.filter(uu => processingUploadedUnits.find(_.startsWith(uu)).isEmpty)
+      //filter out the ones we are already processing
+      val nonProcessingUploadedUnits = uploadedUnits.filter(uu => processingUploadedUnits.find(_.startsWith(uu)).isEmpty)
 
-    nonProcessingUploadedUnits.toList.map(uploadedUnit => PendingUnit(path.name, uploadedUnit.path))
+      nonProcessingUploadedUnits.toList.map(uploadedUnit => PendingUnit(path.name, uploadedUnit.path))
+    } else {
+      warn(s"Uploaded Unit Monitor directory: ${path.path} does not exist. No uploaded units will be found!")
+      List.empty[PendingUnit]
+    }
   }
 }
