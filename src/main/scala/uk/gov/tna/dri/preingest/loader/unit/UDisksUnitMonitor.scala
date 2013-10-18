@@ -135,7 +135,7 @@ class DBusUDisks(udisksUnitMonitor: ActorRef) {
     if(isPartition) {
       PartitionProperties(
         partitionType = Integer.parseInt(getStr("PartitionType").substring(2), 16),
-        partitionLabel = nonEmpty(getStr("PartitionLabel")),
+        partitionLabel = nonEmpty(getStr("PartitionLabel")).orElse(nonEmpty(getStr("IdLabel"))),
         interface,
         deviceFile,
         size = getLng("PartitionSize"),
