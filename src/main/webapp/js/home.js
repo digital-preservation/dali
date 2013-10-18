@@ -1,13 +1,9 @@
 var mPendingUnits = [
-    {src: 'dri-upload1', label: 'xyz.gpgz', size: '9.2GB', date: 'Fri, 4th October 2013'},
-    {src: 'dri-upload1', label: 'abc.gpgz', size: '1.7GB', date: 'Fri, 4th October 2013'}
+    /*{interface: 'network', src: 'dri-upload1', label: 'xyz.gpgz', size: '9.2GB', timestamp: 'Fri, 4th October 2013'},
+    {interface: 'network', src: 'dri-upload1', label: 'abc.gpgz', size: '1.7GB', timestamp: 'Fri, 4th October 2013'}*/
 ];
 
 function PendingUnitsCtrl($scope) {
-//    $scope.pendingUnits = [
-//        {src: 'dri-upload1', label: 'xyz.gpgz', size: '9.2GB', date: 'Fri, 4th October 2013'},
-//        {src: 'dri-upload1', label: 'abc.gpgz', size: '1.7GB', date: 'Fri, 4th October 2013'}
-//    ];
     $scope.pendingUnits = mPendingUnits;
 }
 
@@ -18,6 +14,30 @@ function updatePending(fnUpdateModel) {
     scope.$apply(function() {
         fnUpdateModel(mPendingUnits);
     });
+}
+
+function toHumanSize(bytes) {
+  var KB = 1024;
+  var MB = Math.pow(KB, 2);
+  var GB = Math.pow(KB, 3);
+  var TB = Math.pow(KB, 4);
+
+  if(bytes / TB > 1) {
+     return Math.ceil(bytes / TB) + " TB";
+  } else if(bytes / GB > 1) {
+     return Math.ceil(bytes / GB) + " GB";
+  } else if(bytes / MB > 1) {
+    return Math.ceil(bytes / MB) + " MB";
+  } else if(bytes / KB > 1) {
+    return Math.ceil(bytes / KB) + " KB";
+  } else {
+    return bytes + " bytes";
+  }
+}
+
+function toHumanTime(timestamp) {
+   var d = new Date(timestamp)
+   return d.toString();
 }
 
 $(document).ready(function() {
@@ -64,6 +84,8 @@ $(document).ready(function() {
             updatePending(function(model) {
                 model.length = 0; //empty the model
                 $.each(json.pending.unit, function(i, v) {
+                    v.size = toHumanSize(v.size);
+                    v.timestamp = toHumanTime(v.timestamp);
                     model.push(v); //add to the model
                 });
             });
@@ -72,6 +94,8 @@ $(document).ready(function() {
           } else if(json.pendingAdd) {
             updatePending(function(model) {
                 $.each(json.pendingAdd.unit, function(i, v) {
+                    v.size = toHumanSize(v.size);
+                    v.timestamp = toHumanTime(v.timestamp);
                     model.push(v); //add to the model
                 });
             });
@@ -80,9 +104,11 @@ $(document).ready(function() {
           } else if(json.pendingRemove) {
             updatePending(function(model) {
                $.each(model, function(i, v) {
-                if(v.label == json.pendingRemove.unit.label) {
-                    model.splice(i, 1);
-                }
+                $.each(json.pendingRemove.unit, function(y, vv) {
+                   if(v.src == vv.src) {
+                       model.splice(i, 1);
+                   }
+                });
                });
             });
           }

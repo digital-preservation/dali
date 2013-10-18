@@ -122,10 +122,11 @@ class PreIngestLoaderActor(pendingUnitsActor: ActorRef) extends Actor with Loggi
       ("unit" ->
         pendingUnits.map {
           pendingUnit =>
-            ("src" -> pendingUnit.source) ~
+            ("interface" -> pendingUnit.interface) ~
+            ("src" -> pendingUnit.src) ~
             ("label" -> pendingUnit.label) ~
-            ("size" -> "TODO") ~
-            ("date" -> "TODO")
+            ("size" -> pendingUnit.size) ~
+            ("timestamp" -> pendingUnit.timestamp)
         }
       )
     )

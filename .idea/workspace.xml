@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="51c85e46-be5d-4498-b86e-d40911fff85f" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/woof.ssp" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala" />
+    <list default="true" readonly="true" id="51c85e46-be5d-4498-b86e-d40911fff85f" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PartitionTypes.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnit.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnit.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ScalatraBootstrap.scala" afterPath="$PROJECT_DIR$/src/main/scala/ScalatraBootstrap.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/webapp/js/home.js" afterPath="$PROJECT_DIR$/src/main/webapp/js/home.js" />
@@ -14,14 +13,14 @@
     </list>
     <ignored path="my-scalatra-web-app.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381858176879" ignored="false" />
-    <file path="/fragment.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381935940909" ignored="false" />
-    <file path="/PreIngestLoader.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381934684616" ignored="false" />
+    <file path="/Dummy.txt" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381942679719" ignored="false" />
+    <file path="/fragment.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382109113175" ignored="false" />
+    <file path="/PreIngestLoader.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382120334124" ignored="false" />
     <file path="/default.ssp" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381840547459" ignored="false" />
     <file path="/ScalatraBootstrap.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381929815505" ignored="false" />
-    <file path="/pom.xml" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381939071940" ignored="false" />
+    <file path="/pom.xml" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382104162668" ignored="false" />
     <file path="/dri1.css" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380300073644" ignored="false" />
-    <file path="/home.ssp" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381933529918" ignored="false" />
+    <file path="/home.ssp" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382120374362" ignored="false" />
     <file path="/tmp/xspec-maven-plugin/target/xspec-maven-plugin-1.0.pom" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380538592811" ignored="false" />
     <file path="/tmp/xspec-maven-plugin/pom.xml" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380538592811" ignored="false" />
     <file path="/tmp/xspec-maven-plugin/src/main/java/uk/org/adamretter/maven/XSpecMojo.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380538681479" ignored="false" />
@@ -35,22 +34,25 @@
     <file path="/LDAPUserManager.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380556254320" ignored="false" />
     <file path="/LDAPAuthenticationSupport.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380729612976" ignored="false" />
     <file path="/UserPasswordStrategy.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380729652418" ignored="false" />
-    <file path="/Dummy.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380712181784" ignored="false" />
+    <file path="/Dummy.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382122122224" ignored="false" />
     <file path="/RememberMeStrategy.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380730173570" ignored="false" />
     <file path="/CookieDb.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380721044759" ignored="false" />
     <file path="/RememberMeDb.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380728947420" ignored="false" />
-    <file path="/home.js" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381936189558" ignored="false" />
+    <file path="/home.js" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382121550330" ignored="false" />
     <file path="/UnitActor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381848265254" ignored="false" />
-    <file path="/UploadedUnitMonitor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381929444591" ignored="false" />
-    <file path="/UDisksUnitMonitor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381929659645" ignored="false" />
+    <file path="/UploadedUnitMonitor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382120100496" ignored="false" />
+    <file path="/UDisksUnitMonitor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382121594500" ignored="false" />
     <file path="/PendingUnut.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381848917837" ignored="false" />
     <file path="/PendingUnitsActor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381934357966" ignored="false" />
-    <file path="$PROJECT_DIR$/../../branches/aretter/udisks-dbus-scala/src/main/java/TestUDisks.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381857486395" ignored="false" />
+    <file path="$PROJECT_DIR$/../../branches/aretter/udisks-dbus-scala/src/main/java/TestUDisks.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382106534415" ignored="false" />
     <file path="/TestUDisks.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381857467090" ignored="false" />
     <file path="/a.dummy" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381934252549" ignored="false" />
-    <file path="$PROJECT_DIR$/../../branches/aretter/udisks-dbus-scala/src/main/scala/main.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381934696782" ignored="false" />
-    <file path="$PROJECT_DIR$/../dbus-java-maven/dbus-java/pom.xml" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381939071940" ignored="false" />
+    <file path="$PROJECT_DIR$/../../branches/aretter/udisks-dbus-scala/src/main/scala/main.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382102780344" ignored="false" />
+    <file path="$PROJECT_DIR$/../dbus-java-maven/dbus-java/pom.xml" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382104162668" ignored="false" />
     <file path="$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT.jar!/META-INF/maven/org.freedesktop.dbus/dbus-java/pom.xml" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381939116016" ignored="false" />
+    <file path="/dynamic-proxy-device-removed.patch" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382104188871" ignored="false" />
+    <file path="$PROJECT_DIR$/../dbus-java-maven/dbus-java/src/main/patches/dynamic-proxy-device-removed.patch" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382104188871" ignored="false" />
+    <file path="/PendingUnit.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382120083154" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,99 +67,6 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
-    <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true">
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="2" class="PreIngestLoader.scala" package="">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="59" class="uk.gov.tna.dri.preingest.loader.PreIngestLoader" package="uk.gov.tna.dri.preingest.loader">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" line="56" class="uk.gov.tna.dri.preingest.loader.unit.DBusUDisks$&lt;anonymous&gt;" package="uk.gov.tna.dri.preingest.loader.unit">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="113" class="uk.gov.tna.dri.preingest.loader.PreIngestLoaderActor" package="uk.gov.tna.dri.preingest.loader">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" line="55" class="uk.gov.tna.dri.preingest.loader.unit.DBusUDisks$&lt;anonymous&gt;" package="uk.gov.tna.dri.preingest.loader.unit">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/Gettext.java" line="27" class="org.freedesktop.dbus.Gettext" package="org.freedesktop.dbus">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-    </line_breakpoints>
-    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -194,6 +103,69 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
+    <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="59" class="uk.gov.tna.dri.preingest.loader.PreIngestLoader" package="uk.gov.tna.dri.preingest.loader">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/DBusConnection.java" line="366" class="org.freedesktop.dbus.DBusConnection" package="org.freedesktop.dbus">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" line="119" class="uk.gov.tna.dri.preingest.loader.unit.DBusUDisks" package="uk.gov.tna.dri.preingest.loader.unit">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" line="135" class="uk.gov.tna.dri.preingest.loader.unit.DBusUDisks" package="uk.gov.tna.dri.preingest.loader.unit">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </line_breakpoints>
+    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -206,7 +178,7 @@
       <file leaf-file-name="PreIngestLoader.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="129" column="13" selection-start="3734" selection-end="3734" vertical-scroll-proportion="0.0">
+            <state line="121" column="35" selection-start="3511" selection-end="3511" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="e#41#83#0" expanded="true" />
               </folding>
@@ -217,18 +189,16 @@
       <file leaf-file-name="ScalatraBootstrap.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/ScalatraBootstrap.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="24" selection-start="495" selection-end="495" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="e#0#38#0" expanded="true" />
-              </folding>
+            <state line="7" column="6" selection-start="310" selection-end="310" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="home.js" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="home.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/webapp/js/home.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="51" column="30" selection-start="1367" selection-end="1396" vertical-scroll-proportion="0.18719211">
+            <state line="39" column="14" selection-start="1112" selection-end="1112" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -237,64 +207,19 @@
       <file leaf-file-name="home.ssp" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/home.ssp">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="49" column="46" selection-start="1897" selection-end="1897" vertical-scroll-proportion="0.0">
+            <state line="36" column="41" selection-start="1274" selection-end="1274" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UDisksUnitMonitor.scala" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="UDisksUnitMonitor.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="61" column="61" selection-start="1773" selection-end="1779" vertical-scroll-proportion="0.0">
+            <state line="137" column="53" selection-start="4651" selection-end="4675" vertical-scroll-proportion="0.6356383">
               <folding>
                 <element signature="e#46#75#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DBusSignal.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/DBusSignal.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="153" column="0" selection-start="6478" selection-end="6478" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AbstractConnection.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/AbstractConnection.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="168" column="0" selection-start="5806" selection-end="5806" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Gettext.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/Gettext.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="27" column="0" selection-start="1039" selection-end="1039" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DBusConnection.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/DBusConnection.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="757" column="0" selection-start="33786" selection-end="33786" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Marshalling.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/Marshalling.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="619" column="0" selection-start="30192" selection-end="30192" vertical-scroll-proportion="0.0">
-              <folding />
             </state>
           </provider>
         </entry>
@@ -317,8 +242,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/auth/UserPasswordStrategy.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/auth/LDAPAuthenticationSupport.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/auth/RememberMeStrategy.scala" />
         <option value="$PROJECT_DIR$/src/main/webapp/stylesheets/loader.css" />
         <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" />
@@ -326,13 +249,15 @@
         <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UnitActor.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnut.scala" />
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala" />
-        <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/home.ssp" />
         <option value="$PROJECT_DIR$/src/main/scala/ScalatraBootstrap.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" />
+        <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/home.ssp" />
+        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnit.scala" />
         <option value="$PROJECT_DIR$/src/main/webapp/js/home.js" />
+        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PartitionTypes.scala" />
       </list>
     </option>
   </component>
@@ -344,10 +269,9 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-2" />
     <option name="y" value="24" />
-    <option name="width" value="1924" />
-    <option name="height" value="1036" />
+    <option name="width" value="1920" />
+    <option name="height" value="1032" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -427,6 +351,8 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -716,33 +642,9 @@
               <option name="myItemId" value="main" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="resources" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="my-scalatra-web-app" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="preingest-loader" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -758,12 +660,12 @@
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="restartRequiresConfirmation" value="true" />
-    <property name="MemberChooser.showClasses" value="true" />
     <property name="FullScreen" value="false" />
+    <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -782,6 +684,14 @@
       <option name="PROGRAM_PARAMETERS" />
       <method />
     </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+      <method />
+    </configuration>
     <configuration default="true" type="Specs2RunConfiguration" factoryName="Specs2">
       <module name="" />
       <setting name="path" value="" />
@@ -795,12 +705,17 @@
       <setting name="showProgressMessages" value="true" />
       <method />
     </configuration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
@@ -828,19 +743,6 @@
       <envs />
       <properties />
       <listeners />
-      <method />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -920,6 +822,7 @@
     <option name="IGNORE_EXTERNALS" value="false" />
     <configuration useDefault="true">$USER_HOME$/.subversion</configuration>
     <myIsUseDefaultProxy>false</myIsUseDefaultProxy>
+    <supportedVersion>125</supportedVersion>
   </component>
   <component name="SvnFileUrlMappingImpl">
     <option name="myMappingRoots">
@@ -953,33 +856,37 @@
       <created>1381858194184</created>
       <updated>1381858194184</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Attached Units and now propagated to UI. Need to fix bug with removed  UDisks">
+      <created>1381942689101</created>
+      <updated>1381942689101</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-2" y="24" width="1924" height="1036" extended-state="6" />
+    <frame x="0" y="24" width="1920" height="1032" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32919955" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2604284" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.5321308" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="FindBugs-IDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29562435" sideWeight="0.6009019" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29562435" sideWeight="0.88500565" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25080043" sideWeight="0.7395716" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25080043" sideWeight="0.46786922" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32919955" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -1026,7 +933,7 @@
     <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Further integration with Unit monitoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="Attached Units and now propagated to UI. Need to fix bug with removed  UDisks" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -1041,86 +948,31 @@
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
     <MESSAGE value="Further integration with Unit monitoring" />
+    <MESSAGE value="Attached Units and now propagated to UI. Need to fix bug with removed  UDisks" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$MAVEN_REPOSITORY$/org/scalatra/scalatra-atmosphere_2.10/2.2.1/scalatra-atmosphere_2.10-2.2.1-sources.jar!/org/scalatra/atmosphere/AtmosphereSupport.scala">
+    <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/Message.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="27" selection-start="1568" selection-end="1584" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/json4s/json4s-ast_2.10/3.2.5/json4s-ast_2.10-3.2.5-sources.jar!/org/json4s/JsonAST.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="201" column="14" selection-start="6568" selection-end="6568" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/json4s/json4s-ast_2.10/3.2.5/json4s-ast_2.10-3.2.5-sources.jar!/org/json4s/JsonDSL.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="86" column="0" selection-start="3190" selection-end="3190" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/com/typesafe/akka/akka-actor_2.10/2.1.2/akka-actor_2.10-2.1.2-sources.jar!/akka/actor/Actor.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="438" column="6" selection-start="16215" selection-end="16215" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="11" selection-start="200" selection-end="200" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="0" selection-start="1548" selection-end="1548" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/ScalatraBootstrap.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="24" selection-start="495" selection-end="495" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/Marshalling.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="619" column="0" selection-start="30192" selection-end="30192" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/DBusSignal.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="153" column="0" selection-start="6478" selection-end="6478" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/AbstractConnection.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="168" column="0" selection-start="5806" selection-end="5806" vertical-scroll-proportion="0.0">
+        <state line="1108" column="32" selection-start="44294" selection-end="44294" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/DBusConnection.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="757" column="0" selection-start="33786" selection-end="33786" vertical-scroll-proportion="0.0">
+        <state line="344" column="0" selection-start="11476" selection-end="11476" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#11447#11472#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/DBusSignal.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="137" column="0" selection-start="5904" selection-end="5904" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -1132,16 +984,85 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/DBus.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="57" column="47" selection-start="2315" selection-end="2315" vertical-scroll-proportion="0.57569295">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/Variant.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="13" selection-start="863" selection-end="863" vertical-scroll-proportion="0.23672883">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.2/scala-library-2.10.2-sources.jar!/scala/collection/TraversableOnce.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="276" column="6" selection-start="9426" selection-end="9426" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT-sources.jar!/org/freedesktop/dbus/UInt64.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="13" selection-start="779" selection-end="779" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#0#6199#0" expanded="false" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#738#765#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/webapp/js/home.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="14" selection-start="1112" selection-end="1112" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PartitionTypes.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1" column="0" selection-start="45" selection-end="45" vertical-scroll-proportion="0.019762846">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnit.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="45" selection-start="189" selection-end="189" vertical-scroll-proportion="0.11857708">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#46#69#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/home.ssp">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="49" column="46" selection-start="1897" selection-end="1897" vertical-scroll-proportion="0.0">
+        <state line="36" column="41" selection-start="1274" selection-end="1274" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/ScalatraBootstrap.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="6" selection-start="310" selection-end="310" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="129" column="13" selection-start="3734" selection-end="3734" vertical-scroll-proportion="0.0">
+        <state line="121" column="35" selection-start="3511" selection-end="3511" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="e#41#83#0" expanded="true" />
           </folding>
@@ -1150,17 +1071,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="61" column="61" selection-start="1773" selection-end="1779" vertical-scroll-proportion="0.0">
+        <state line="137" column="53" selection-start="4651" selection-end="4675" vertical-scroll-proportion="0.6356383">
           <folding>
             <element signature="e#46#75#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/webapp/js/home.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="30" selection-start="1367" selection-end="1396" vertical-scroll-proportion="0.18719211">
-          <folding />
         </state>
       </provider>
     </entry>

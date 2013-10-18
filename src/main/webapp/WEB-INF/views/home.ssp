@@ -34,6 +34,7 @@
                     <thead>
                         <tr>
                             <th/>
+                            <th>Interface</th>
                             <th>Source</th>
                             <th>Label</th>
                             <th>Size</th>
@@ -45,10 +46,11 @@
                             <td>
                                 <input type="checkbox"/>
                             </td>
+                            <td>{{pendingUnit.interface}}</td>
                             <td>{{pendingUnit.src}}</td>
                             <td>{{pendingUnit.label}}</td>
                             <td>{{pendingUnit.size}}</td>
-                            <td>{{pendingUnit.date}}</td>
+                            <td>{{pendingUnit.timestamp}}</td>
                         </tr>
                     </tbody>
                 </table>
