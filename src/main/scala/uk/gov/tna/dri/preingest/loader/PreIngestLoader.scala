@@ -22,6 +22,7 @@ import org.scalatra.atmosphere.TextMessage
 import scala.Some
 import uk.gov.tna.dri.preingest.loader.unit.PendingUnits
 import org.scalatra.atmosphere.Error
+import javax.servlet.ServletConfig
 
 
 class PreIngestLoader(preIngestLoaderActor: ActorRef) extends ScalatraServlet
@@ -32,6 +33,7 @@ class PreIngestLoader(preIngestLoaderActor: ActorRef) extends ScalatraServlet
   with LDAPAuthenticationSupport {
 
   implicit protected val jsonFormats: Formats = DefaultFormats
+
 
 
   get("/") {
@@ -58,6 +60,18 @@ class PreIngestLoader(preIngestLoaderActor: ActorRef) extends ScalatraServlet
   def test(client: AtmosphereClient) : Boolean = {
     println("testing client: " + client.uuid)
     true
+  }
+
+  atmosphere("/certificate/:filename") {
+    val filename = params("filename")
+
+    new AtmosphereClient {
+      def receive = {
+        case TextMessage(text) if(!text.isEmpty) =>
+          val x = text.getBytes()
+          println(s"filename: ${filename} Received text: $text")
+      }
+    }
   }
 
   atmosphere("/unit") {

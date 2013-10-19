@@ -3,8 +3,100 @@ var mPendingUnits = [
     {interface: 'network', src: 'dri-upload1', label: 'abc.gpgz', size: '1.7GB', timestamp: 'Fri, 4th October 2013'}*/
 ];
 
+var mLoadModal = {
+    pendingUnit: {},
+    cert: null,
+    certs: [
+        { file: "a.cert" },
+        { file: "b.cert" }
+    ]
+};
+
+//Controller for displaying Pending Units grid
 function PendingUnitsCtrl($scope) {
     $scope.pendingUnits = mPendingUnits;
+
+    $scope.loadDialog = function(pendingUnit) {
+        //update the model
+        mLoadModal.pendingUnit = pendingUnit;
+
+        //show the load modal
+        $('#loadModal').modal('show');
+    };
+}
+
+//Controller for the Load modal dialog
+function LoadModalCtrl($scope) {
+    $scope.loadModal = mLoadModal;
+
+    $scope.uploadCertDialog = function() {
+        //show the uploadCert modal
+        $('#uploadCertModal').modal('show');
+    };
+}
+
+//Controller for the UploadCert modal dialog
+function UploadCertModalCtrl($scope) {
+    $scope.selectedFiles = [];
+
+    $scope.setFiles = function(fileInputElem) {
+        $scope.$apply(function($scope) {
+            console.log('files:', fileInputElem.files);
+            // Turn the FileList object into an Array
+            $scope.selectedFiles.length = 0;
+            $.each(fileInputElem.files, function(i, v) {
+                $scope.selectedFiles.push(v);
+            });
+            //scope.progressVisible = false
+        })
+    };
+
+    $scope.upload = function() {
+        //var fd = new FormData()
+
+//        for(var i in $scope.selectedFiles) {
+//            fd.append("uploadedFile", $scope.selectedFiles[i]);
+//        }
+
+        //alert("upload" + fd);
+
+        var socket = $.atmosphere;
+        var subSocket;
+        var transport = 'websocket';
+
+        var request = {
+            url: "/certificate/" + $scope.selectedFiles[0].name,
+            method: "POST",
+            webSocketBinaryType: "arraybuffer",
+            contentType: "application/octet-stream",
+            logLevel: "debug",
+            transport: transport,
+            fallbackTransport: "long-polling"
+        };
+
+        request.onOpen = function(response) {
+            console.log('Atmosphere connected using ' + response.transport);
+
+            transport = response.transport;
+
+            if (response.transport == "local") {
+              subSocket.pushLocal("Name?");
+            }
+
+            //send file data
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                request.data = evt.target.result;
+                subSocket.push(request);
+                //subSocket.push(evt.target.result);
+            };
+
+            //TODO send all files
+            reader.readAsArrayBuffer($scope.selectedFiles[0]);
+        };
+
+        subSocket = socket.subscribe(request);
+    };
 }
 
 function updatePending(fnUpdateModel) {

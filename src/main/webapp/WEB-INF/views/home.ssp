@@ -1,8 +1,17 @@
 <%@ var baseUrl: String = uri("/") %>
 
+#set (pageCss)
+    <link href="${baseUrl}fuelux-2.4.1/fuelux.min.css" rel="stylesheet">
+    <link href="${baseUrl}fuelux-2.4.1/fuelux-responsive.min.css" rel="stylesheet">
+#end
+
 #set (pageScripts)
     <script src="${baseUrl}js/jquery-atmosphere.js"></script>
     <script src="${baseUrl}js/home.js"></script>
+    <script src="${baseUrl}fuelux-2.4.1/require.js"></script>
+    <script src="${baseUrl}fuelux-2.4.1/loader.min.js"></script>
+    <script src="${baseUrl}fuelux-2.4.1/wizard.js"></script>
+    <script src="${baseUrl}fuelux-2.4.1/select.js"></script>
 #end
 
 #set (navBarNav)
@@ -29,33 +38,33 @@
     <div id="pending" class="panel panel-default">
         <div class="panel-heading"><h4>Units Awaiting Load</h4></div>
         <div class="panel-body">
-            <form>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th/>
-                            <th>Interface</th>
-                            <th>Source</th>
-                            <th>Label</th>
-                            <th>Size</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pendingUnits" ng-controller="PendingUnitsCtrl">
-                        <tr ng-repeat="pendingUnit in pendingUnits">
-                            <td>
-                                <input type="checkbox"/>
-                            </td>
-                            <td>{{pendingUnit.interface}}</td>
-                            <td>{{pendingUnit.src}}</td>
-                            <td>{{pendingUnit.label}}</td>
-                            <td>{{pendingUnit.size}}</td>
-                            <td>{{pendingUnit.timestamp}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button type="submit" class="btn btn-primary">Load</button>
-            </form>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th/>
+                        <th>Interface</th>
+                        <th>Source</th>
+                        <th>Label</th>
+                        <th>Size</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingUnits" ng-controller="PendingUnitsCtrl">
+                    <tr ng-repeat="pendingUnit in pendingUnits">
+                        <td>
+                            <a href="" ng-click="loadDialog(pendingUnit)" class="btn btn-primary">Load</a>
+                        </td>
+                        <td>{{pendingUnit.interface}}</td>
+                        <td>{{pendingUnit.src}}</td>
+                        <td>{{pendingUnit.label}}</td>
+                        <td>{{pendingUnit.size}}</td>
+                        <td>{{pendingUnit.timestamp}}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            ${include("loadModal.ssp")}
+            ${include("uploadCertModal.ssp")}
         </div>
     </div>
     <div id="loaded" class="panel panel-default">

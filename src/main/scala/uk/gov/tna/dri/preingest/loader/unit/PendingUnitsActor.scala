@@ -18,7 +18,7 @@ class PendingUnitsActor extends Actor with Logging {
 
   import context.dispatcher
 
-  context.system.scheduler.schedule(100 milliseconds, 5 minutes, uploadedUnitMonitor, ScheduledExecution)
+  context.system.scheduler.schedule(5 seconds, 30 seconds, uploadedUnitMonitor, ScheduledExecution) //TODO make configurable
   info("Scheduled: " + uploadedUnitMonitor.path)
 
   val udisksUnitMonitor = context.actorOf(Props[UDisksUnitMonitor], name="UDisksUnitMonitor")
