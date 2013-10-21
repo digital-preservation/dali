@@ -4,8 +4,8 @@ var mLoadModal = {
     pendingUnit: {},
     cert: null,
     certs: [
-        { file: "a.cert" },
-        { file: "b.cert" }
+        { name: "a.cert" },
+        { name: "b.cert" }
     ]
 };
 
@@ -28,7 +28,10 @@ function LoadModalCtrl($scope, $http) {
 
     $http({method: "GET", url: "/certificate"})
         .success(function(data, status, headers, config) {
-            alert(data);
+            mLoadModal.certs.length = 0;
+            $.each(data.certificate, function(i, v) {
+                mLoadModal.certs.push(v);
+            });
         })
         .error(function(data, status, headers, config) {
            alert("error $http = " + data);

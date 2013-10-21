@@ -27,7 +27,7 @@
                     <label for="certificate">Certificate</label>
                     <div id="certificate" class="input-group">
                         <span class="nullable">
-                            <select ng-model="loadModal.cert" ng-options="c.file for c in loadModal.certs" class="form-control">
+                            <select ng-model="loadModal.cert" ng-options="c.name for c in loadModal.certs" class="form-control">
                               <option value="">-- select certificate --</option>
                             </select>
                         </span>

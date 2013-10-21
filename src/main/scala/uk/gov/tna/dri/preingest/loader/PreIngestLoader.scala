@@ -44,6 +44,15 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
 
   lazy val certificateManagerActor = system.actorOf(Props[CertificateManagerActor], name="certificateManagerActor")
 
+  def toJson(cl: CertificateList) : JValue = {
+    ("certificate" ->
+      cl.certificates.map{
+        certificate =>
+          ("name" -> certificate)
+      }
+    )
+  }
+
   import org.scalatra.ActionResult._
 
   get("/") {
@@ -71,13 +80,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
   get("/certificate") {
     userPasswordAuth
     new AsyncResult {
-      val is = ask(certificateManagerActor, ListCertificates(user.username))(Timeout(10 seconds)).mapTo[CertificateList].map{
-          ("certificate" ->
-            _.certificates.map {
-              ("name" -> _)
-            }
-          )
-      }
+      val is = ask(certificateManagerActor, ListCertificates(user.username))(Timeout(10 seconds)).mapTo[CertificateList].map(toJson(_))
     }
   }
 
