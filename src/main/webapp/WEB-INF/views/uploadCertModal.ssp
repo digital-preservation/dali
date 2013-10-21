@@ -8,21 +8,25 @@
             </div>
             <div class="modal-body">
                 <form name="uploadForm" enctype="multipart/form-data">
-                     <label for="certificate">Certificate</label>
-                     <div id="certificate" class="input-group">
-                         <input class="form-control" type="file" name="file" ng-model="fileCtrl" onchange="angular.element(this).scope().setFiles(this)" multiple required/>
-                         <span class="input-group-btn">
+                    <label for="certificate">Certificate</label>
+                    <div id="certificate" class="input-group">
+                        <input class="form-control" type="file" name="file" ng-model="fileCtrl" onchange="angular.element(this).scope().setFiles(this)" multiple required/>
+                        <span class="input-group-btn">
                             <a href="" ng-click="upload()" class="btn btn-primary">Upload...</a>
-                         </span>
-                     </div>
-                    <span class="error" ng-show="uploadForm.file.$error.required">Required!</span>
+                        </span>
+                    </div>
                 </form>
-
-               <div id="fileName"></div>
-               <div id="fileSize"></div>
-               <div id="fileType"></div>
-               <div id="progressNumber"></div>
-
+                <div class="progress progress-striped" ng-class="{if(progress != 100) return "active";}" ng-show="showProgress">
+                  <div class="progress-bar"  role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress}}%">
+                    <span class="sr-only">{{progress}}% Complete</span>
+                  </div>
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item" ng-repeat="selectedFile in selectedFiles">
+                        <span class="badge">{{displaySize(selectedFile.size)}}</span>
+                        {{selectedFile.name}}
+                    </li>
+                </ul>
             </div>
 
             <div class="modal-footer">

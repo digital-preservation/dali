@@ -1,7 +1,4 @@
-var mPendingUnits = [
-    /*{interface: 'network', src: 'dri-upload1', label: 'xyz.gpgz', size: '9.2GB', timestamp: 'Fri, 4th October 2013'},
-    {interface: 'network', src: 'dri-upload1', label: 'abc.gpgz', size: '1.7GB', timestamp: 'Fri, 4th October 2013'}*/
-];
+var mPendingUnits = [];
 
 var mLoadModal = {
     pendingUnit: {},
@@ -26,8 +23,18 @@ function PendingUnitsCtrl($scope) {
 }
 
 //Controller for the Load modal dialog
-function LoadModalCtrl($scope) {
+function LoadModalCtrl($scope, $http) {
     $scope.loadModal = mLoadModal;
+
+    $http({method: "GET", url: "/certificate"})
+        .success(function(data, status, headers, config) {
+            alert(data);
+        })
+        .error(function(data, status, headers, config) {
+           alert("error $http = " + data);
+        });
+
+    //getCertificates();
 
     $scope.uploadCertDialog = function() {
         //show the uploadCert modal
@@ -38,29 +45,68 @@ function LoadModalCtrl($scope) {
 //Controller for the UploadCert modal dialog
 function UploadCertModalCtrl($scope) {
     $scope.selectedFiles = [];
+    $scope.progress = 0;
+    $scope.showProgress = false;
 
     $scope.setFiles = function(fileInputElem) {
         $scope.$apply(function($scope) {
-            console.log('files:', fileInputElem.files);
-            // Turn the FileList object into an Array
+            // Turn the FileList object into an Array in the model
             $scope.selectedFiles.length = 0;
             $.each(fileInputElem.files, function(i, v) {
                 $scope.selectedFiles.push(v);
             });
-            //scope.progressVisible = false
+            $scope.progress = 0;
         })
     };
 
+    $scope.displaySize = function(size) {
+        return toHumanSize(size);
+    };
+
     $scope.upload = function() {
-        //var fd = new FormData()
 
-//        for(var i in $scope.selectedFiles) {
-//            fd.append("uploadedFile", $scope.selectedFiles[i]);
-//        }
+        var fd = new FormData();
+        for(var i in $scope.selectedFiles) {
+            fd.append("certificate", $scope.selectedFiles[i]);
+        }
+        var xhr = new XMLHttpRequest();
 
-        //alert("upload" + fd);
+        xhr.upload.addEventListener("progress", function(evt){
+            $scope.$apply(function(){
+                if(!$scope.showProgress) {
+                    $scope.showProgress = true;
+                }
+                if(evt.lengthComputable) {
+                    $scope.progress = Math.round(evt.loaded * 100 / evt.total);
+                } else {
+                    console.log("Error: unable to compute length");
+                }
+            });
+        }, false);
 
-        var socket = $.atmosphere;
+        xhr.addEventListener("load", function(evt){
+            alert(evt.target.responseText)
+        }, false);
+
+        xhr.addEventListener("error",function(evt){
+           alert("There was an error attempting to upload the file.")
+        }, false);
+
+        xhr.addEventListener("abort", function(evt){
+            alert("The upload has been canceled by the user or the browser dropped the connection.")
+        }, false);
+
+
+        xhr.open("POST", "/certificate");
+        xhr.send(fd);
+
+        /* WebSocket version below is not working with
+        scalatra-atmosphere as it receives the binarymessage
+        as a text message. scalatra-atmosphere needs to be fixed
+        so that it sees the message as binary
+        */
+
+        /*var socket = $.atmosphere;
         var subSocket;
         var transport = 'websocket';
 
@@ -95,17 +141,42 @@ function UploadCertModalCtrl($scope) {
             reader.readAsArrayBuffer($scope.selectedFiles[0]);
         };
 
-        subSocket = socket.subscribe(request);
+        subSocket = socket.subscribe(request);*/
     };
 }
 
-function updatePending(fnUpdateModel) {
-    var pendingUnitsElem = $("#pendingUnits");
-    var scope = angular.element(pendingUnitsElem).scope();
-
-    scope.$apply(function() {
-        fnUpdateModel(mPendingUnits);
+function getCertificates() {
+    $http({method: "GET", url: "/certificate"})
+    .success(function(data, status, headers, config) {
+        updateLoadModal(function(model){
+           model.length = 0;
+//           $.each(certificates, function(i, v){
+//              if(v instanceof Certificate) {
+//                model.push(v);
+//              }
+//           });
+        });
+    }).
+    error(function(data, status, headers, config){
+      alert("$http error = " + data);
     });
+}
+
+function updateLoadModal(fnUpdateModel) {
+    updateModel("#loadModal", fnUpdateModel, mLoadModal)
+}
+
+function updatePending(fnUpdateModel) {
+    updateModel("#pendingUnits", fnUpdateModel, mPendingUnits)
+}
+
+function updateModel(ctrlElemId, fnUpdateModel, m) {
+    var ctrlElem = $(ctrlElemId);
+    var scope = angular.element(ctrlElem).scope();
+
+      scope.$apply(function() {
+          fnUpdateModel(m);
+      });
 }
 
 function toHumanSize(bytes) {

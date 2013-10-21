@@ -12,6 +12,7 @@
     <properties>
         <scalatra.version>2.2.1</scalatra.version>
 		<jetty.version>8.1.13.v20130916</jetty.version>
+        <bouncycastle.version>1.49</bouncycastle.version>
     </properties>
 
     <build>
@@ -67,11 +68,12 @@
     </build>
 
     <dependencies>
-        <dependency>          <!-- TODO remove -->
+        <!-- TODO remove -->
+        <!-- dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-websocket</artifactId>
             <version>${jetty.version}</version>
-        </dependency>
+        </dependency -->
 
 
 		<dependency>
@@ -120,6 +122,23 @@
             <version>3.1.0</version>
 			<scope>provided</scope>
         </dependency>
+        <!-- Dependency for PGP and GPG Encryption-Decryption -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcmail-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpg-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>
+        <!-- dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency -->
+        <!-- end PGP/GOG dependency -->
 		<dependency>
 			<groupId>com.typesafe.slick</groupId>
 			<artifactId>slick_2.10</artifactId>

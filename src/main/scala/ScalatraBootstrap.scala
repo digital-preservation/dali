@@ -17,7 +17,7 @@ class ScalatraBootstrap extends LifeCycle {
 
     context.setAttribute(PREINGEST_LOADER_ACTOR_SYSTEM, system)
 
-    context mount (new PreIngestLoader(preIngestLoaderActor), "/*")
+    context mount (new PreIngestLoader(system, preIngestLoaderActor), "/*")
   }
   override def destroy(context: ServletContext) {
     super.destroy(context)

@@ -1,9 +1,8 @@
 package uk.gov.tna.dri.preingest.loader.unit
 
-import akka.actor.{ActorRef, ActorLogging, Props, Actor}
+import akka.actor.{ActorRef, Props, Actor}
 import scala.concurrent.duration._
 import grizzled.slf4j.Logging
-import scala.collection.mutable
 import akka.util.Timeout
 
 case class Register(pendingUnit: PendingUnit)
