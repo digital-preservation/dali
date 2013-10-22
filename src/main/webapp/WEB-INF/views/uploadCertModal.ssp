@@ -16,7 +16,8 @@
                         </span>
                     </div>
                 </form>
-                <div class="progress progress-striped" ng-class="{if(progress != 100) return "active";}" ng-show="showProgress">
+                <div class="progress progress-striped" ng-show="showProgress">
+                <!-- div class="progress progress-striped" ng-class="{if(progress != 100) return "active";}" ng-show="showProgress" -->
                   <div class="progress-bar"  role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress}}%">
                     <span class="sr-only">{{progress}}% Complete</span>
                   </div>

@@ -1,3 +1,5 @@
+var subSocket = null;
+
 var mPendingUnits = [];
 
 var mLoadModal = {
@@ -6,7 +8,8 @@ var mLoadModal = {
     certs: [
         { name: "a.cert" },
         { name: "b.cert" }
-    ]
+    ],
+    passphrase: null
 };
 
 //Controller for displaying Pending Units grid
@@ -43,7 +46,34 @@ function LoadModalCtrl($scope, $http) {
         //show the uploadCert modal
         $('#uploadCertModal').modal('show');
     };
+
+    $scope.next = function() {
+      var selected = $('#LoadWizard').wizard('selectedItem').step;
+
+      if(selected == 1) {
+        //changed "Decrypt" -> "Review Unit"
+
+        //instruct the server to decrypt the unit
+        decrypt(mLoadModal.pendingUnit, mLoadModal.cert, mLoadModal.passphrase);
+      }
+
+      //$('#LoadWizard').wizard('selectItem', { step: selectedIdx + 1 });
+      $('#LoadWizard').wizard('next');
+    };
 }
+
+function decrypt(pendingUnit, cert, pass) {
+  subSocket.push(JSON.stringify({
+    action: 'decrypt',
+    unit: {
+        interface: pendingUnit.interface,
+        src: pendingUnit.src,
+        label: pendingUnit.label
+    },
+    certificate: cert,
+    passphrase: pass
+  }));
+};
 
 //Controller for the UploadCert modal dialog
 function UploadCertModalCtrl($scope) {
@@ -148,23 +178,6 @@ function UploadCertModalCtrl($scope) {
     };
 }
 
-function getCertificates() {
-    $http({method: "GET", url: "/certificate"})
-    .success(function(data, status, headers, config) {
-        updateLoadModal(function(model){
-           model.length = 0;
-//           $.each(certificates, function(i, v){
-//              if(v instanceof Certificate) {
-//                model.push(v);
-//              }
-//           });
-        });
-    }).
-    error(function(data, status, headers, config){
-      alert("$http error = " + data);
-    });
-}
-
 function updateLoadModal(fnUpdateModel) {
     updateModel("#loadModal", fnUpdateModel, mLoadModal)
 }
@@ -210,7 +223,6 @@ $(document).ready(function() {
   "use strict";
 
   var socket = $.atmosphere;
-  var subSocket;
   var transport = 'websocket';
 
   var request = {
@@ -232,7 +244,6 @@ $(document).ready(function() {
 
     //request initial unit status
     subSocket.push(JSON.stringify({action: 'pending'}));
-
   };
 
   request.onReconnect = function(request, response) {
@@ -287,7 +298,7 @@ $(document).ready(function() {
   };
 
   request.onClose = function(response) {
-    console.log("Connection closed! " = response.responseBody)
+    console.log("Connection closed! " + response.responseBody)
   };
 
   request.onError = function(response) {

@@ -140,10 +140,13 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
           println("RECEIVED JSON: " + json)
 
           json match {
-            case JObject(List(("action", JString(jValue)))) =>
-              jValue match {
+            //case JObject(List(("action", JString(jValue)), )) =>
+            case JObject(("action", JString(action)) :: tail) =>
+              action match {
                 case "pending" =>
                   preIngestLoaderActor ! ListPendingUnits(uuid)
+
+                case "decrypt" =>
 
                 case u =>
                   println("unknown action: " + u)

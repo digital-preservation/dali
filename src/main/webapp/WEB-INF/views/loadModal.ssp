@@ -9,18 +9,18 @@
 
           <!-- wizard start -->
           <div class="fuelux">
-              <div id="MyWizard" class="wizard">
+              <div id="LoadWizard" class="wizard">
                 <ul class="steps">
                     <li data-target="#step1" class="active"><span class="badge badge-info">1</span>Decrypt<span class="chevron"></span></li>
-                    <li data-target="#step2"><span class="badge">2</span>Step 2<span class="chevron"></span></li>
+                    <li data-target="#step2"><span class="badge">2</span>Review Unit<span class="chevron"></span></li>
                     <li data-target="#step3"><span class="badge">3</span>Step 3<span class="chevron"></span></li>
                     <!-- li data-target="#step4"><span class="badge">4</span>Step 4<span class="chevron"></span></li>
                     <li data-target="#step5"><span class="badge">5</span>Step 5<span class="chevron"></span></li -->
                 </ul>
-                <div class="actions">
+                <!-- div class="actions">
                     <button type="button" class="btn btn-mini btn-prev"> <i class="icon-arrow-left"></i>Prev</button>
                     <button type="button" class="btn btn-mini btn-next" data-last="Finish">Next<i class="icon-arrow-right"></i></button>
-                </div>
+                </div -->
               </div>
               <div class="step-content">
                 <div class="step-pane active" id="step1">
@@ -38,23 +38,25 @@
                     <label for="passphrase">Passphrase</label>
                     <div id="passphrase" class="input-group">
                       <span class="input-group-addon">&#x26B7;</span>
-                      <input type="password" class="form-control" style="height: 34px; margin-bottom: 0px;" placeholder="Cetificate passphrase">
+                      <input ng-model="loadModal.passphrase" type="password" class="form-control" style="height: 34px; margin-bottom: 0px;" placeholder="Cetificate passphrase">
                     </div>
-
                 </div>
-                <div class="step-pane" id="step2">This is step 2</div>
+                <div class="step-pane" id="step2">
+                    TODO -> Review
+                </div>
                 <div class="step-pane" id="step3">This is step 3</div>
                 <!-- div class="step-pane" id="step4">This is step 4</div>
                 <div class="step-pane" id="step5">This is step 5</div -->
               </div>
+
           </div>
           <!-- wizard end -->
 
 
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" ng-click="next()">Next&#160;&gt;&gt;</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
