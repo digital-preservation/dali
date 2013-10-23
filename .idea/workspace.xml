@@ -2,30 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="51c85e46-be5d-4498-b86e-d40911fff85f" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/CertificateManagerActor.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bouncycastle_bcmail_jdk15on_1_49.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bouncycastle_bcpkix_jdk15on_1_49.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_eclipse_jetty_jetty_http_8_1_10_v20130312.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/package.scala" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_eclipse_jetty_jetty_http_8_1_13_v20130916.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_eclipse_jetty_jetty_io_8_1_13_v20130916.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_eclipse_jetty_jetty_util_8_1_13_v20130916.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_eclipse_jetty_jetty_websocket_8_1_13_v20130916.xml" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/CertificateManagerActor.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/CertificateManagerActor.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnit.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnit.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ScalatraBootstrap.scala" afterPath="$PROJECT_DIR$/src/main/scala/ScalatraBootstrap.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/webapp/js/home.js" afterPath="$PROJECT_DIR$/src/main/webapp/js/home.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my-scalatra-web-app.iml" afterPath="$PROJECT_DIR$/my-scalatra-web-app.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/uploadCertModal.ssp" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/uploadCertModal.ssp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/package.scala" afterPath="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/package.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="my-scalatra-web-app.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382378048267" ignored="false" />
-    <file path="/fragment.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382204248745" ignored="false" />
-    <file path="/PreIngestLoader.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382377279038" ignored="false" />
+    <file path="/Dummy.txt" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382447801693" ignored="false" />
+    <file path="/fragment.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382545615338" ignored="false" />
+    <file path="/PreIngestLoader.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382517859124" ignored="false" />
     <file path="/default.ssp" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382376539895" ignored="false" />
     <file path="/ScalatraBootstrap.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382372858865" ignored="false" />
     <file path="/pom.xml" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382368321808" ignored="false" />
@@ -35,7 +26,7 @@
     <file path="/tmp/xspec-maven-plugin/pom.xml" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380538592811" ignored="false" />
     <file path="/tmp/xspec-maven-plugin/src/main/java/uk/org/adamretter/maven/XSpecMojo.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380538681479" ignored="false" />
     <file path="/XSpecMojo.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380538681479" ignored="false" />
-    <file path="/loader.css" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380887351606" ignored="false" />
+    <file path="/loader.css" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382437477338" ignored="false" />
     <file path="/login.ssp" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380729120309" ignored="false" />
     <file path="/AuthenticationSupport.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380556012762" ignored="false" />
     <file path="/OurBasicAuthStrategy.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380709842733" ignored="false" />
@@ -48,12 +39,12 @@
     <file path="/RememberMeStrategy.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380730173570" ignored="false" />
     <file path="/CookieDb.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380721044759" ignored="false" />
     <file path="/RememberMeDb.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1380728947420" ignored="false" />
-    <file path="/home.js" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382377199466" ignored="false" />
+    <file path="/home.js" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382449261200" ignored="false" />
     <file path="/UnitActor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381848265254" ignored="false" />
-    <file path="/UploadedUnitMonitor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382175688910" ignored="false" />
-    <file path="/UDisksUnitMonitor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382122362145" ignored="false" />
+    <file path="/UploadedUnitMonitor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382519186891" ignored="false" />
+    <file path="/UDisksUnitMonitor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382538791427" ignored="false" />
     <file path="/PendingUnut.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381848917837" ignored="false" />
-    <file path="/PendingUnitsActor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382175618257" ignored="false" />
+    <file path="/PendingUnitsActor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382522066418" ignored="false" />
     <file path="$PROJECT_DIR$/../../branches/aretter/udisks-dbus-scala/src/main/java/TestUDisks.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382106534415" ignored="false" />
     <file path="/TestUDisks.java" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381857467090" ignored="false" />
     <file path="/a.dummy" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381934252549" ignored="false" />
@@ -62,12 +53,17 @@
     <file path="$MAVEN_REPOSITORY$/org/freedesktop/dbus/dbus-java/1.0-SNAPSHOT/dbus-java-1.0-SNAPSHOT.jar!/META-INF/maven/org.freedesktop.dbus/dbus-java/pom.xml" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1381939116016" ignored="false" />
     <file path="/dynamic-proxy-device-removed.patch" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382104188871" ignored="false" />
     <file path="$PROJECT_DIR$/../dbus-java-maven/dbus-java/src/main/patches/dynamic-proxy-device-removed.patch" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382104188871" ignored="false" />
-    <file path="/PendingUnit.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382120083154" ignored="false" />
+    <file path="/PendingUnit.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382518753620" ignored="false" />
     <file path="/uploadCertModal.ssp" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382354497386" ignored="false" />
-    <file path="/loadModal.ssp" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382184736683" ignored="false" />
+    <file path="/loadModal.ssp" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382442359606" ignored="false" />
     <file path="/web.xml" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382350845467" ignored="false" />
-    <file path="/CertificateManagerActor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382377753872" ignored="false" />
-    <file path="/package.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382367481832" ignored="false" />
+    <file path="/CertificateManagerActor.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382448552277" ignored="false" />
+    <file path="/package.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382448355673" ignored="false" />
+    <file path="$PROJECT_DIR$/../untitled1/src/TCTest.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382547120580" ignored="false" />
+    <file path="/TCTest.scala" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382547116150" ignored="false" />
+    <file path="/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/jre/lib/rt.jar!/java/lang/String.class" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382540540354" ignored="false" />
+    <file path="/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/jre/lib/rt.jar!/java/net/NetworkInterface.class" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382540540354" ignored="false" />
+    <file path="/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/jre/lib/jce.jar!/javax/crypto/Cipher.class" changelist="51c85e46-be5d-4498-b86e-d40911fff85f" time="1382540540354" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,7 +116,7 @@
       </breakpoint>
     </breakpoint_any>
     <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true">
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="102" class="uk.gov.tna.dri.preingest.loader.PreIngestLoader" package="uk.gov.tna.dri.preingest.loader">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="120" class="uk.gov.tna.dri.preingest.loader.PreIngestLoader" package="uk.gov.tna.dri.preingest.loader">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -150,22 +146,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="133" class="uk.gov.tna.dri.preingest.loader.PreIngestLoader$$anonfun$9$$anon$2$$anonfun$receive$1" package="uk.gov.tna.dri.preingest.loader">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="112" class="uk.gov.tna.dri.preingest.loader.PreIngestLoader" package="uk.gov.tna.dri.preingest.loader">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="130" class="uk.gov.tna.dri.preingest.loader.PreIngestLoader" package="uk.gov.tna.dri.preingest.loader">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -195,7 +176,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/CertificateManagerActor.scala" line="40" class="uk.gov.tna.dri.preingest.loader.certificate.CertificateManagerActor" package="uk.gov.tna.dri.preingest.loader.certificate">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="158" class="uk.gov.tna.dri.preingest.loader.PreIngestLoader$&lt;anonymous&gt;" package="uk.gov.tna.dri.preingest.loader">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -210,7 +191,22 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/CertificateManagerActor.scala" line="41" class="uk.gov.tna.dri.preingest.loader.certificate.CertificateManagerActor" package="uk.gov.tna.dri.preingest.loader.certificate">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" line="159" class="uk.gov.tna.dri.preingest.loader.PreIngestLoaderActor" package="uk.gov.tna.dri.preingest.loader">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.2/scala-library-2.10.2-sources.jar!/scala/sys/process/ProcessBuilderImpl.scala" line="67" class="scala.sys.process.ProcessBuilderImpl.Simple" package="scala.sys.process">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -235,10 +231,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="PreIngestLoader.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="PreIngestLoader.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="76" column="26" selection-start="2886" selection-end="2886" vertical-scroll-proportion="0.50576925">
+            <state line="175" column="61" selection-start="5994" selection-end="5994" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="e#41#103#0" expanded="true" />
               </folding>
@@ -246,10 +242,66 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="UploadedUnitMonitor.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="54" column="23" selection-start="1545" selection-end="1545" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#46#69#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="109" column="45" selection-start="3677" selection-end="3706" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="UDisksUnitMonitor.scala" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="124" column="30" selection-start="3666" selection-end="3666" vertical-scroll-proportion="0.4509018">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Process.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.2/scala-library-2.10.2-sources.jar!/scala/sys/process/Process.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="114" column="62" selection-start="4997" selection-end="4997" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ProcessBuilderImpl.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.2/scala-library-2.10.2-sources.jar!/scala/sys/process/ProcessBuilderImpl.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="65" column="31" selection-start="2466" selection-end="2466" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ProcessLogger.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.2/scala-library-2.10.2-sources.jar!/scala/sys/process/ProcessLogger.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="52" column="13" selection-start="2039" selection-end="2039" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="CertificateManagerActor.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/CertificateManagerActor.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="40" column="0" selection-start="1465" selection-end="1465" vertical-scroll-proportion="0.0">
+            <state line="47" column="38" selection-start="1851" selection-end="1851" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="e#53#76#0" expanded="true" />
               </folding>
@@ -257,38 +309,22 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="loadModal.ssp" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/loadModal.ssp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="29" column="99" selection-start="1951" selection-end="1960" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="home.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/webapp/js/home.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="24" selection-start="731" selection-end="731" vertical-scroll-proportion="0.0">
+            <state line="35" column="44" selection-start="891" selection-end="891" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="home.ssp" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/home.ssp">
+      <file leaf-file-name="PendingUnitsActor.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="default.ssp" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/layouts/default.ssp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="22" selection-start="260" selection-end="260" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="12" column="102" selection-start="442" selection-end="521" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#46#88#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -311,22 +347,22 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/home.ssp" />
-        <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/loadModal.ssp" />
-        <option value="/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/jre/lib/rt.jar!/java/lang/String.class" />
-        <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" />
-        <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/uploadCertModal.ssp" />
-        <option value="/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/jre/lib/rt.jar!/java/net/NetworkInterface.class" />
         <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/auth/LDAPAuthenticationSupport.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/package.scala" />
         <option value="/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/jre/lib/jce.jar!/javax/crypto/Cipher.class" />
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/ScalatraBootstrap.scala" />
         <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/layouts/default.ssp" />
+        <option value="$PROJECT_DIR$/src/main/webapp/stylesheets/loader.css" />
+        <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/uploadCertModal.ssp" />
+        <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/loadModal.ssp" />
+        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/package.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/CertificateManagerActor.scala" />
         <option value="$PROJECT_DIR$/src/main/webapp/js/home.js" />
         <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/CertificateManagerActor.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnit.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala" />
       </list>
     </option>
   </component>
@@ -518,11 +554,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="WEB-INF" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="layouts" />
+              <option name="myItemId" value="stylesheets" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -566,11 +598,33 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="webapp" />
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="my-scalatra-web-app" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="preingest-loader" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="js" />
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="loader" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -826,7 +880,19 @@
       <created>1382205414127</created>
       <updated>1382205414128</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="[feature] encrypt stored cert">
+      <created>1382378060100</created>
+      <updated>1382378060100</updated>
+    </task>
+    <task id="LOCAL-00007" summary="[feature] Show uploaded certs">
+      <created>1382379242101</created>
+      <updated>1382379242101</updated>
+    </task>
+    <task id="LOCAL-00008" summary="[feature] Got wizard tabs working and message to decrypt disk">
+      <created>1382447820101</created>
+      <updated>1382447820101</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -840,7 +906,7 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3697858" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32919955" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="FindBugs-IDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -899,7 +965,7 @@
     <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="[feature] encrypt stored cert" />
+    <option name="LAST_COMMIT_MESSAGE" value="[feature] Got wizard tabs working and message to decrypt disk" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -919,6 +985,8 @@
     <MESSAGE value="[bugfix] Show PartitionLabel" />
     <MESSAGE value="[feature] Start of allowing user to upload certificate" />
     <MESSAGE value="[feature] encrypt stored cert" />
+    <MESSAGE value="[feature] Show uploaded certs" />
+    <MESSAGE value="[feature] Got wizard tabs working and message to decrypt disk" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -928,112 +996,123 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/auth/UserPasswordStrategy.scala">
+    <entry file="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/home.ssp">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="0" selection-start="423" selection-end="423" vertical-scroll-proportion="0.19699812">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="6" selection-start="1040" selection-end="1040" vertical-scroll-proportion="0.21582733">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="34" selection-start="89" selection-end="123" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="129" column="20" selection-start="4489" selection-end="4489" vertical-scroll-proportion="0.0">
+        <state line="0" column="86" selection-start="37" selection-end="37" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/package.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="54" selection-start="194" selection-end="194" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/ScalatraBootstrap.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="47" selection-start="859" selection-end="859" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/scalatra/scalatra_2.10/2.2.1/scalatra_2.10-2.2.1-sources.jar!/org/scalatra/FutureSupport.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="5" selection-start="925" selection-end="925" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/com/typesafe/akka/akka-actor_2.10/2.1.2/akka-actor_2.10-2.1.2-sources.jar!/akka/pattern/AskSupport.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="75" column="6" selection-start="2754" selection-end="2754" vertical-scroll-proportion="0.3327338">
+        <state line="6" column="24" selection-start="164" selection-end="164" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/uploadCertModal.ssp">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/layouts/default.ssp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="22" selection-start="260" selection-end="260" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/home.ssp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+        <state line="12" column="95" selection-start="812" selection-end="812" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/loadModal.ssp">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="99" selection-start="1951" selection-end="1960" vertical-scroll-proportion="0.0">
+        <state line="29" column="107" selection-start="1982" selection-end="1982" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/webapp/js/home.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="24" selection-start="731" selection-end="731" vertical-scroll-proportion="0.0">
+        <state line="35" column="44" selection-start="891" selection-end="891" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/certificate/CertificateManagerActor.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="0" selection-start="1465" selection-end="1465" vertical-scroll-proportion="0.0">
+        <state line="47" column="38" selection-start="1851" selection-end="1851" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="e#53#76#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnit.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1" column="0" selection-start="45" selection-end="45" vertical-scroll-proportion="0.017857144">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/PendingUnitsActor.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="102" selection-start="442" selection-end="521" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#46#88#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.2/scala-library-2.10.2-sources.jar!/scala/sys/process/ProcessLogger.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="52" column="13" selection-start="2039" selection-end="2039" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/PreIngestLoader.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="76" column="26" selection-start="2886" selection-end="2886" vertical-scroll-proportion="0.50576925">
+        <state line="175" column="61" selection-start="5994" selection-end="5994" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="e#41#103#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/clapper/grizzled-slf4j_2.10/1.0.1/grizzled-slf4j_2.10-1.0.1.jar!/grizzled/slf4j/Logging.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="16" selection-start="870" selection-end="870" vertical-scroll-proportion="0.2208589">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="109" column="45" selection-start="3677" selection-end="3706" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UploadedUnitMonitor.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="54" column="23" selection-start="1545" selection-end="1545" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#46#69#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.2/scala-library-2.10.2-sources.jar!/scala/sys/process/Process.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="114" column="62" selection-start="4997" selection-end="4997" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.2/scala-library-2.10.2-sources.jar!/scala/sys/process/ProcessBuilderImpl.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="65" column="31" selection-start="2466" selection-end="2466" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/uk/gov/tna/dri/preingest/loader/unit/UDisksUnitMonitor.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="124" column="30" selection-start="3666" selection-end="3666" vertical-scroll-proportion="0.4509018">
+          <folding />
         </state>
       </provider>
     </entry>

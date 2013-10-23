@@ -6,6 +6,15 @@ import org.freedesktop.dbus._
 import org.freedesktop.{DBus, UDisks}
 import org.freedesktop.UDisks.{Device, DeviceRemoved, DeviceAdded}
 import scala.collection.mutable
+import scalax.file.Path
+import scala._
+import uk.gov.tna.dri.preingest.loader.unit.PendingUnit
+import uk.gov.tna.dri.preingest.loader.unit.ListPendingUnits
+import uk.gov.tna.dri.preingest.loader.unit.Register
+import scala.Some
+import uk.gov.tna.dri.preingest.loader.unit.DeRegister
+import uk.gov.tna.dri.preingest.loader.unit.DecryptUnit
+import uk.gov.tna.dri.preingest.loader.unit.PendingAttachedUnits
 
 case class PendingAttachedUnits(pending: List[PendingUnit])
 
@@ -34,11 +43,160 @@ class UDisksUnitMonitor extends Actor with Logging {
     case d: DeRegister =>
       this.known = this.known.filterNot(_.src == d.pendingUnit.src)
       context.parent ! d
+
+
+    case DecryptUnit(pendingUnit, certificate, Some(passphrase)) =>
+      TrueCrypt.decrypt(pendingUnit.src, certificate, passphrase)
   }
 
   override def postStop() {
     udisks.close()
   }
+}
+
+object NTFS extends Logging {
+
+  val NTFSLABEL_CMD = "/sbin/ntfslabel"
+
+  def getLabel(volume: String) : Option[String] = {
+    import scala.sys.process._
+
+    val labelCmd = Seq("sudo", NTFSLABEL_CMD, volume)
+
+    val labelLogger = new ProcessLogger {
+      val stdOut = new mutable.ListBuffer[String]
+      def out(s: => String) = stdOut += s
+      def err(s: => String) = error(s)
+      def buffer[T](f: => T) = f
+    }
+
+    val resultCode = labelCmd ! labelLogger
+    if(resultCode != 0) {
+      error(s"Error code '$resultCode' when executing: $labelCmd")
+    }
+
+    val label = labelLogger.stdOut.reduceLeft(_.trim + _.trim)
+    if(label.isEmpty) {
+      None
+    } else {
+      Option(label)
+    }
+  }
+}
+
+/**
+ * if the exec's in here fail with the error
+ * "Enter your user password or administrator password: "
+ * then the problem is sudo and you need to set "!requiretty"
+ * for the user account that this code is running under as TrueCrypt needs to sudo
+ */
+object TrueCrypt extends Logging {
+
+  val TRUECRYPT_CMD = "/usr/bin/truecrypt" //TODO make configurable
+
+  def decrypt(device: String, certificate: Option[Path], passphrase: String) = {
+
+  }
+
+  def getVolumeLabel(volume: String, certificate: Option[Path], passphrase: String) : Option[String] =
+    withVolumeNoFs(volume, certificate, passphrase) {
+      val tcVirtualDevice = listTruecryptMountedVolumes.map(_.filter(_.volume == volume).head.virtualDevice)
+      tcVirtualDevice.flatMap(NTFS.getLabel)
+    }
+
+  private def withVolumeNoFs[T](volume: String, certificate: Option[Path], passphrase: String)(volumeOperation: => T) : T = {
+    try {
+      mount(volume, certificate, passphrase, Seq("--filesystem=none"))
+      volumeOperation
+    } finally {
+      dismount(volume)
+    }
+  }
+
+  private def mount(device: String, certificate: Option[Path], passphrase: String, extraCmdOptions: Seq[String]) {
+    import scala.sys.process._
+
+    val mountCmd = Seq(
+      TRUECRYPT_CMD,
+      "--text",
+      "--protect-hidden=no",
+      "--fs-options=ro,uid=dev,gid=dev",
+      "--mount-options=ro",
+      s"--password=$passphrase",         //TODO should not pass as an arg, should pass on StdIn!
+      "--mount", device) ++ extraCmdOptions ++ (certificate match {
+      case Some(certificate) =>
+        Seq(
+          s"--keyfiles=${certificate.path}"
+        )
+      case None =>
+        Nil
+    })
+
+    //val resultCode = (mountCmd #< (s"$passphrase")).!
+    val resultCode = mountCmd.!
+    if(resultCode != 0) {
+      error(s"Error code '$resultCode' when executing: $mountCmd")
+    }
+  }
+
+  private def dismount(device: String) {
+    import scala.sys.process._
+
+    val dismountCmd = Seq(
+      TRUECRYPT_CMD,
+      "--text",
+      "--dismount",
+      device)
+
+    val resultCode = dismountCmd.!
+    if(resultCode != 0) {
+      error(s"Error code '$resultCode' when executing: $dismountCmd")
+    }
+  }
+
+  private def listTruecryptMountedVolumes : Option[Seq[MountedVolume]] = {
+    import scala.sys.process._
+    val listCmd = Seq(TRUECRYPT_CMD, "--text", "--list")
+
+    //extracts mounted volumes from the list produced by tryecrypt list command
+    val listLogger = new ProcessLogger {
+      val TCListItemExtractor = """([0-9]+):\s([a-z0-9_\-/]+)\s([a-z0-9_\-/]+)\s([A-Za-z0-9_\-/]+)\s""".r
+
+      val mountedVolumes = new mutable.ListBuffer[MountedVolume]
+
+      def out(s: => String) = {
+        val o : String = s
+        o match {
+          case TCListItemExtractor(slot, volume, virtualDevice, mountPoint) =>
+            val mv = MountedVolume(slot.toInt, volume, virtualDevice, mountPoint match {
+              case "-" =>
+                None
+              case _ =>
+                Option(mountPoint)
+            })
+            mountedVolumes += mv
+
+          case _ =>
+        }
+      }
+      def err(s: => String) = error(s)
+      def buffer[T](f: => T) = f
+    }
+
+    val resultCode = listCmd ! listLogger
+    if(resultCode != 0) {
+      error(s"Error code '$resultCode' when executing: $listCmd")
+    }
+
+    listLogger.mountedVolumes.toList match {
+      case Nil =>
+        None
+      case list =>
+        Option(list.toSeq)
+    }
+  }
+
+  case class MountedVolume(slot: Int, volume: String, virtualDevice: String, mountPoint: Option[String])
 }
 
 class DBusUDisks(udisksUnitMonitor: ActorRef) {

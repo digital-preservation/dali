@@ -33,7 +33,7 @@ function LoadModalCtrl($scope, $http) {
         .success(function(data, status, headers, config) {
             mLoadModal.certs.length = 0;
             $.each(data.certificate, function(i, v) {
-                mLoadModal.certs.push(v);
+                mLoadModal.certs.push(v.name);
             });
         })
         .error(function(data, status, headers, config) {

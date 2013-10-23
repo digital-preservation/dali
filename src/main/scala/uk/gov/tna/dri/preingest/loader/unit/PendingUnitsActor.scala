@@ -4,11 +4,13 @@ import akka.actor.{ActorRef, Props, Actor}
 import scala.concurrent.duration._
 import grizzled.slf4j.Logging
 import akka.util.Timeout
+import scalax.file.Path
 
 case class Register(pendingUnit: PendingUnit)
 case class DeRegister(pendingUnit: PendingUnit)
 case class ListPendingUnits(clientId: String)
 case class PendingUnits(clientId: String, pendingUnits: List[PendingUnit])
+case class DecryptUnit(pendingUnit: PendingUnit, certificate: Option[Path], passphrase: Option[String])
 case object Listen
 
 class PendingUnitsActor extends Actor with Logging {
@@ -50,6 +52,15 @@ class PendingUnitsActor extends Actor with Logging {
     case d: DeRegister =>
       for(listener <- listeners) {
         listener ! d
+      }
+
+    case du: DecryptUnit =>
+      //route the message to the appropriate interface source
+      du.pendingUnit.interface match {
+        case UploadedUnitMonitor.NETWORK_INTERFACE =>
+          uploadedUnitMonitor ! du
+        case _ =>
+          udisksUnitMonitor ! du
       }
   }
 }

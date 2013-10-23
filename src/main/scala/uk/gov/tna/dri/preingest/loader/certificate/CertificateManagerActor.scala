@@ -11,9 +11,10 @@ import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags
 import java.io.FileNotFoundException
 
 
-case class StoreCertificates(username: String, certificates: Seq[Certificate])
-case class StoredCertificate(certificate: String)
+case class StoreCertificates(username: String, certificates: Seq[CertificateDetail])
+case class Certificate(name: String, path: Path)
 case class ListCertificates(username: String)
+case class GetCertificate(username: String, name: CertificateName)
 case class CertificateList(certificates: Seq[CertificateName])
 
 class CertificateManagerActor extends Actor with Logging {
@@ -25,22 +26,26 @@ class CertificateManagerActor extends Actor with Logging {
 
   def receive = {
 
-    case StoreCertificates(username: String, certificates: Seq[Certificate]) =>
+    case StoreCertificates(username: String, certificates: Seq[CertificateDetail]) =>
       for(certificate <- certificates) {
         storeCertificate(keyStore(username), certificate, passphrase(username)) match {
           case Left(t) =>
             error(t.getMessage, t)
           case Right(certificatePath) =>
-            sender ! StoredCertificate(certificate._1)
+            sender ! Certificate(certificate._1, certificatePath)
         }
       }
 
-    case ListCertificates(username: String) => {
+    case ListCertificates(username: String) =>
       val ks = keyStore(username)
       val certificates = ks * s"*.$ENCRYPTED_FILE_EXT"
-      val certNames = certificates.toSeq.map(_.name)
+      val certNames = certificates.toSeq.map(_.name.replace(s".$ENCRYPTED_FILE_EXT", ""))
       sender ! CertificateList(certNames)
-    }
+
+    case GetCertificate(username, name) =>
+      val ks = keyStore(username)
+      val cert = ks / s"$name.$ENCRYPTED_FILE_EXT"
+      sender ! Certificate(name, cert)
   }
 
   /**
@@ -79,7 +84,7 @@ class CertificateManagerActor extends Actor with Logging {
     Base64.toBase64String(digest)
   }
 
-  private def storeCertificate(store: Path, certificate: Certificate, passphrase: String): Either[Throwable, Path] = {
+  private def storeCertificate(store: Path, certificate: CertificateDetail, passphrase: String): Either[Throwable, Path] = {
     val encryptedCert = ByteArrayHandler.encrypt(certificate._2, passphrase.toCharArray, certificate._1, SYMETRIC_ALG, false)
 
     val certificateFile = store / (certificate._1 + "." + ENCRYPTED_FILE_EXT)

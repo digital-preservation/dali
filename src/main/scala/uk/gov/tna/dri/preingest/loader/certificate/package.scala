@@ -4,5 +4,5 @@ package object certificate {
   type CertificateName = String
   type CertificateData = Array[Byte]
 
-  type Certificate = (CertificateName, CertificateData)
+  type CertificateDetail = (CertificateName, CertificateData)
 }

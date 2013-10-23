@@ -17,7 +17,7 @@ import ExecutionContext.Implicits.global
 import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.unit._
 import org.scalatra.servlet.FileUploadSupport
-import uk.gov.tna.dri.preingest.loader.certificate.{ListCertificates, CertificateList, CertificateManagerActor, StoreCertificates}
+import uk.gov.tna.dri.preingest.loader.certificate._
 import uk.gov.tna.dri.preingest.loader.unit.PendingUnit
 import org.scalatra.atmosphere.Disconnected
 import uk.gov.tna.dri.preingest.loader.unit.ListPendingUnits
@@ -28,6 +28,21 @@ import scala.Some
 import uk.gov.tna.dri.preingest.loader.unit.DeRegister
 import uk.gov.tna.dri.preingest.loader.unit.PendingUnits
 import org.scalatra.atmosphere.Error
+import uk.gov.tna.dri.preingest.loader.unit.PendingUnit
+import uk.gov.tna.dri.preingest.loader.certificate.CertificateList
+import org.scalatra.atmosphere.Disconnected
+import uk.gov.tna.dri.preingest.loader.unit.ListPendingUnits
+import org.scalatra.atmosphere.JsonMessage
+import uk.gov.tna.dri.preingest.loader.unit.Register
+import org.scalatra.atmosphere.TextMessage
+import scala.Some
+import uk.gov.tna.dri.preingest.loader.unit.DeRegister
+import uk.gov.tna.dri.preingest.loader.certificate.ListCertificates
+import uk.gov.tna.dri.preingest.loader.unit.PendingUnits
+import org.scalatra.atmosphere.Error
+import uk.gov.tna.dri.preingest.loader.unit.DecryptUnit
+import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
+import scalax.file.Path
 
 
 class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) extends ScalatraServlet
@@ -141,15 +156,28 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
 
           json match {
             //case JObject(List(("action", JString(jValue)), )) =>
-            case JObject(("action", JString(action)) :: tail) =>
+            case JObject(("action", JString(action)) :: content) =>
               action match {
                 case "pending" =>
                   preIngestLoaderActor ! ListPendingUnits(uuid)
 
                 case "decrypt" =>
+                  content match {
+                    case JObject(("unit", JObject(List(("interface", JString(interface)), ("src", JString(src)), ("label", JString(label)), ("certificate", JString(certificate)), ("passphrase", JString(passphrase)))))) =>
+                      new AsyncResult {
+                        val is = ask(certificateManagerActor, GetCertificate(user.username, certificate)).mapTo[Certificate].map {
+                          certificate =>
+                            preIngestLoaderActor ! DecryptUnit(PendingUnit(interface, src, label, None, None), Option(certificate.path), Option(passphrase))
+                        }
+                      }
+
+                    case u =>
+                      println("INVALID DECRYPT ADAM")
+                  }
+
 
                 case u =>
-                  println("unknown action: " + u)
+                  println("unknown action ADAM: " + u)
               }
           }
        }
@@ -162,6 +190,10 @@ class PreIngestLoaderActor(pendingUnitsActor: ActorRef) extends Actor with Loggi
   pendingUnitsActor ! Listen
 
   def receive = {
+
+    case du: DecryptUnit =>
+      pendingUnitsActor ! du
+
     case lpu: ListPendingUnits =>
         pendingUnitsActor ! lpu
 
