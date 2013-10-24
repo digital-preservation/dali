@@ -42,7 +42,34 @@
                     </div>
                 </div>
                 <div class="step-pane" id="step2">
-                    TODO -> Review
+                    <div ng-show="loadModal.decrypting" class="ng-hide">
+                        <div class="progress progress-striped active">
+                          <div class="progress-bar"  role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%">
+                            <span class="sr-only">45% Complete</span>
+                          </div>
+                          <span>Decrypting disk...</span>
+                        </div>
+                    </div>
+                    <div ng-hide="loadModal.decrypting">
+                        <div class="page-header">
+                          <h1>Unit: {{loadModal.pendingUnit.label}}</h1>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Series Part</th>
+                                    <th>Destination</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingUnits"">
+                                <tr ng-repeat="p in loadModal.pendingUnit.part">
+                                    <td>TODO</td>
+                                    <td>{{p.series}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
                 <div class="step-pane" id="step3">This is step 3</div>
                 <!-- div class="step-pane" id="step4">This is step 4</div>

@@ -5,12 +5,13 @@ import scala.concurrent.duration._
 import grizzled.slf4j.Logging
 import akka.util.Timeout
 import scalax.file.Path
+import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
 
 case class Register(pendingUnit: PendingUnit)
 case class DeRegister(pendingUnit: PendingUnit)
 case class ListPendingUnits(clientId: String)
 case class PendingUnits(clientId: String, pendingUnits: List[PendingUnit])
-case class DecryptUnit(pendingUnit: PendingUnit, certificate: Option[Path], passphrase: Option[String])
+case class DecryptUnit(username: String, pendingUnit: PendingUnit, certificate: Option[CertificateDetail], passphrase: Option[String])
 case object Listen
 
 class PendingUnitsActor extends Actor with Logging {

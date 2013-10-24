@@ -31,7 +31,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="reloadCerts()">Done</button>
             </div>
 
         </div><!-- /.modal-content -->

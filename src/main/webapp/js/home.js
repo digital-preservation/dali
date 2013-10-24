@@ -9,7 +9,8 @@ var mLoadModal = {
         { name: "a.cert" },
         { name: "b.cert" }
     ],
-    passphrase: null
+    passphrase: null,
+    decrypting: false
 };
 
 //Controller for displaying Pending Units grid
@@ -29,18 +30,7 @@ function PendingUnitsCtrl($scope) {
 function LoadModalCtrl($scope, $http) {
     $scope.loadModal = mLoadModal;
 
-    $http({method: "GET", url: "/certificate"})
-        .success(function(data, status, headers, config) {
-            mLoadModal.certs.length = 0;
-            $.each(data.certificate, function(i, v) {
-                mLoadModal.certs.push(v.name);
-            });
-        })
-        .error(function(data, status, headers, config) {
-           alert("error $http = " + data);
-        });
-
-    //getCertificates();
+   updateCertsModel($http);
 
     $scope.uploadCertDialog = function() {
         //show the uploadCert modal
@@ -55,6 +45,9 @@ function LoadModalCtrl($scope, $http) {
 
         //instruct the server to decrypt the unit
         decrypt(mLoadModal.pendingUnit, mLoadModal.cert, mLoadModal.passphrase);
+
+        //show waiting for decrypt
+        mLoadModal.decrypting = true;
       }
 
       //$('#LoadWizard').wizard('selectItem', { step: selectedIdx + 1 });
@@ -70,16 +63,34 @@ function decrypt(pendingUnit, cert, pass) {
         src: pendingUnit.src,
         label: pendingUnit.label
     },
-    certificate: cert,
+    certificate: cert.name,
     passphrase: pass
   }));
 };
 
+function updateCertsModel(http) {
+    http({method: "GET", url: "/certificate"})
+        .success(function(data, status, headers, config) {
+            mLoadModal.certs.length = 0;
+            $.each(data.certificate, function(i, v) {
+                mLoadModal.certs.push(v);
+            });
+        })
+        .error(function(data, status, headers, config) {
+           alert("error $http = " + data);
+        });
+}
+
 //Controller for the UploadCert modal dialog
-function UploadCertModalCtrl($scope) {
+function UploadCertModalCtrl($scope, $http) {
     $scope.selectedFiles = [];
     $scope.progress = 0;
     $scope.showProgress = false;
+
+    //updates the available certs in the model (for the LoadModalCtrl)
+    $scope.reloadCerts = function() {
+      updateCertsModel($http);
+    };
 
     $scope.setFiles = function(fileInputElem) {
         $scope.$apply(function($scope) {
@@ -277,12 +288,25 @@ $(document).ready(function() {
                 });
             });
 
+            //update the unit detail part of the load modal dialog
+            $.each(json.pendingAdd.unit, function(i, v) {
+                updateLoadModal(function(model) {
+                    if(v.src == model.pendingUnit.src) {
+                        model.pendingUnit = v;
+                        //has part discovery completed? if so disable decrypting message
+                        if(v.part) {
+                            model.decrypting = false;    //hide decrypting message
+                        }
+                    }
+                });
+            });
+
           //is this a removal from the pending units
           } else if(json.pendingRemove) {
             updatePending(function(model) {
                $.each(model, function(i, v) {
                 $.each(json.pendingRemove.unit, function(y, vv) {
-                   if(v.src == vv.src) {
+                   if((!(v === undefined)) && v.src == vv.src) {
                        model.splice(i, 1);
                    }
                 });

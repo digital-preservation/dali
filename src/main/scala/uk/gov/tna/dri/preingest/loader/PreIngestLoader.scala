@@ -5,7 +5,7 @@ import _root_.akka.pattern._
 import _root_.akka.util.Timeout
 import org.scalatra._
 import org.scalatra.scalate.ScalateSupport
-import uk.gov.tna.dri.preingest.loader.auth.LDAPAuthenticationSupport
+import uk.gov.tna.dri.preingest.loader.auth.{User, LDAPAuthenticationSupport}
 import scala.slick.session.Database
 import org.scalatra.atmosphere._
 import org.scalatra.json.{JValueResult, JacksonJsonSupport}
@@ -134,7 +134,8 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
 //  }
 
   atmosphere("/unit") {
-    userPasswordAuth
+    userPasswordAuth //TODO need to enable but seems to cause issues at the moment
+    val x: User = user  //TODO this is not very safe! what happens when the user's session expires etc!
 
     new AtmosphereClient {
        def receive = {
@@ -163,22 +164,45 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
 
                 case "decrypt" =>
                   content match {
-                    case JObject(("unit", JObject(List(("interface", JString(interface)), ("src", JString(src)), ("label", JString(label)), ("certificate", JString(certificate)), ("passphrase", JString(passphrase)))))) =>
-                      new AsyncResult {
-                        val is = ask(certificateManagerActor, GetCertificate(user.username, certificate)).mapTo[Certificate].map {
-                          certificate =>
-                            preIngestLoaderActor ! DecryptUnit(PendingUnit(interface, src, label, None, None), Option(certificate.path), Option(passphrase))
-                        }
+                    case List(
+                      ("unit", JObject(List(("interface", JString(interface)), ("src", JString(src)), ("label", JString(label))))),
+                      ("certificate", certificate),
+                      ("passphrase", passphrase)
+                    ) =>
+                      val optCertificate = certificate match {
+                        case JNull => None
+                        case JString(c) => Option(c)
+                      }
+                      val optPassphrase = passphrase match {
+                        case JNull => None
+                        case JString(p) => Option(p)
+                      }
+
+                      //val username = user.username //TODO causes NPE at the moment
+                      val username = x.username //TODO fix above, this is a temp solution
+
+                      optCertificate match {
+                        case Some(certificate) =>
+                          new AsyncResult {
+                            val is = ask(certificateManagerActor, GetCertificate(username, certificate))(Timeout(10 seconds)).mapTo[Certificate].map {
+                              certificate =>
+                                preIngestLoaderActor ! DecryptUnit(username, PendingUnit(interface, src, label, None, None), Option(certificate.detail), optPassphrase)
+                            }
+                          }
+                        case None =>
+                          preIngestLoaderActor ! DecryptUnit(username, PendingUnit(interface, src, label, None, None), None, optPassphrase)
                       }
 
                     case u =>
                       println("INVALID DECRYPT ADAM")
                   }
 
-
                 case u =>
                   println("unknown action ADAM: " + u)
               }
+
+            case u =>
+              println("unknown action ADAM: " + u)
           }
        }
     }
@@ -218,7 +242,16 @@ class PreIngestLoaderActor(pendingUnitsActor: ActorRef) extends Actor with Loggi
             ("src" -> pendingUnit.src) ~
             ("label" -> pendingUnit.label) ~
             ("size" -> pendingUnit.size) ~
-            ("timestamp" -> pendingUnit.timestamp)
+            ("timestamp" -> pendingUnit.timestamp) ~
+            ("part" ->
+              pendingUnit.parts.map {
+                _.map {
+                  part =>
+                    ("unit" -> part.unitId) ~
+                    ("series" -> part.series)
+                }
+              }
+            )
         }
       )
     )

@@ -54,7 +54,7 @@ class UploadedUnitMonitor extends Actor with Logging {
       //filter out the ones we are already processing
       val nonProcessingUploadedUnits = uploadedUnits.filter(uu => processingUploadedUnits.find(_.startsWith(uu)).isEmpty)
 
-      nonProcessingUploadedUnits.toList.map(uploadedUnit => PendingUnit(UploadedUnitMonitor.NETWORK_INTERFACE, uploadLocation, uploadedUnit.name, uploadedUnit.size.get, path.lastModified))
+      nonProcessingUploadedUnits.toList.map(uploadedUnit => PendingUnit(UploadedUnitMonitor.NETWORK_INTERFACE, uploadLocation, uploadedUnit.name, Option(uploadedUnit.size.get), Option(path.lastModified)))
     } else {
       warn(s"Uploaded Unit Monitor directory: ${path.path} does not exist. No uploaded units will be found!")
       List.empty[PendingUnit]

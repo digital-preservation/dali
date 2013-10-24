@@ -9,10 +9,12 @@ import org.bouncycastle.util.encoders.Base64
 import org.bouncycastle.openpgp.examples.ByteArrayHandler
 import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags
 import java.io.FileNotFoundException
+import uk.gov.tna.dri.preingest.loader.store.DataStore
 
 
 case class StoreCertificates(username: String, certificates: Seq[CertificateDetail])
-case class Certificate(name: String, path: Path)
+case class CertificateRef(name: String, path: Path)
+case class Certificate(detail: CertificateDetail)
 case class ListCertificates(username: String)
 case class GetCertificate(username: String, name: CertificateName)
 case class CertificateList(certificates: Seq[CertificateName])
@@ -28,41 +30,30 @@ class CertificateManagerActor extends Actor with Logging {
 
     case StoreCertificates(username: String, certificates: Seq[CertificateDetail]) =>
       for(certificate <- certificates) {
-        storeCertificate(keyStore(username), certificate, passphrase(username)) match {
+        storeCertificate(DataStore.userStore(username), certificate, passphrase(username)) match {
           case Left(t) =>
             error(t.getMessage, t)
           case Right(certificatePath) =>
-            sender ! Certificate(certificate._1, certificatePath)
+            sender ! CertificateRef(certificate._1, certificatePath)
         }
       }
 
     case ListCertificates(username: String) =>
-      val ks = keyStore(username)
+      val ks = DataStore.userStore(username)
       val certificates = ks * s"*.$ENCRYPTED_FILE_EXT"
       val certNames = certificates.toSeq.map(_.name.replace(s".$ENCRYPTED_FILE_EXT", ""))
       sender ! CertificateList(certNames)
 
     case GetCertificate(username, name) =>
-      val ks = keyStore(username)
+      val ks = DataStore.userStore(username)
       val cert = ks / s"$name.$ENCRYPTED_FILE_EXT"
-      sender ! Certificate(name, cert)
-  }
 
-  /**
-   * Path to a KeyStore for a user
-   *
-   * Generates a KeyStore path based on the username
-   */
-  private def keyStore(username: String) : Path = {
-    val md = MessageDigest.getInstance("RIPEMD320")
-    val dUsername = Base64.toBase64String(md.digest(username.getBytes("UTF-8")))
-
-    val settingsDir = Path.fromString(sys.props("user.home")) / ".dri-loader" //TODO make configurable
-    val store = settingsDir / dUsername
-    if(!store.exists) {
-      store.doCreateDirectory()
-    }
-    store
+      getCertificate(cert, passphrase(username)) match {
+        case Left(t) =>
+          error(t.getMessage, t)
+        case Right(certificateData) =>
+          sender ! Certificate((name, certificateData))
+      }
   }
 
   /**
@@ -94,5 +85,16 @@ class CertificateManagerActor extends Actor with Logging {
       classOf[FileNotFoundException]) either { certificateFile.asInstanceOf[FileOps].write(encryptedCert) }
 
     result.fold(l => Left(l), r => Right(certificateFile))
+  }
+
+  private def getCertificate(certificateFile: Path, passphrase: String) : Either[Throwable, CertificateData] = {
+
+    import scala.util.control.Exception._
+    val result : Either[Throwable, CertificateData] = catching(classOf[NotFileException],
+      classOf[FileNotFoundException]) either {
+      val encryptedCert = certificateFile.asInstanceOf[FileOps].bytes.toArray
+      ByteArrayHandler.decrypt(encryptedCert, passphrase.toCharArray)
+    }
+    result
   }
 }

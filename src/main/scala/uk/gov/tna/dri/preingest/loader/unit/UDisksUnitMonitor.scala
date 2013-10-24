@@ -8,13 +8,9 @@ import org.freedesktop.UDisks.{Device, DeviceRemoved, DeviceAdded}
 import scala.collection.mutable
 import scalax.file.Path
 import scala._
-import uk.gov.tna.dri.preingest.loader.unit.PendingUnit
-import uk.gov.tna.dri.preingest.loader.unit.ListPendingUnits
-import uk.gov.tna.dri.preingest.loader.unit.Register
 import scala.Some
-import uk.gov.tna.dri.preingest.loader.unit.DeRegister
-import uk.gov.tna.dri.preingest.loader.unit.DecryptUnit
-import uk.gov.tna.dri.preingest.loader.unit.PendingAttachedUnits
+import uk.gov.tna.dri.preingest.loader.store.DataStore
+import scalax.file.PathMatcher.IsDirectory
 
 case class PendingAttachedUnits(pending: List[PendingUnit])
 
@@ -45,13 +41,72 @@ class UDisksUnitMonitor extends Actor with Logging {
       context.parent ! d
 
 
-    case DecryptUnit(pendingUnit, certificate, Some(passphrase)) =>
-      TrueCrypt.decrypt(pendingUnit.src, certificate, passphrase)
+    case du: DecryptUnit =>
+      getDecryptedUnitDetails(du).map {
+        case upPendingUnit =>
+          //update state
+          val existingPendingUnit = this.known.find(_.src == du.pendingUnit.src).get
+          val updatedPendingUnit = upPendingUnit.copy(timestamp = existingPendingUnit.timestamp, size = existingPendingUnit.size) //preserve timestamp and size
+          this.known = this.known.updated(this.known.indexWhere(_.src == updatedPendingUnit.src), updatedPendingUnit)
+
+          //update sender
+          sender ! DeRegister(existingPendingUnit)
+          sender ! Register(updatedPendingUnit)
+      }
+  }
+
+  def getDecryptedUnitDetails(du: DecryptUnit) : Option[PendingUnit] = {
+    withTemporaryFile(du.certificate) {
+      tmpCert =>
+        TrueCryptedPartition.getVolumeLabel(du.pendingUnit.src, tmpCert, du.passphrase.get).map {
+          volumeLabel =>
+            val updatedPendingUnitLabel = du.pendingUnit.label.replace(DBusUDisks.UNKNOWN_LABEL, volumeLabel)
+            val prts = TrueCryptedPartition.listTopLevelDirs(du.username)(du.pendingUnit.src, tmpCert, du.passphrase.get).map(Part(volumeLabel, _))
+            du.pendingUnit.copy(label = updatedPendingUnitLabel, parts = Some(prts))
+        }
+    }
+  }
+
+  def withTemporaryFile[T](fileDetail: Option[(String, Array[Byte])])(f: Option[Path] => T) : T = fileDetail match {
+    case Some((name, data)) =>
+      val tmpFile = Path.createTempFile(deleteOnExit = true)
+      try {
+        tmpFile.write(data)
+        f(Option(tmpFile))
+      } finally {
+        tmpFile.delete(force = true)
+      }
+    case None =>
+      f(None)
   }
 
   override def postStop() {
     udisks.close()
   }
+}
+
+object TrueCryptedPartition {
+
+  def getVolumeLabel(volume: String, certificate: Option[Path], passphrase: String) : Option[String] =
+    TrueCrypt.withVolumeNoFs(volume, certificate, passphrase) {
+      val tcVirtualDevice = TrueCrypt.listTruecryptMountedVolumes.map(_.filter(_.volume == volume).head.virtualDevice)
+      tcVirtualDevice.flatMap(NTFS.getLabel)
+    }
+
+  def listTopLevelDirs(username: String)(volume: String, certificate: Option[Path], passphrase: String) : Seq[String] = {
+    val mountPoint = DataStore.userStore(username) / s"tc_${volume.split('/').last}"
+    if(!mountPoint.exists) {
+      mountPoint.createDirectory()
+    }
+
+    TrueCrypt.withVolume(volume, certificate, passphrase, mountPoint) {
+      val subDirs = mountPoint * IsDirectory filterNot { dir => isWindowsJunkDir(dir.name) }
+      subDirs.toSeq.map(_.name)
+    }
+  }
+
+  private def isWindowsJunkDir(name: String) = name.matches("System Volume Information|^Recycler.*|^\\..+")
+
 }
 
 object NTFS extends Logging {
@@ -94,17 +149,16 @@ object TrueCrypt extends Logging {
 
   val TRUECRYPT_CMD = "/usr/bin/truecrypt" //TODO make configurable
 
-  def decrypt(device: String, certificate: Option[Path], passphrase: String) = {
-
+  def withVolume[T](volume: String, certificate: Option[Path], passphrase: String, mountPoint: Path)(volumeOperation: => T) : T = {
+    try {
+      mount(volume, certificate, passphrase, Seq(mountPoint.path))
+      volumeOperation
+    } finally {
+      dismount(volume)
+    }
   }
 
-  def getVolumeLabel(volume: String, certificate: Option[Path], passphrase: String) : Option[String] =
-    withVolumeNoFs(volume, certificate, passphrase) {
-      val tcVirtualDevice = listTruecryptMountedVolumes.map(_.filter(_.volume == volume).head.virtualDevice)
-      tcVirtualDevice.flatMap(NTFS.getLabel)
-    }
-
-  private def withVolumeNoFs[T](volume: String, certificate: Option[Path], passphrase: String)(volumeOperation: => T) : T = {
+  def withVolumeNoFs[T](volume: String, certificate: Option[Path], passphrase: String)(volumeOperation: => T) : T = {
     try {
       mount(volume, certificate, passphrase, Seq("--filesystem=none"))
       volumeOperation
@@ -123,17 +177,19 @@ object TrueCrypt extends Logging {
       "--fs-options=ro,uid=dev,gid=dev",
       "--mount-options=ro",
       s"--password=$passphrase",         //TODO should not pass as an arg, should pass on StdIn!
-      "--mount", device) ++ extraCmdOptions ++ (certificate match {
+      "--mount", device) ++ (certificate match {
       case Some(certificate) =>
         Seq(
           s"--keyfiles=${certificate.path}"
         )
       case None =>
         Nil
-    })
+    }) ++ extraCmdOptions
 
     //val resultCode = (mountCmd #< (s"$passphrase")).!
     val resultCode = mountCmd.!
+
+
     if(resultCode != 0) {
       error(s"Error code '$resultCode' when executing: $mountCmd")
     }
@@ -154,7 +210,7 @@ object TrueCrypt extends Logging {
     }
   }
 
-  private def listTruecryptMountedVolumes : Option[Seq[MountedVolume]] = {
+  def listTruecryptMountedVolumes : Option[Seq[MountedVolume]] = {
     import scala.sys.process._
     val listCmd = Seq(TRUECRYPT_CMD, "--text", "--list")
 
@@ -199,6 +255,10 @@ object TrueCrypt extends Logging {
   case class MountedVolume(slot: Int, volume: String, virtualDevice: String, mountPoint: Option[String])
 }
 
+object DBusUDisks {
+  val UNKNOWN_LABEL = "<<UNKNOWN>>"
+}
+
 class DBusUDisks(udisksUnitMonitor: ActorRef) {
 
   val UDISKS_BUS_NAME = "org.freedesktop.UDisks" //TODO external config
@@ -237,7 +297,7 @@ class DBusUDisks(udisksUnitMonitor: ActorRef) {
       }
 
       if(IGNORE_DEVICES.find(_.findFirstMatchIn(devicePath).nonEmpty).isEmpty)
-        udisksUnitMonitor ! DeRegister(PendingUnit("Unknown", devicePath, devicePath, 0, System.currentTimeMillis))
+        udisksUnitMonitor ! DeRegister(PendingUnit("Unknown", devicePath, devicePath, None, None))
 
     }
   })
@@ -266,7 +326,7 @@ class DBusUDisks(udisksUnitMonitor: ActorRef) {
     dbus.disconnect()
   }
 
-  private def pendingUnit(sp: StoreProperties) = PendingUnit(sp.interface.toUpperCase, sp.deviceFile, sp.getLabel(), sp.size, sp.timestamp * 1000) //*1000 to get to milliseconds
+  private def pendingUnit(sp: StoreProperties) = PendingUnit(sp.interface.toUpperCase, sp.deviceFile, sp.getLabel(), Option(sp.size), Option(sp.timestamp * 1000)) //*1000 to get to milliseconds
 
   private def getStoreProperties(props: Map[String, Variant[_]]) : StoreProperties = {
 
@@ -344,6 +404,6 @@ class DBusUDisks(udisksUnitMonitor: ActorRef) {
   }
 
   case class PartitionProperties(partitionType: Int, partitionLabel: Option[String], override val interface: String, override val deviceFile: String, override val size: Long, override val timestamp: Long) extends StoreProperties(interface, deviceFile, size, timestamp){
-    def getLabel() = s"${partitionLabel.getOrElse("<<UNKNOWN>>")} (${PartitionTypes.TYPES(partitionType)})"
+    def getLabel() = s"${partitionLabel.getOrElse(DBusUDisks.UNKNOWN_LABEL)} (${PartitionTypes.TYPES(partitionType)})"
   }
 }
