@@ -1,7 +1,7 @@
 package uk.gov.tna.dri.preingest.loader.unit
 
 import grizzled.slf4j.Logging
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{Props, ActorRef, Actor}
 import org.freedesktop.dbus._
 import org.freedesktop.{DBus, UDisks}
 import org.freedesktop.UDisks.{Device, DeviceRemoved, DeviceAdded}
@@ -53,10 +53,13 @@ class UDisksUnitMonitor extends Actor with Logging {
           sender ! DeRegister(existingPendingUnit)
           sender ! Register(updatedPendingUnit)
       }
+
+    case lu: LoadUnit =>
+
   }
 
   def getDecryptedUnitDetails(du: DecryptUnit) : Option[PendingUnit] = {
-    withTemporaryFile(du.certificate) {
+    DataStore.withTemporaryFile(du.certificate) {
       tmpCert =>
         TrueCryptedPartition.getVolumeLabel(du.pendingUnit.src, tmpCert, du.passphrase.get).map {
           volumeLabel =>
@@ -65,19 +68,6 @@ class UDisksUnitMonitor extends Actor with Logging {
             du.pendingUnit.copy(label = updatedPendingUnitLabel, parts = Some(prts))
         }
     }
-  }
-
-  def withTemporaryFile[T](fileDetail: Option[(String, Array[Byte])])(f: Option[Path] => T) : T = fileDetail match {
-    case Some((name, data)) =>
-      val tmpFile = Path.createTempFile(deleteOnExit = true)
-      try {
-        tmpFile.write(data)
-        f(Option(tmpFile))
-      } finally {
-        tmpFile.delete(force = true)
-      }
-    case None =>
-      f(None)
   }
 
   override def postStop() {
@@ -93,20 +83,21 @@ object TrueCryptedPartition {
       tcVirtualDevice.flatMap(NTFS.getLabel)
     }
 
-  def listTopLevelDirs(username: String)(volume: String, certificate: Option[Path], passphrase: String) : Seq[String] = {
+  def tempMountPoint(username: String, volume: String) : Path = {
     val mountPoint = DataStore.userStore(username) / s"tc_${volume.split('/').last}"
     if(!mountPoint.exists) {
       mountPoint.createDirectory()
     }
-
-    TrueCrypt.withVolume(volume, certificate, passphrase, mountPoint) {
-      val subDirs = mountPoint * IsDirectory filterNot { dir => isWindowsJunkDir(dir.name) }
-      subDirs.toSeq.map(_.name)
-    }
+    mountPoint
   }
 
-  private def isWindowsJunkDir(name: String) = name.matches("System Volume Information|^Recycler.*|^\\..+")
-
+  def listTopLevelDirs(username: String)(volume: String, certificate: Option[Path], passphrase: String) : Seq[String] = {
+    val mountPoint = tempMountPoint(username, volume)
+    TrueCrypt.withVolume(volume, certificate, passphrase, mountPoint) {
+      val subDirs = mountPoint * IsDirectory filterNot { dir => DataStore.isWindowsJunkDir(dir.name) }
+      subDirs.seq.map(_.name).toSeq
+    }
+  }
 }
 
 object NTFS extends Logging {

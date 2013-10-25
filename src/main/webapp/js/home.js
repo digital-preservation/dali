@@ -10,7 +10,13 @@ var mLoadModal = {
         { name: "b.cert" }
     ],
     passphrase: null,
-    decrypting: false
+    decrypting: false,
+    nextEnabled: true,
+    destinations: [
+        "Holding",
+        "Pre-Ingest",
+        "Holding + Sandbox"
+    ]
 };
 
 //Controller for displaying Pending Units grid
@@ -50,10 +56,52 @@ function LoadModalCtrl($scope, $http) {
         mLoadModal.decrypting = true;
       }
 
+      if(selected == 2) {
+        mLoadModal.nextEnabled = false;
+      }
+
       //$('#LoadWizard').wizard('selectItem', { step: selectedIdx + 1 });
       $('#LoadWizard').wizard('next');
     };
+
+    $scope.startLoad = function () {
+
+        //disable the load button on the main dialog for the unit
+        //TODO
+
+        //send message to initiate load
+        doStartLoad(mLoadModal.pendingUnit, mLoadModal.cert, mLoadModal.passphrase);
+
+        //close modal dialog
+        $('#loadModal').modal('hide');
+
+        //reset dialog
+        mLoadModal.nextEnabled = true; //re-enable for next time
+    };
 }
+
+function doStartLoad(pendingUnit, cert, pass) {
+  var parts = [];
+  $.each(pendingUnit.part, function(i, v) {
+    parts.push({
+      unit: v.unit,
+      series: v.series,
+      destination: v.destination
+    });
+  });
+
+  subSocket.push(JSON.stringify({
+    action: 'load',
+    unit: {
+        interface: pendingUnit.interface,
+        src: pendingUnit.src,
+        label: pendingUnit.label,
+        part: parts
+    },
+    certificate: cert.name,
+    passphrase: pass
+  }));
+};
 
 function decrypt(pendingUnit, cert, pass) {
   subSocket.push(JSON.stringify({
@@ -313,6 +361,19 @@ $(document).ready(function() {
                });
             });
           }
+
+          //is this a UnitLoadStatus update?
+          else if(json.loadStatus) {
+            updatePending(function(model) {
+              $.each(model, function(i, v) {
+                if(v.src == json.loadStatus.unit.src) {
+                    v.showComplete = true;
+                    v.complete = json.loadStatus.complete;
+                }
+              });
+            });
+          }
+
       } catch (e) {
           console.log('Error: ', message.data);
           return;

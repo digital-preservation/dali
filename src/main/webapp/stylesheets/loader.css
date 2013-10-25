@@ -119,3 +119,6 @@ code {
 }
 
 /** load modal dialog **/
+.decrypt-progress {
+    margin-top: 2em;
+}

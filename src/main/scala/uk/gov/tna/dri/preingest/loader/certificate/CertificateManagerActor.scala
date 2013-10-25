@@ -41,7 +41,7 @@ class CertificateManagerActor extends Actor with Logging {
     case ListCertificates(username: String) =>
       val ks = DataStore.userStore(username)
       val certificates = ks * s"*.$ENCRYPTED_FILE_EXT"
-      val certNames = certificates.toSeq.map(_.name.replace(s".$ENCRYPTED_FILE_EXT", ""))
+      val certNames = certificates.seq.map(_.name.replace(s".$ENCRYPTED_FILE_EXT", "")).toSeq
       sender ! CertificateList(certNames)
 
     case GetCertificate(username, name) =>

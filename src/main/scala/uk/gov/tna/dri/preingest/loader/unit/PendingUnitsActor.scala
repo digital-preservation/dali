@@ -6,24 +6,28 @@ import grizzled.slf4j.Logging
 import akka.util.Timeout
 import scalax.file.Path
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
+import uk.gov.tna.dri.preingest.loader.io.{UnitLoadStatus, LoadActor}
+import akka.routing.SmallestMailboxRouter
 
 case class Register(pendingUnit: PendingUnit)
 case class DeRegister(pendingUnit: PendingUnit)
 case class ListPendingUnits(clientId: String)
 case class PendingUnits(clientId: String, pendingUnits: List[PendingUnit])
 case class DecryptUnit(username: String, pendingUnit: PendingUnit, certificate: Option[CertificateDetail], passphrase: Option[String])
+case class LoadUnit(username: String, loadingUnit: LoadingUnit, certificate: Option[CertificateDetail], passphrase: Option[String])
 case object Listen
 
 class PendingUnitsActor extends Actor with Logging {
 
-  val uploadedUnitMonitor = context.actorOf(Props[UploadedUnitMonitor], name="UploadedUnitMonitor")
-
+  lazy val uploadedUnitMonitor = context.actorOf(Props[UploadedUnitMonitor], name="UploadedUnitMonitor")
   import context.dispatcher
-
   context.system.scheduler.schedule(5 seconds, 30 seconds, uploadedUnitMonitor, ScheduledExecution) //TODO make configurable
   info("Scheduled: " + uploadedUnitMonitor.path)
 
   val udisksUnitMonitor = context.actorOf(Props[UDisksUnitMonitor], name="UDisksUnitMonitor")
+
+  val LOADER_COUNT = Runtime.getRuntime.availableProcessors() //TODO make configurable
+  lazy val loadActor = context.actorOf(Props[LoadActor].withRouter(SmallestMailboxRouter(LOADER_COUNT)), "LoadActorRouter")
 
   //mutable
   var listeners = List.empty[ActorRef]
@@ -46,14 +50,10 @@ class PendingUnitsActor extends Actor with Logging {
         f pipeTo sender
 
     case r: Register =>
-      for(listener <- listeners) {
-        listener ! r
-      }
+      broadcast(r)
 
     case d: DeRegister =>
-      for(listener <- listeners) {
-        listener ! d
-      }
+      broadcast(d)
 
     case du: DecryptUnit =>
       //route the message to the appropriate interface source
@@ -63,5 +63,24 @@ class PendingUnitsActor extends Actor with Logging {
         case _ =>
           udisksUnitMonitor ! du
       }
+
+    case lu: LoadUnit =>
+      loadActor ! lu
+
+    case uls: UnitLoadStatus =>
+      broadcast(uls)
+      //route the message to the appropriate interface source
+      /* lu.loadingUnit.interface match {
+        case UploadedUnitMonitor.NETWORK_INTERFACE =>
+          uploadedUnitMonitor ! lu
+        case _ =>
+          udisksUnitMonitor ! lu
+      } */
+  }
+
+  def broadcast(msg: Any) {
+    for(listener <- listeners) {
+      listener ! msg
+    }
   }
 }

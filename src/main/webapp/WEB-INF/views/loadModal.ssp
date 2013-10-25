@@ -13,9 +13,7 @@
                 <ul class="steps">
                     <li data-target="#step1" class="active"><span class="badge badge-info">1</span>Decrypt<span class="chevron"></span></li>
                     <li data-target="#step2"><span class="badge">2</span>Review Unit<span class="chevron"></span></li>
-                    <li data-target="#step3"><span class="badge">3</span>Step 3<span class="chevron"></span></li>
-                    <!-- li data-target="#step4"><span class="badge">4</span>Step 4<span class="chevron"></span></li>
-                    <li data-target="#step5"><span class="badge">5</span>Step 5<span class="chevron"></span></li -->
+                    <li data-target="#step3"><span class="badge">3</span>Commission<span class="chevron"></span></li>
                 </ul>
                 <!-- div class="actions">
                     <button type="button" class="btn btn-mini btn-prev"> <i class="icon-arrow-left"></i>Prev</button>
@@ -42,7 +40,7 @@
                     </div>
                 </div>
                 <div class="step-pane" id="step2">
-                    <div ng-show="loadModal.decrypting" class="ng-hide">
+                    <div class="decrypt-progress" ng-show="loadModal.decrypting" class="ng-hide">
                         <div class="progress progress-striped active">
                           <div class="progress-bar"  role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%">
                             <span class="sr-only">45% Complete</span>
@@ -63,17 +61,23 @@
                             </thead>
                             <tbody id="pendingUnits"">
                                 <tr ng-repeat="p in loadModal.pendingUnit.part">
-                                    <td>TODO</td>
                                     <td>{{p.series}}</td>
+                                    <td>
+                                        <select ng-model="p.destination" ng-options="d for d in loadModal.destinations" class="form-control" ng-required="!p.destination">
+                                            <option value="">-- select destination --</option>
+                                        </select>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
                 </div>
-                <div class="step-pane" id="step3">This is step 3</div>
-                <!-- div class="step-pane" id="step4">This is step 4</div>
-                <div class="step-pane" id="step5">This is step 5</div -->
+                <div class="step-pane" id="step3">
+                    <div class="well startLoading">
+                        <button type="button" class="btn btn-primary" ng-click="startLoad()">Start Load&#160;&gt;&gt;</button>
+                    </div>
+                </div>
               </div>
 
           </div>
@@ -83,7 +87,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" ng-click="next()">Next&#160;&gt;&gt;</button>
+          <button type="button" class="btn btn-primary" ng-click="next()" ng-show="loadModal.nextEnabled">Next&#160;&gt;&gt;</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

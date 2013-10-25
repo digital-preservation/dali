@@ -24,4 +24,19 @@ object DataStore {
     }
     store
   }
+
+  def withTemporaryFile[T](fileDetail: Option[(String, Array[Byte])])(f: Option[Path] => T) : T = fileDetail match {
+    case Some((name, data)) =>
+      val tmpFile = Path.createTempFile(deleteOnExit = true)
+      try {
+        tmpFile.write(data)
+        f(Option(tmpFile))
+      } finally {
+        tmpFile.delete(force = true)
+      }
+    case None =>
+      f(None)
+  }
+
+  def isWindowsJunkDir(name: String) = name.matches("System Volume Information|^Recycler.*|^\\..+")
 }
