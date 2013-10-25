@@ -4,7 +4,6 @@ import akka.actor.{ActorRef, Props, Actor}
 import scala.concurrent.duration._
 import grizzled.slf4j.Logging
 import akka.util.Timeout
-import scalax.file.Path
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
 import uk.gov.tna.dri.preingest.loader.io.{UnitLoadStatus, LoadActor}
 import akka.routing.SmallestMailboxRouter

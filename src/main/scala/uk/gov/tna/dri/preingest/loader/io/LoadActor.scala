@@ -2,11 +2,11 @@ package uk.gov.tna.dri.preingest.loader.io
 
 import akka.actor.Actor
 import grizzled.slf4j.Logging
-import uk.gov.tna.dri.preingest.loader.unit.{TrueCryptedPartition, TrueCrypt, LoadingUnit, LoadUnit}
-import uk.gov.tna.dri.preingest.loader.certificate._
+import uk.gov.tna.dri.preingest.loader.unit.LoadUnit
 import uk.gov.tna.dri.preingest.loader.store.DataStore
 import scalax.file.{PathSet, Path}
 import scalax.file.PathMatcher.IsFile
+import uk.gov.tna.dri.preingest.loader.unit.disk.{TrueCrypt, TrueCryptedPartition}
 
 
 object LoadStatus extends Enumeration {
@@ -54,15 +54,7 @@ class LoadActor extends Actor with Logging {
       }
   }
 
-  def loadFile(file: Path, dest: Path) {
-    /* val parentDir = destination.parent.get
-    if(!parentDir.exists) {
-      parentDir.createDirectory()
-    }  */
-
-    file.copyTo(dest, createParents = true, copyAttributes = true)
-  }
-
+  def loadFile(file: Path, dest: Path) = file.copyTo(dest, createParents = true, copyAttributes = true)
 
   def totalSize(paths: PathSet[Path]) = paths.toList.map(_.size).map(_.getOrElse(0l)).reduceLeft(_ + _)
 }

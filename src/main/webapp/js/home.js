@@ -72,6 +72,15 @@ function LoadModalCtrl($scope, $http) {
         //send message to initiate load
         doStartLoad(mLoadModal.pendingUnit, mLoadModal.cert, mLoadModal.passphrase);
 
+        //hide the load button for this unit and show the progress bar for the load
+        updatePending(function(model) {
+            $.each(model, function(i, v) {
+                if(v.src == mLoadModal.pendingUnit.src) {
+                    v.showComplete = true;
+                }
+            });
+        });
+
         //close modal dialog
         $('#loadModal').modal('hide');
 
@@ -367,7 +376,6 @@ $(document).ready(function() {
             updatePending(function(model) {
               $.each(model, function(i, v) {
                 if(v.src == json.loadStatus.unit.src) {
-                    v.showComplete = true;
                     v.complete = json.loadStatus.complete;
                 }
               });

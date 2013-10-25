@@ -284,6 +284,7 @@ class PreIngestLoaderActor(pendingUnitsActor: ActorRef) extends Actor with Loggi
       ("unit" ->
         ("src" -> uls.src)
       ) ~
+      ("status" -> uls.status.toString) ~
       ("complete" -> uls.complete)
     )
   }

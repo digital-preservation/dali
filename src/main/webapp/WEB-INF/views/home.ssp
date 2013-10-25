@@ -57,6 +57,7 @@
                               <div class="progress-bar"  role="progressbar" aria-valuenow="{{pendingUnit.complete}}" aria-valuemin="0" aria-valuemax="100" style="width: {{pendingUnit.complete}}%">
                                 <span class="sr-only">{{pendingUnit.complete}}% Complete</span>
                               </div>
+                              <span>Loading...</span>
                             </div>
                         </td>
                         <td>{{pendingUnit.interface}}</td>
