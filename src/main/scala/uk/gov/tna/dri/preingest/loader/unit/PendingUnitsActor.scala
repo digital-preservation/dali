@@ -7,6 +7,7 @@ import akka.util.Timeout
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
 import uk.gov.tna.dri.preingest.loader.io.{UnitLoadStatus, LoadActor}
 import akka.routing.SmallestMailboxRouter
+import uk.gov.tna.dri.preingest.loader.unit.disk.UDisksUnitMonitor
 
 case class Register(pendingUnit: PendingUnit)
 case class DeRegister(pendingUnit: PendingUnit)
@@ -42,11 +43,12 @@ class PendingUnitsActor extends Actor with Logging {
 
       implicit val timeout = Timeout(20 seconds) //udisks queries can be slow! TODO make configurable
 
-      val f = for {
-          pau <- (udisksUnitMonitor ? ListPendingUnits).mapTo[PendingAttachedUnits]
-          puu <-(uploadedUnitMonitor ? ListPendingUnits).mapTo[PendingUploadedUnits]
-        } yield PendingUnits(clientId, pau.pending ++ puu.pending)
-        f pipeTo sender
+      //TODO
+//      val f = for {
+//          pau <- (udisksUnitMonitor ? ListPendingUnits).mapTo[PendingAttachedUnits]
+//          puu <-(uploadedUnitMonitor ? ListPendingUnits).mapTo[PendingUploadedUnits]
+//        } yield PendingUnits(clientId, pau.pending ++ puu.pending)
+//        f pipeTo sender
 
     case r: Register =>
       broadcast(r)
