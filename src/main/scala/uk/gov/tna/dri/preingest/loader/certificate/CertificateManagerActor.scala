@@ -4,26 +4,21 @@ import akka.actor.Actor
 import grizzled.slf4j.Logging
 import scalax.file.{NotFileException, FileOps, Path}
 import java.net.NetworkInterface
-import java.security.{Security, MessageDigest}
-import org.bouncycastle.util.encoders.Base64
-import org.bouncycastle.openpgp.examples.ByteArrayHandler
-import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags
 import java.io.FileNotFoundException
 import uk.gov.tna.dri.preingest.loader.store.DataStore
+import uk.gov.tna.dri.preingest.loader.Crypto
+import uk.gov.tna.dri.preingest.loader.Crypto.{SymetricAlgorithm, DigestAlgorithm}
 
 
 case class StoreCertificates(username: String, certificates: Seq[CertificateDetail])
 case class CertificateRef(name: String, path: Path)
 case class Certificate(detail: CertificateDetail)
 case class ListCertificates(username: String)
-case class GetCertificate(username: String, name: CertificateName)
+case class GetCertificate(username: String, name: CertificateName, reply: Option[CertificateDetail => Any] = None)
 case class CertificateList(certificates: Seq[CertificateName])
 
 class CertificateManagerActor extends Actor with Logging {
 
-  Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider())
-
-  private val SYMETRIC_ALG = SymmetricKeyAlgorithmTags.TWOFISH
   private val ENCRYPTED_FILE_EXT = "gpg"
 
   def receive = {
@@ -44,7 +39,7 @@ class CertificateManagerActor extends Actor with Logging {
       val certNames = certificates.seq.map(_.name.replace(s".$ENCRYPTED_FILE_EXT", "")).toSeq
       sender ! CertificateList(certNames)
 
-    case GetCertificate(username, name) =>
+    case GetCertificate(username, name, reply) =>
       val ks = DataStore.userStore(username)
       val cert = ks / s"$name.$ENCRYPTED_FILE_EXT"
 
@@ -52,7 +47,12 @@ class CertificateManagerActor extends Actor with Logging {
         case Left(t) =>
           error(t.getMessage, t)
         case Right(certificateData) =>
-          sender ! Certificate((name, certificateData))
+          reply match {
+            case Some(f) =>
+              sender ! f((name, certificateData))
+            case None =>
+              sender ! Certificate((name, certificateData))
+          }
       }
   }
 
@@ -68,16 +68,11 @@ class CertificateManagerActor extends Actor with Logging {
     import scala.collection.JavaConverters._
 
     val network = NetworkInterface.getNetworkInterfaces.asScala.filter(_.getName().startsWith("eth")).map(_.getHardwareAddress).reduceLeft(_ ++ _)
-    val md = MessageDigest.getInstance("SHA256")
-    md.update(network)
-    val digest = md.digest(username.getBytes("UTF-8"))
-
-    Base64.toBase64String(digest)
+    Crypto.base64Unsafe(Crypto.digest(username, Option(network), DigestAlgorithm.SHA256))
   }
 
   private def storeCertificate(store: Path, certificate: CertificateDetail, passphrase: String): Either[Throwable, Path] = {
-    val encryptedCert = ByteArrayHandler.encrypt(certificate._2, passphrase.toCharArray, certificate._1, SYMETRIC_ALG, false)
-
+    val encryptedCert = Crypto.encrypt(certificate._2, passphrase, Crypto.SymetricAlgorithm.TWOFISH)
     val certificateFile = store / (certificate._1 + "." + ENCRYPTED_FILE_EXT)
 
     import scala.util.control.Exception._
@@ -93,7 +88,7 @@ class CertificateManagerActor extends Actor with Logging {
     val result : Either[Throwable, CertificateData] = catching(classOf[NotFileException],
       classOf[FileNotFoundException]) either {
       val encryptedCert = certificateFile.asInstanceOf[FileOps].bytes.toArray
-      ByteArrayHandler.decrypt(encryptedCert, passphrase.toCharArray)
+      Crypto.decrypt(encryptedCert, passphrase)
     }
     result
   }

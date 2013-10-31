@@ -4,34 +4,39 @@ import grizzled.slf4j.Logging
 import akka.actor.{Props, ActorRef, Actor}
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
 import uk.gov.tna.dri.preingest.loader.unit.disk.UDisksUnitMonitor
+import uk.gov.tna.dri.preingest.loader.certificate._
+
+case class UnitAction(progress: Int)
 
 case class RegisterUnit(unitUid: UnitUID, unit: ActorRef)
 case class DeRegisterUnit(unitUid: UnitUID)
-case class SendUnitStatus(listener: ActorRef)
+case class SendUnitStatus(listener: ActorRef, clientId: Option[String] = None)
+case class UnitStatus(unit: DRIUnit, action: Option[UnitAction] = None, clientId: Option[String] = None)
 case class RemoveUnit(unitUid: UnitUID)
+case class ListUnits(clientId: String)
+case class LoadUnit(username: String, unitUid: UnitUID, parts: Seq[TargetedPart], certificate: Option[String], passphrase: Option[String])
 
 class UnitManagerActor extends Actor with Logging {
 
-  lazy val uploadedUnitMonitor = context.actorOf(Props[UploadedUnitMonitor], name="UploadedUnitMonitor")
+  private val uploadedUnitMonitor = context.actorOf(Props[UploadedUnitMonitor], name="UploadedUnitMonitor")
   import context.dispatcher
   import scala.concurrent.duration._
   context.system.scheduler.schedule(5 seconds, 30 seconds, uploadedUnitMonitor, ScheduledExecution) //TODO make configurable
   info("Scheduled: " + uploadedUnitMonitor.path)
 
-  lazy val udisksUnitMonitor = context.actorOf(Props[UDisksUnitMonitor], name="UDisksUnitMonitor")
+  private val udisksUnitMonitor = context.actorOf(Props[UDisksUnitMonitor], name="UDisksUnitMonitor")
 
   //state
-  var units = Map.empty[UnitUID, ActorRef]
-  var listeners = List.empty[ActorRef]
+  private var units = Map.empty[UnitUID, ActorRef]
+  private var listeners = List.empty[ActorRef]
 
   def receive = {
 
     case Listen =>
       this.listeners = sender :: listeners
 
-      //TODO
-    //case ListUnits =>
-
+    case ListUnits(clientId) => //TODO specific client!
+      this.units.values.map(_ ! SendUnitStatus(sender, Option(clientId)))
 
     case RegisterUnit(unitId, unit) =>
       this.units = units + (unitId -> unit)
@@ -39,7 +44,7 @@ class UnitManagerActor extends Actor with Logging {
         unit ! SendUnitStatus(_)
       }
 
-     //TODO
+     //TODO  above will probably cope with update too!
      //case UnitUpdated(unitId) =>
      // listeners.map {
      //   listeners(unitId) ! SendStatus(_)
@@ -56,5 +61,7 @@ class UnitManagerActor extends Actor with Logging {
         _ ! RemoveUnit(unitId)
       }
 
+    case LoadUnit(username, unitUid, parts, certificate, passphrase) =>
+      units(unitUid) ! Load(username, parts, certificate, passphrase)
   }
 }

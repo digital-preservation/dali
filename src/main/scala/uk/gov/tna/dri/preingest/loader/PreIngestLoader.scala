@@ -1,6 +1,6 @@
 package uk.gov.tna.dri.preingest.loader
 
-import _root_.akka.actor.{ActorSystem, Props, Actor, ActorRef}
+import _root_.akka.actor.{ActorRef, ActorSystem, Props, Actor}
 import _root_.akka.pattern._
 import _root_.akka.util.Timeout
 import org.scalatra._
@@ -19,34 +19,18 @@ import uk.gov.tna.dri.preingest.loader.unit._
 import org.scalatra.servlet.FileUploadSupport
 import uk.gov.tna.dri.preingest.loader.certificate._
 import uk.gov.tna.dri.preingest.loader.unit.PendingUnit
-import org.scalatra.atmosphere.Disconnected
-import uk.gov.tna.dri.preingest.loader.unit.ListPendingUnits
-import org.scalatra.atmosphere.JsonMessage
-import uk.gov.tna.dri.preingest.loader.unit.Register
-import org.scalatra.atmosphere.TextMessage
-import scala.Some
-import uk.gov.tna.dri.preingest.loader.unit.DeRegister
-import uk.gov.tna.dri.preingest.loader.unit.PendingUnits
-import org.scalatra.atmosphere.Error
-import uk.gov.tna.dri.preingest.loader.unit.PendingUnit
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateList
 import org.scalatra.atmosphere.Disconnected
-import uk.gov.tna.dri.preingest.loader.unit.ListPendingUnits
 import org.scalatra.atmosphere.JsonMessage
-import uk.gov.tna.dri.preingest.loader.unit.Register
 import org.scalatra.atmosphere.TextMessage
 import scala.Some
-import uk.gov.tna.dri.preingest.loader.unit.DeRegister
 import uk.gov.tna.dri.preingest.loader.certificate.ListCertificates
-import uk.gov.tna.dri.preingest.loader.unit.PendingUnits
 import org.scalatra.atmosphere.Error
 import uk.gov.tna.dri.preingest.loader.unit.DecryptUnit
 import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
-import scalax.file.Path
-import uk.gov.tna.dri.preingest.loader.io.UnitLoadStatus
 
 
-class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) extends ScalatraServlet
+class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certificateManagerActor: ActorRef) extends ScalatraServlet
   with ScalateSupport with JValueResult
   with JacksonJsonSupport
   with SessionSupport
@@ -57,8 +41,6 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
 
   implicit protected val jsonFormats: Formats = DefaultFormats
   protected implicit def executor: ExecutionContext = system.dispatcher
-
-  lazy val certificateManagerActor = system.actorOf(Props[CertificateManagerActor], name="certificateManagerActor")
 
   def toJson(cl: CertificateList) : JValue = {
     ("certificate" ->
@@ -161,7 +143,8 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
             case JObject(("action", JString(action)) :: content) =>
               action match {
                 case "pending" =>
-                  preIngestLoaderActor ! ListPendingUnits(uuid)
+                  //preIngestLoaderActor ! ListPendingUnits(uuid)
+                  preIngestLoaderActor ! ListUnits(uuid)
 
                 case "decrypt" =>
                   content match {
@@ -201,7 +184,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
                 case "load" =>
                   content match {
                     case List(
-                    ("unit", JObject(List(("interface", JString(interface)), ("src", JString(src)), ("label", JString(label)), ("part", JArray(jParts))))),
+                    ("unit", JObject(List(("uid", JString(uid)),("part", JArray(jParts))))),
                     ("certificate", certificate),
                     ("passphrase", passphrase)
                     ) =>
@@ -223,17 +206,20 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
                           TargetedPart(Destination.withName(destination), Part(unit, series))
                       }
 
-                      optCertificate match {
-                        case Some(certificate) =>
-                          new AsyncResult {
-                            val is = ask(certificateManagerActor, GetCertificate(username, certificate))(Timeout(10 seconds)).mapTo[Certificate].map {
-                              certificate =>
-                                preIngestLoaderActor ! LoadUnit(username, LoadingUnit(interface, src, label, parts), Option(certificate.detail), optPassphrase)
-                            }
-                          }
-                        case None =>
-                          preIngestLoaderActor ! LoadUnit(username, LoadingUnit(interface, src, label, parts), None, optPassphrase)
-                      }
+                      preIngestLoaderActor ! LoadUnit(username, uid, parts, optCertificate, optPassphrase)
+
+                      //TODO move certificate lookup into the relevant actor e.g. physicalencryptedactor
+//                      optCertificate match {
+//                        case Some(certificate) =>
+//                          new AsyncResult {
+//                            val is = ask(certificateManagerActor, GetCertificate(username, certificate))(Timeout(10 seconds)).mapTo[Certificate].map {
+//                              certificate =>
+//                                preIngestLoaderActor ! LoadUnit(username, uid, parts, Option(certificate.detail), optPassphrase)
+//                            }
+//                          }
+//                        case None =>
+//                          preIngestLoaderActor ! LoadUnit(username, uid, parts), None, optPassphrase)
+//                      }
 
                     case u =>
                       println("INVALID LOAD ADAM!!!")
@@ -251,67 +237,109 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef) exten
   }
 }
 
-class PreIngestLoaderActor(pendingUnitsActor: ActorRef) extends Actor with Logging {
+class PreIngestLoaderActor extends Actor with Logging {
 
-  pendingUnitsActor ! Listen
+  val unitManagerActor = context.actorOf(Props[UnitManagerActor], name="unitManagerActor")
+  unitManagerActor ! Listen
 
   def receive = {
 
-    case lu: LoadUnit =>
-      pendingUnitsActor ! lu
+//    case lu: LoadUnit =>
+//      pendingUnitsActor ! lu
+//
+//    case uls: UnitLoadStatus =>
+//      AtmosphereClient.broadcast("/unit", JsonMessage(toJson(uls))) //update everyone
+//
+//    case du: DecryptUnit =>
+//      pendingUnitsActor ! du
+//
+//    case lpu: ListPendingUnits =>
+//        pendingUnitsActor ! lpu
+//
+//    case PendingUnits(clientId, pendingUnits) =>
+//      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("pending", pendingUnits)), _.uuid == clientId) //send only to client
+//
+//    case Register(pendingUnit) =>
+//      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("pendingAdd", pendingUnit))) //update everyone
+//
+//    case DeRegister(pendingUnit) =>
+//      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("pendingRemove", pendingUnit))) //update everyone
 
-    case uls: UnitLoadStatus =>
-      AtmosphereClient.broadcast("/unit", JsonMessage(toJson(uls))) //update everyone
+    //send unit status (i.e. add of update)
+    case UnitStatus(unit, action, clientId) =>
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("update", unit)), allOrOne(clientId))
 
-    case du: DecryptUnit =>
-      pendingUnitsActor ! du
+    //remove unit detail
+    case DeRegisterUnit(unitUid) =>
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("remove", unitUid)))
 
-    case lpu: ListPendingUnits =>
-        pendingUnitsActor ! lpu
+    //list all unit status
+    case lu: ListUnits =>
+      unitManagerActor ! lu
 
-    case PendingUnits(clientId, pendingUnits) =>
-      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("pending", pendingUnits)), _.uuid == clientId) //send only to client
-
-    case Register(pendingUnit) =>
-      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("pendingAdd", pendingUnit))) //update everyone
-
-    case DeRegister(pendingUnit) =>
-      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("pendingRemove", pendingUnit))) //update everyone
   }
 
-  def toJson(uls: UnitLoadStatus) : JValue = {
-    ("loadStatus" ->
-      ("unit" ->
-        ("src" -> uls.src)
-      ) ~
-      ("status" -> uls.status.toString) ~
-      ("complete" -> uls.complete)
-    )
+  def allOrOne(maybeClientId: Option[String])(client: AtmosphereClient) : Boolean = {
+    maybeClientId match {
+      case Some(clientId) =>
+        client.uuid == clientId
+      case None =>
+        true
+    }
   }
 
-  def toJson(action: String, pendingUnit: PendingUnit) : JValue = toJson(action, List(pendingUnit))
+  def toJson(action: String, unit: DRIUnit) : JObject = toJson(action, List(unit))
 
-  def toJson(action: String, pendingUnits: List[PendingUnit]) : JValue = {
+  def toJson(action: String, units: List[DRIUnit]) : JObject = {
     (action ->
       ("unit" ->
-        pendingUnits.map {
-          pendingUnit =>
-            ("interface" -> pendingUnit.interface) ~
-            ("src" -> pendingUnit.src) ~
-            ("label" -> pendingUnit.label) ~
-            ("size" -> pendingUnit.size) ~
-            ("timestamp" -> pendingUnit.timestamp) ~
-            ("part" ->
-              pendingUnit.parts.map {
-                _.map {
-                  part =>
-                    ("unit" -> part.unitId) ~
-                    ("series" -> part.series)
-                }
-              }
-            )
-        }
+        units.map(_.toJson())
       )
     )
   }
+
+  def toJson(action: String, unitUid: DRIUnit.UnitUID) = {
+    (action ->
+      ("unit" ->
+        ("uid" -> unitUid)
+      )
+    )
+  }
+
+
+//  def toJson(uls: UnitLoadStatus) : JValue = {
+//    ("loadStatus" ->
+//      ("unit" ->
+//        ("src" -> uls.src)
+//      ) ~
+//      ("status" -> uls.status.toString) ~
+//      ("complete" -> uls.complete)
+//    )
+//  }
+//
+//  def toJson(action: String, pendingUnit: PendingUnit) : JValue = toJson(action, List(pendingUnit))
+//
+//  def toJson(action: String, pendingUnits: List[PendingUnit]) : JValue = {
+//    (action ->
+//      ("unit" ->
+//        pendingUnits.map {
+//          pendingUnit =>
+//            ("interface" -> pendingUnit.interface) ~
+//            ("src" -> pendingUnit.src) ~
+//            ("label" -> pendingUnit.label) ~
+//            ("size" -> pendingUnit.size) ~
+//            ("timestamp" -> pendingUnit.timestamp) ~
+//            ("part" ->
+//              pendingUnit.parts.map {
+//                _.map {
+//                  part =>
+//                    ("unit" -> part.unitId) ~
+//                    ("series" -> part.series)
+//                }
+//              }
+//            )
+//        }
+//      )
+//    )
+//  }
 }

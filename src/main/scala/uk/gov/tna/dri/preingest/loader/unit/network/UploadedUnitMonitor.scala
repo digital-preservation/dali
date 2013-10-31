@@ -3,10 +3,9 @@ package uk.gov.tna.dri.preingest.loader.unit
 import akka.actor.{Props, Actor}
 import scalax.file.Path
 import grizzled.slf4j.Logging
-import java.security.{MessageDigest, DigestInputStream}
-import scala.collection.mutable.ArrayBuffer
-import org.bouncycastle.util.encoders.Hex
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
+import uk.gov.tna.dri.preingest.loader.Crypto
+import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
 
 //received events
 case object ScheduledExecution
@@ -29,12 +28,6 @@ class UploadedUnitMonitor extends Actor with Logging {
 
   def receive = {
 
-//    case ListPendingUnits =>
-//       if(known.isEmpty) {
-//         this.known = findPendingUnits(Path.fromString(uploadLocation))
-//       }
-//       sender ! PendingUploadedUnits(this.known)
-
     case ScheduledExecution =>
       val foundUnits = findUnits(Path.fromString(UploadedUnitMonitor.UPLOAD_LOCATION))
 
@@ -47,9 +40,6 @@ class UploadedUnitMonitor extends Actor with Logging {
 
           val unitActor = context.actorOf(Props(new UploadedUnitActor(uid, foundUnit)))
           context.parent ! RegisterUnit(uid, unitActor)
-
-          //nonProcessingUploadedUnits.toList.map(uploadedUnit => PendingUnit(UploadedUnitMonitor.NETWORK_INTERFACE, uploadLocation, uploadedUnit.name, Option(uploadedUnit.size.get), Option(path.lastModified)))
-          //context.parent ! Register(pendingUnit)
         }
       }
     
@@ -66,17 +56,7 @@ class UploadedUnitMonitor extends Actor with Logging {
     //create checksum of unit
     unitPath.inputStream().acquireAndGet {
      is =>
-       val md = MessageDigest.getInstance("SHA1")
-       val buf = new Array[Byte](4096) //4KB
-       var read = 0;
-       while(read > -1) {
-         read = is.read(buf)
-         if(read > -1) {
-           md.update(buf)
-         }
-       }
-
-       Hex.toHexString(md.digest())
+       Crypto.hexUnsafe(Crypto.digest(is, DigestAlgorithm.SHA256))
     }
   }
 

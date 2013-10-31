@@ -130,18 +130,9 @@ object TrueCryptedPartition {
       tcVirtualDevice.flatMap(NTFS.getLabel)
     }
 
-  def tempMountPoint(username: String, volume: String) : Path = {
-    val mountPoint = DataStore.userStore(username) / s"tc_${volume.split('/').last}"
-    if(!mountPoint.exists) {
-      mountPoint.createDirectory()
-    }
-    mountPoint
-  }
-
-  def listTopLevelDirs(username: String)(volume: String, certificate: Option[Path], passphrase: String) : Seq[String] = {
-    val mountPoint = tempMountPoint(username, volume)
-    TrueCrypt.withVolume(volume, certificate, passphrase, mountPoint) {
-      val subDirs = mountPoint * IsDirectory filterNot { dir => DataStore.isWindowsJunkDir(dir.name) }
+  def listTopLevelDirs(volume: String, mount: Path, certificate: Option[Path], passphrase: String) : Seq[String] = {
+    TrueCrypt.withVolume(volume, certificate, passphrase, mount) {
+      val subDirs = mount * IsDirectory filterNot { dir => DataStore.isWindowsJunkDir(dir.name) }
       subDirs.seq.map(_.name).toSeq
     }
   }

@@ -43,15 +43,16 @@ class UDisksMonitor(udisksMonitor: ActorRef) {
   dbus.addSigHandler(classOf[UDeviceRemoved], new DBusSigHandler[UDeviceRemoved] {
     def handle(event: UDeviceRemoved) {
       val path = extractString(event.getWireData()(2))
-      val devicePath = dbusDeviceMappings(path)
+      dbusDeviceMappings.get(path) match {
+        case Some(devicePath) =>
+          dbusDeviceMappings.synchronized {
+            dbusDeviceMappings -= path //remove mapping
+          }
+          if(IGNORE_DEVICES.find(_.findFirstMatchIn(devicePath).nonEmpty).isEmpty)
+            udisksMonitor ! DeviceRemoved(devicePath)
 
-      dbusDeviceMappings.synchronized {
-        dbusDeviceMappings -= path //remove mapping
+        case None =>
       }
-
-      if(IGNORE_DEVICES.find(_.findFirstMatchIn(devicePath).nonEmpty).isEmpty)
-        udisksMonitor ! DeviceRemoved(devicePath)
-
     }
   })
 
@@ -65,12 +66,14 @@ class UDisksMonitor(udisksMonitor: ActorRef) {
         device =>
           val path = getRemoteObjectPath(device)
           val props = getProperties(UDISKS_BUS_NAME, path, classOf[Device])
-          val sProps = getStoreProperties(props)
-
-          if(IGNORE_DEVICES.find(_.findFirstIn(sProps.deviceFile).nonEmpty).isEmpty) {
-            dbusDeviceMappings += (path -> sProps.deviceFile) //add mapping
-            udisksMonitor ! DeviceAdded(sProps)
-          }
+          (path -> getStoreProperties(props))
+      }
+      .filterNot(x => IGNORE_DEVICES.find(_.findFirstIn(x._2.deviceFile).nonEmpty).nonEmpty)
+      .sortBy(_._2.deviceFile.length)
+      .map {
+        case (dbusPath, storeProperties) =>
+          dbusDeviceMappings += (dbusPath -> storeProperties.deviceFile) //add mapping
+          udisksMonitor ! DeviceAdded(storeProperties) //notify monitor
       }
     }
   }
@@ -79,13 +82,15 @@ class UDisksMonitor(udisksMonitor: ActorRef) {
     dbus.disconnect()
   }
 
-  //private def pendingUnit(sp: StoreProperties) = PendingUnit(sp.interface.toUpperCase, sp.deviceFile, sp.getLabel(), Option(sp.size), Option(sp.timestamp * 1000)) //*1000 to get to milliseconds
-
   private def getStoreProperties(props: Map[String, Variant[_]]) : StoreProperties = {
+
+    import java.util.{Vector => JVector}
+    import scala.collection.JavaConverters._
 
     //def getInt(key: String) : Int = props(key).getValue.asInstanceOf[UInt32].intValue
     def getLng(key: String) : Long = props(key).getValue.asInstanceOf[UInt64].longValue
     def getStr(key: String) : String = props(key).getValue.asInstanceOf[String]
+    def getLst[T](key: String) : List[T] = props(key).getValue.asInstanceOf[JVector[T]].asScala.toList
     def getBool(key: String) : Boolean = props(key).getValue.asInstanceOf[java.lang.Boolean]
     def nonEmpty(s: String) : Option[String] = {
       if( s == null || s.isEmpty)
@@ -95,6 +100,7 @@ class UDisksMonitor(udisksMonitor: ActorRef) {
     }
 
     val interface = getStr("DriveConnectionInterface")
+    val nativePath = getStr("NativePath")
     val deviceFile = getStr("DeviceFile")
     val timestamp: Long = getLng("DeviceDetectionTime")
 
@@ -108,7 +114,10 @@ class UDisksMonitor(udisksMonitor: ActorRef) {
         partitionType = Integer.parseInt(getStr("PartitionType").substring(2), 16),
         partitionLabel = nonEmpty(getStr("PartitionLabel")).orElse(nonEmpty(getStr("IdLabel"))),
         interface,
+        nativePath,
         deviceFile,
+        mounted = if(getBool("DeviceIsMounted")) Option(getLst[String]("DeviceMountPaths")) else None,
+        lvmDevice = getStr("IdUsage") == "raid" && getStr("IdType") == "LVM2_member",
         size = getLng("PartitionSize"),
         timestamp)
     } else {
@@ -117,6 +126,7 @@ class UDisksMonitor(udisksMonitor: ActorRef) {
         getStr("DriveModel"),
         getStr("DriveSerial"),
         interface,
+        nativePath,
         deviceFile,
         size = getLng("DeviceSize"),
         timestamp)
@@ -150,24 +160,20 @@ class UDisksMonitor(udisksMonitor: ActorRef) {
 }
 
 object UDisksMonitor {
-  val UNKNOWN_LABEL = "<<UNKNOWN>>"
 
+  type NativePath = String
   type DeviceFile = String
+  type Bytes = Long
+  type Seconds = Long
 
   trait StoreProperties {
     def interface: String
+    def nativePath: NativePath
     def deviceFile: DeviceFile
-    def size: Long
-    def timestamp: Long
-
-    def getLabel() : String
+    def size: Bytes
+    def timestamp: Seconds
   }
 
-  case class DiskProperties(vendor: String, model: String, serial: String, interface: String, deviceFile: String, size: Long, timestamp: Long) extends StoreProperties {
-    def getLabel() = s"$vendor $model (S/N: $serial)"
-  }
-
-  case class PartitionProperties(partitionType: Int, partitionLabel: Option[String], interface: String, deviceFile: String, size: Long, timestamp: Long) extends StoreProperties {
-    def getLabel() = s"${partitionLabel.getOrElse(UDisksMonitor.UNKNOWN_LABEL)} (${PartitionTypes.TYPES(partitionType)})"
-  }
+  case class DiskProperties(vendor: String, model: String, serial: String, interface: String, nativePath: String, deviceFile: String, size: Bytes, timestamp: Seconds) extends StoreProperties
+  case class PartitionProperties(partitionType: Int, partitionLabel: Option[String], interface: String, nativePath: String, deviceFile: String,  mounted: Option[List[String]], lvmDevice: Boolean, size: Bytes, timestamp: Seconds) extends StoreProperties
 }

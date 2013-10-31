@@ -5,7 +5,7 @@ import scala.concurrent.duration._
 import grizzled.slf4j.Logging
 import akka.util.Timeout
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
-import uk.gov.tna.dri.preingest.loader.io.{UnitLoadStatus, LoadActor}
+import uk.gov.tna.dri.preingest.loader.io.UnitLoadStatus
 import akka.routing.SmallestMailboxRouter
 import uk.gov.tna.dri.preingest.loader.unit.disk.UDisksUnitMonitor
 
@@ -14,9 +14,10 @@ case class DeRegister(pendingUnit: PendingUnit)
 case class ListPendingUnits(clientId: String)
 case class PendingUnits(clientId: String, pendingUnits: List[PendingUnit])
 case class DecryptUnit(username: String, pendingUnit: PendingUnit, certificate: Option[CertificateDetail], passphrase: Option[String])
-case class LoadUnit(username: String, loadingUnit: LoadingUnit, certificate: Option[CertificateDetail], passphrase: Option[String])
+
 case object Listen
 
+//TODO delete
 class PendingUnitsActor extends Actor with Logging {
 
   lazy val uploadedUnitMonitor = context.actorOf(Props[UploadedUnitMonitor], name="UploadedUnitMonitor")
@@ -26,8 +27,8 @@ class PendingUnitsActor extends Actor with Logging {
 
   val udisksUnitMonitor = context.actorOf(Props[UDisksUnitMonitor], name="UDisksUnitMonitor")
 
-  val LOADER_COUNT = Runtime.getRuntime.availableProcessors() //TODO make configurable
-  lazy val loadActor = context.actorOf(Props[LoadActor].withRouter(SmallestMailboxRouter(LOADER_COUNT)), "LoadActorRouter")
+  //val LOADER_COUNT = Runtime.getRuntime.availableProcessors() //TODO make configurable
+  //lazy val loadActor = context.actorOf(Props[LoadActor].withRouter(SmallestMailboxRouter(LOADER_COUNT)), "LoadActorRouter")
 
   //mutable
   var listeners = List.empty[ActorRef]
@@ -51,6 +52,7 @@ class PendingUnitsActor extends Actor with Logging {
 //        f pipeTo sender
 
     case r: Register =>
+      debug("Registered: " + r.pendingUnit.src)
       broadcast(r)
 
     case d: DeRegister =>
@@ -66,7 +68,7 @@ class PendingUnitsActor extends Actor with Logging {
       }
 
     case lu: LoadUnit =>
-      loadActor ! lu
+      //loadActor ! lu
 
     case uls: UnitLoadStatus =>
       broadcast(uls)

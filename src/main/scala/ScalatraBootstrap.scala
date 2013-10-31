@@ -2,8 +2,9 @@ import akka.actor.{Props, ActorSystem}
 import org.scalatra.LifeCycle
 import javax.servlet.ServletContext
 import uk.gov.tna.dri.preingest.loader.auth.RememberMeDb
+import uk.gov.tna.dri.preingest.loader.certificate.CertificateManagerActor
 import uk.gov.tna.dri.preingest.loader.{PreIngestLoaderActor, PreIngestLoader}
-import uk.gov.tna.dri.preingest.loader.unit.PendingUnitsActor
+import uk.gov.tna.dri.preingest.loader.unit.{UnitManagerActor, PendingUnitsActor}
 
 class ScalatraBootstrap extends LifeCycle {
 
@@ -12,12 +13,12 @@ class ScalatraBootstrap extends LifeCycle {
   override def init(context: ServletContext) {
 
     val system = ActorSystem("dri-preingest-loader")
-    val pendingUnitsActor = system.actorOf(Props[PendingUnitsActor], name="PendingUnitsActor")
-    val preIngestLoaderActor = system.actorOf(Props(new PreIngestLoaderActor(pendingUnitsActor)), name="PreIngestLoaderActor")
+    lazy val preIngestLoaderActor = system.actorOf(Props[PreIngestLoaderActor], name="PreIngestLoaderActor")
+    lazy val certificateManagerActor = system.actorOf(Props[CertificateManagerActor], name="certificateManagerActor")
 
     context.setAttribute(PREINGEST_LOADER_ACTOR_SYSTEM, system)
 
-    context mount (new PreIngestLoader(system, preIngestLoaderActor), "/*")
+    context mount (new PreIngestLoader(system, preIngestLoaderActor, certificateManagerActor), "/*")
   }
   override def destroy(context: ServletContext) {
     super.destroy(context)
