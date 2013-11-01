@@ -15,6 +15,8 @@ case class UnitStatus(unit: DRIUnit, action: Option[UnitAction] = None, clientId
 case class RemoveUnit(unitUid: UnitUID)
 case class ListUnits(clientId: String)
 case class LoadUnit(username: String, unitUid: UnitUID, parts: Seq[TargetedPart], certificate: Option[String], passphrase: Option[String])
+case class UpdateUnitDecryptDetail(username: String, uid: UnitUID, certificate: Option[String], passphrase: String, clientId: Option[String] = None)
+case class UpdateDecryptDetail(username: String, listener: ActorRef, certificate: Option[String], passphrase: String, clientId: Option[String])
 
 class UnitManagerActor extends Actor with Logging {
 
@@ -37,6 +39,16 @@ class UnitManagerActor extends Actor with Logging {
 
     case ListUnits(clientId) => //TODO specific client!
       this.units.values.map(_ ! SendUnitStatus(sender, Option(clientId)))
+
+
+    case UpdateUnitDecryptDetail(username, unitUid, certificate, passphrase, clientId) =>
+      val unitActor = this.units(unitUid)
+      if(unitActor.isInstanceOf[EncryptedDRIUnitActor[_ <: EncryptedDRIUnit]]) {
+        unitActor ! UpdateDecryptDetail(username, sender, certificate, passphrase, clientId)
+      } else {
+        //TODO cannot decrypt a non-encrypted unit, send error message to client
+      }
+
 
     case RegisterUnit(unitId, unit) =>
       this.units = units + (unitId -> unit)
@@ -62,6 +74,6 @@ class UnitManagerActor extends Actor with Logging {
       }
 
     case LoadUnit(username, unitUid, parts, certificate, passphrase) =>
-      units(unitUid) ! Load(username, parts, certificate, passphrase)
+      this.units(unitUid) ! Load(username, parts, certificate, passphrase)
   }
 }

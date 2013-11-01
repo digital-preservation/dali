@@ -27,6 +27,19 @@ trait DRIUnitActor[T <: DRIUnit] extends Actor with Logging {
 
       case WithCert(Load(username, parts, _, passphrase), certificate) =>
         copyData(username, parts, certificate, passphrase)
+
+      case udd: UpdateDecryptDetail => //(username, listener, certificate, passphrase, clientId) =>
+        udd.certificate match {
+          case Some(cert) =>
+            certificateManagerActor ! GetCertificate(udd.username, cert, Option(WithCert(udd, _)))
+          case None =>
+            updateDecryptDetail(udd.username, udd.passphrase)
+            self ! SendUnitStatus(udd.listener, udd.clientId)
+        }
+
+      case WithCert(UpdateDecryptDetail(username, listener, _, passphrase, clientId), certificate) =>
+        updateDecryptDetail(username, certificate, passphrase)
+        self ! SendUnitStatus(listener, clientId)
     }
 
     def unit : T
@@ -35,10 +48,10 @@ trait DRIUnitActor[T <: DRIUnit] extends Actor with Logging {
     //whilst a copy is happening!
     def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String])
     def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String])
+    def updateDecryptDetail(username: String, passphrase: String)
+    def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String)
 }
 
 case class WithCert(reply: Any, certificate: CertificateDetail)
 
-trait EncryptedDRIUnitSupport {
-
-}
+trait EncryptedDRIUnitActor[T <: EncryptedDRIUnit] extends DRIUnitActor[T]

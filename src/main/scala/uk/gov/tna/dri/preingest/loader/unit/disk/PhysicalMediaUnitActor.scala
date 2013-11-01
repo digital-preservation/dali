@@ -55,7 +55,7 @@ trait PartitionUnit extends PhysicalMediaUnit {
     ("filesystem" -> PartitionTypes.TYPES(partition.partitionType)) ~
     ("disk" ->
       ("vendor" -> disk.vendor) ~
-      ("model" -> disk.vendor) ~
+      ("model" -> disk.model) ~
       ("serial" -> disk.serial)
     )
   }
@@ -66,12 +66,11 @@ trait EncryptedPartitionUnit extends PartitionUnit with EncryptedDRIUnit
 
 case class TrueCryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties) extends EncryptedPartitionUnit
 
-class TrueCryptedPartitionUnitActor(val partition: PartitionProperties, val disk: DiskProperties) extends PhysicalMediaUnitActor[TrueCryptedPartitionUnit] { //TODO consider subclassing PhysicalUnit
+class TrueCryptedPartitionUnitActor(val partition: PartitionProperties, val disk: DiskProperties) extends PhysicalMediaUnitActor[TrueCryptedPartitionUnit] with EncryptedDRIUnitActor[TrueCryptedPartitionUnit] { //TODO consider subclassing PhysicalUnit
 
   def unit = TrueCryptedPartitionUnit(partition, disk)
 
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String]) = copyData(username, parts, None, passphrase)
-
 
   def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String]) {
     DataStore.withTemporaryFile(Option(certificate)) {
@@ -79,6 +78,10 @@ class TrueCryptedPartitionUnitActor(val partition: PartitionProperties, val disk
         copyData(username, parts, cert, passphrase)
     }
   }
+
+  def updateDecryptDetail(username: String, passphrase: String) = ??? //TODO
+
+  def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String) = ??? //TODO
 
   private def copyData(username: String, parts: Seq[TargetedPart], certificate: Option[Path], passphrase: Option[String]) {
     val mountPoint = tempMountPoint(username, partition.deviceFile)
@@ -116,6 +119,10 @@ class UnencryptedPartitionUnitActor(val partition: PartitionProperties, val disk
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String]) = ???
 
   def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String]) = ???
+
+  def updateDecryptDetail(username: String, passphrase: String) = ??? //TODO
+
+  def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String) = ??? //TODO
 }
 
 //def

@@ -7,11 +7,13 @@
 
 #set (pageScripts)
     <script src="${baseUrl}js/jquery-atmosphere.js"></script>
-    <script src="${baseUrl}js/home.js"></script>
     <script src="${baseUrl}fuelux-2.4.1/require.js"></script>
     <script src="${baseUrl}fuelux-2.4.1/loader.min.js"></script>
     <script src="${baseUrl}fuelux-2.4.1/wizard.js"></script>
     <script src="${baseUrl}fuelux-2.4.1/select.js"></script>
+    <script src="${baseUrl}js/date-en-GB.js"></script>
+    <script src="${baseUrl}js/date.extras.js"></script>
+    <script src="${baseUrl}js/home.js"></script>
 #end
 
 #set (navBarNav)
@@ -61,8 +63,14 @@
                             </div>
                         </td>
                         <td>{{pendingUnit.interface}}</td>
-                        <td>{{pendingUnit.src}}</td>
-                        <td>{{pendingUnit.label}}</td>
+                        <td>
+                            <span>{{pendingUnit.src}}</span> <span class="filesystem" ng-show="pendingUnit.type == 'Partition'">({{pendingUnit.filesystem}})</span>
+                            <span class="srcDisk" ng-show="pendingUnit.type == 'Partition'">
+                                <div>{{pendingUnit.disk.vendor}} {{pendingUnit.disk.vendor}}</div>
+                                <div>S/N: {{pendingUnit.disk.serial}}</div>
+                            </span>
+                        </td>
+                        <td><span class="glyphicon glyphicon-lock" ng-show="pendingUnit.encrypted"></span> {{pendingUnit.label}}</td>
                         <td>{{pendingUnit.size}}</td>
                         <td>{{pendingUnit.timestamp}}</td>
                     </tr>

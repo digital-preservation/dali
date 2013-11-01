@@ -17,8 +17,6 @@ import ExecutionContext.Implicits.global
 import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.unit._
 import org.scalatra.servlet.FileUploadSupport
-import uk.gov.tna.dri.preingest.loader.certificate._
-import uk.gov.tna.dri.preingest.loader.unit.PendingUnit
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateList
 import org.scalatra.atmosphere.Disconnected
 import org.scalatra.atmosphere.JsonMessage
@@ -26,8 +24,8 @@ import org.scalatra.atmosphere.TextMessage
 import scala.Some
 import uk.gov.tna.dri.preingest.loader.certificate.ListCertificates
 import org.scalatra.atmosphere.Error
-import uk.gov.tna.dri.preingest.loader.unit.DecryptUnit
 import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
+import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
 
 
 class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certificateManagerActor: ActorRef) extends ScalatraServlet
@@ -138,100 +136,123 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
          case JsonMessage(json) =>
           println("RECEIVED JSON: " + json)
 
-          json match {
-            //case JObject(List(("action", JString(jValue)), )) =>
-            case JObject(("action", JString(action)) :: content) =>
-              action match {
-                case "pending" =>
-                  //preIngestLoaderActor ! ListPendingUnits(uuid)
-                  preIngestLoaderActor ! ListUnits(uuid)
+          //val username = user.username //TODO causes NPE at the moment
+          val username = x.username //TODO fix above, this is a temp solution
 
-                case "decrypt" =>
-                  content match {
-                    case List(
-                      ("unit", JObject(List(("interface", JString(interface)), ("src", JString(src)), ("label", JString(label))))),
-                      ("certificate", certificate),
-                      ("passphrase", passphrase)
-                    ) =>
-                      val optCertificate = certificate match {
-                        case JNull => None
-                        case JString(c) => Option(c)
-                      }
-                      val optPassphrase = passphrase match {
-                        case JNull => None
-                        case JString(p) => Option(p)
-                      }
+          import uk.gov.tna.dri.preingest.loader.ClientAction._
+          val clientAction = json.extractOpt[Load].orElse(json.extractOpt[Decrypt].orElse(json.extractOpt[Pending]))
+          clientAction match {
+            case Some(p: Pending) =>
+              preIngestLoaderActor ! ListUnits(uuid)
 
-                      //val username = user.username //TODO causes NPE at the moment
-                      val username = x.username //TODO fix above, this is a temp solution
+            case Some(Decrypt(_, UnitRef(uid), certificate, passphrase)) =>
+              preIngestLoaderActor ! UpdateUnitDecryptDetail(username, uid, certificate, passphrase, Option(uuid))
 
-                      optCertificate match {
-                        case Some(certificate) =>
-                          new AsyncResult {
-                            val is = ask(certificateManagerActor, GetCertificate(username, certificate))(Timeout(10 seconds)).mapTo[Certificate].map {
-                              certificate =>
-                                preIngestLoaderActor ! DecryptUnit(username, PendingUnit(interface, src, label, None, None), Option(certificate.detail), optPassphrase)
-                            }
-                          }
-                        case None =>
-                          preIngestLoaderActor ! DecryptUnit(username, PendingUnit(interface, src, label, None, None), None, optPassphrase)
-                      }
+            case Some(l: Load) =>
 
-                    case u =>
-                      println("INVALID DECRYPT ADAM!!!")
-                  }
+            case None =>
+              println("Unknown Client Action")
+          }
 
-                case "load" =>
-                  content match {
-                    case List(
-                    ("unit", JObject(List(("uid", JString(uid)),("part", JArray(jParts))))),
-                    ("certificate", certificate),
-                    ("passphrase", passphrase)
-                    ) =>
 
-                      val optCertificate = certificate match {
-                        case JNull => None
-                        case JString(c) => Option(c)
-                      }
-                      val optPassphrase = passphrase match {
-                        case JNull => None
-                        case JString(p) => Option(p)
-                      }
-
-                      //val username = user.username //TODO causes NPE at the moment
-                      val username = x.username //TODO fix above, this is a temp solution
-
-                      val parts : Seq[TargetedPart] = jParts.map {
-                        case JObject(List(("unit", JString(unit)), ("series", JString(series)), ("destination", JString(destination)))) =>
-                          TargetedPart(Destination.withName(destination), Part(unit, series))
-                      }
-
-                      preIngestLoaderActor ! LoadUnit(username, uid, parts, optCertificate, optPassphrase)
-
-                      //TODO move certificate lookup into the relevant actor e.g. physicalencryptedactor
+//          json match {
+//            //case JObject(List(("action", JString(jValue)), )) =>
+//            case JObject(("action", JString(action)) :: content) =>
+//              action match {
+//                case "pending" =>
+//                  //preIngestLoaderActor ! ListPendingUnits(uuid)
+//                  preIngestLoaderActor ! ListUnits(uuid)
+//
+//                case "decrypt" =>
+//                  content match {
+//                    case List(
+//                      ("unit", JObject(List(("interface", JString(interface)), ("src", JString(src)), ("label", JString(label))))),
+//                      ("certificate", certificate),
+//                      ("passphrase", passphrase)
+//                    ) =>
+//                      val optCertificate = certificate match {
+//                        case JNull => None
+//                        case JString(c) => Option(c)
+//                      }
+//                      val optPassphrase = passphrase match {
+//                        case JNull => None
+//                        case JString(p) => Option(p)
+//                      }
+//
+//                      //val username = user.username //TODO causes NPE at the moment
+//                      val username = x.username //TODO fix above, this is a temp solution
+//
+//                      /*
 //                      optCertificate match {
 //                        case Some(certificate) =>
 //                          new AsyncResult {
 //                            val is = ask(certificateManagerActor, GetCertificate(username, certificate))(Timeout(10 seconds)).mapTo[Certificate].map {
 //                              certificate =>
-//                                preIngestLoaderActor ! LoadUnit(username, uid, parts, Option(certificate.detail), optPassphrase)
+//                                preIngestLoaderActor ! DecryptUnit(username, PendingUnit(interface, src, label, None, None), Option(certificate.detail), optPassphrase)
 //                            }
 //                          }
 //                        case None =>
-//                          preIngestLoaderActor ! LoadUnit(username, uid, parts), None, optPassphrase)
+//                          preIngestLoaderActor ! DecryptUnit(username, PendingUnit(interface, src, label, None, None), None, optPassphrase)
 //                      }
-
-                    case u =>
-                      println("INVALID LOAD ADAM!!!")
-                  }
-
-                case u =>
-                  println("unknown action ADAM: " + u)
-              }
-
-            case u =>
-              println("unknown action ADAM: " + u)
-          }
+//                      */
+//
+//                      //preIngestLoaderActor !UpdateDecryptDetail
+//
+//                    case u =>
+//                      println("INVALID DECRYPT ADAM!!!")
+//                  }
+//
+//                case "load" =>
+//                  content match {
+//                    case List(
+//                      ("unit", JObject(List(("uid", JString(uid)),("part", JArray(jParts))))),
+//                      ("certificate", certificate),
+//                      ("passphrase", passphrase)
+//                    ) =>
+//
+//                      val optCertificate = certificate match {
+//                        case JNull => None
+//                        case JString(c) => Option(c)
+//                      }
+//                      val optPassphrase = passphrase match {
+//                        case JNull => None
+//                        case JString(p) => Option(p)
+//                      }
+//
+//                      //val username = user.username //TODO causes NPE at the moment
+//                      val username = x.username //TODO fix above, this is a temp solution
+//
+//                      val parts : Seq[TargetedPart] = jParts.map {
+//                        case JObject(List(("unit", JString(unit)), ("series", JString(series)), ("destination", JString(destination)))) =>
+//                          TargetedPart(Destination.withName(destination), Part(unit, series))
+//                      }
+//
+//                      preIngestLoaderActor ! LoadUnit(username, uid, parts, optCertificate, optPassphrase)
+//
+//                      //TODO move certificate lookup into the relevant actor e.g. physicalencryptedactor
+////                      optCertificate match {
+////                        case Some(certificate) =>
+////                          new AsyncResult {
+////                            val is = ask(certificateManagerActor, GetCertificate(username, certificate))(Timeout(10 seconds)).mapTo[Certificate].map {
+////                              certificate =>
+////                                preIngestLoaderActor ! LoadUnit(username, uid, parts, Option(certificate.detail), optPassphrase)
+////                            }
+////                          }
+////                        case None =>
+////                          preIngestLoaderActor ! LoadUnit(username, uid, parts), None, optPassphrase)
+////                      }
+//
+//                    case u =>
+//                      println("INVALID LOAD ADAM!!!")
+//                  }
+//
+//                case u =>
+//                  println("unknown action ADAM: " + u)
+//              }
+//
+//            case u =>
+//              println("unknown action ADAM: " + u)
+//          }
        }
     }
   }
@@ -277,6 +298,8 @@ class PreIngestLoaderActor extends Actor with Logging {
     case lu: ListUnits =>
       unitManagerActor ! lu
 
+    case uudd: UpdateUnitDecryptDetail =>
+      unitManagerActor ! uudd
   }
 
   def allOrOne(maybeClientId: Option[String])(client: AtmosphereClient) : Boolean = {

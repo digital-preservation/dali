@@ -116,9 +116,7 @@ function decrypt(pendingUnit, cert, pass) {
   subSocket.push(JSON.stringify({
     action: 'decrypt',
     unit: {
-        interface: pendingUnit.interface,
-        src: pendingUnit.src,
-        label: pendingUnit.label
+        uid: pendingUnit.uid
     },
     certificate: cert.name,
     passphrase: pass
@@ -283,8 +281,17 @@ function toHumanSize(bytes) {
 }
 
 function toHumanTime(timestamp) {
-   var d = new Date(timestamp)
-   return d.toString();
+   var d = new Date(timestamp);
+   //return d.format("D, dS M Y @ H:i e");
+   return d.format("D, dS M Y @ H:i") + " " + d.toString().replace(/[^\(]+(\(.+\))/, "$1"); //workaround to add timezone as 'e' in above code seems broken in date.js library
+}
+
+function copyUnitPropetries(srcUnit, destUnit) {
+   destUnit.label = srcUnit.label;
+   destUnit.size = srcUnit.size;
+   destUnit.timestamp = srcUnit.size;
+
+   //TODO update action and progress of action!
 }
 
 $(document).ready(function() {
@@ -324,70 +331,125 @@ $(document).ready(function() {
       try {
           var json = JSON.parse(message);
 
-          //is this a pending unit initial status
-          if(json.pending) {
-            updatePending(function(model) {
-                model.length = 0; //empty the model
-                $.each(json.pending.unit, function(i, v) {
-                    v.size = toHumanSize(v.size);
-                    v.timestamp = toHumanTime(v.timestamp);
-                    model.push(v); //add to the model
-                });
-            });
+          //is this an add/update of unit status?
+          if(json.update) {
+             updatePending(function(model) {
+                $.each(json.update.unit, function(i, v) {
 
-          //is this an addition to the pending units
-          } else if(json.pendingAdd) {
-            updatePending(function(model) {
-                $.each(json.pendingAdd.unit, function(i, v) {
-                    v.size = toHumanSize(v.size);
-                    v.timestamp = toHumanTime(v.timestamp);
-                    model.push(v); //add to the model
-                });
-            });
+                     //format for display
+                     v.size = toHumanSize(v.size);
+                     v.timestamp = toHumanTime(v.timestamp);
 
-            //update the unit detail part of the load modal dialog
-            $.each(json.pendingAdd.unit, function(i, v) {
-                updateLoadModal(function(model) {
-                    if(v.src == model.pendingUnit.src) {
-                        model.pendingUnit = v;
-                        //has part discovery completed? if so disable decrypting message
-                        if(v.part) {
-                            model.decrypting = false;    //hide decrypting message
+                     //does the model already contain details of this unit?
+                     var existingIdx = -1;
+                     for(var i = 0; i < model.length; i++) {
+                        if(model[i].uid == v.uid) {
+                            existingIdx = i;
+                            break;
                         }
-                    }
-                });
-            });
+                     }
 
-          //is this a removal from the pending units
-          } else if(json.pendingRemove) {
-            updatePending(function(model) {
-               $.each(model, function(i, v) {
-                $.each(json.pendingRemove.unit, function(y, vv) {
-                   if((!(v === undefined)) && v.src == vv.src) {
-                       model.splice(i, 1);
-                   }
-                });
-               });
-            });
-          }
+                     if(existingIdx > -1) {
+                        //do update
+                        copyUnitPropetries(v, model[existingIdx]);
+                     } else {
+                        //create new
+                        model.push(v);
+                     }
+                 });
+             });
 
-          //is this a UnitLoadStatus update?
-          else if(json.loadStatus) {
-            updatePending(function(model) {
+             //update the unit detail part of the load modal dialog
+             $.each(json.update.unit, function(i, v) {
+                 updateLoadModal(function(model) {
+                     if(v.uid == model.pendingUnit.uid) {
+                         model.pendingUnit = v;
+                         //has part discovery completed? if so disable decrypting message
+                         if(v.part) {
+                             model.decrypting = false;    //hide decrypting message
+                         }
+                     }
+                 });
+             });
+
+
+          //is this a removal from the pending units?
+          } else if(json.remove) {
+           updatePending(function(model) {
               $.each(model, function(i, v) {
-                if(v.src == json.loadStatus.unit.src) {
-                    v.complete = json.loadStatus.complete;
-                }
+               $.each(json.remove.unit, function(y, vv) {
+                  if((!(v === undefined)) && v.uid == vv.uid) {
+                      model.splice(i, 1);
+                  }
+               });
               });
-            });
+           });
           }
+
+          //is this a pending unit initial status
+//          if(json.pending) {
+//            updatePending(function(model) {
+//                model.length = 0; //empty the model
+//                $.each(json.pending.unit, function(i, v) {
+//                    v.size = toHumanSize(v.size);
+//                    v.timestamp = toHumanTime(v.timestamp);
+//                    model.push(v); //add to the model
+//                });
+//            });
+//
+//          //is this an addition to the pending units
+//          } else if(json.pendingAdd) {
+//            updatePending(function(model) {
+//                $.each(json.pendingAdd.unit, function(i, v) {
+//                    v.size = toHumanSize(v.size);
+//                    v.timestamp = toHumanTime(v.timestamp);
+//                    model.push(v); //add to the model
+//                });
+//            });
+//
+//            //update the unit detail part of the load modal dialog
+//            $.each(json.pendingAdd.unit, function(i, v) {
+//                updateLoadModal(function(model) {
+//                    if(v.src == model.pendingUnit.src) {
+//                        model.pendingUnit = v;
+//                        //has part discovery completed? if so disable decrypting message
+//                        if(v.part) {
+//                            model.decrypting = false;    //hide decrypting message
+//                        }
+//                    }
+//                });
+//            });
+//
+//          //is this a removal from the pending units
+//          } else if(json.pendingRemove) {
+//            updatePending(function(model) {
+//               $.each(model, function(i, v) {
+//                $.each(json.pendingRemove.unit, function(y, vv) {
+//                   if((!(v === undefined)) && v.src == vv.src) {
+//                       model.splice(i, 1);
+//                   }
+//                });
+//               });
+//            });
+//          }
+//
+//          //is this a UnitLoadStatus update?
+//          else if(json.loadStatus) {
+//            updatePending(function(model) {
+//              $.each(model, function(i, v) {
+//                if(v.src == json.loadStatus.unit.src) {
+//                    v.complete = json.loadStatus.complete;
+//                }
+//              });
+//            });
+//          }
 
       } catch (e) {
           console.log('Error: ', message.data);
           return;
       }
 
-    console.info("Received message: " + json); //TODO should be debug
+    console.debug("Received message: " + json);
   };
 
   request.onClose = function(response) {
@@ -399,4 +461,5 @@ $(document).ready(function() {
   };
 
   subSocket = socket.subscribe(request);
+
 });

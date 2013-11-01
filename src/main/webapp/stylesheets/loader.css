@@ -118,6 +118,16 @@ code {
     margin-bottom: 2em;
 }
 
+.srcDisk {
+    font-size: small;
+}
+
+.filesystem {
+    color: #099;
+    font-size: smaller;
+    font-weight: bold;
+}
+
 /** load modal dialog **/
 .decrypt-progress {
     margin-top: 2em;
