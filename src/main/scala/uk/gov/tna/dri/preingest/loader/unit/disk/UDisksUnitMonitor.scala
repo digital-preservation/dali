@@ -2,10 +2,11 @@ package uk.gov.tna.dri.preingest.loader.unit.disk
 
 import grizzled.slf4j.Logging
 import akka.actor.{Props, Actor}
-import uk.gov.tna.dri.preingest.loader.unit.{DeRegisterUnit, RegisterUnit}
+import uk.gov.tna.dri.preingest.loader.unit.{PhysicalMediaUnit, DeRegisterUnit, RegisterUnit}
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.{DeviceAdded, DeviceRemoved}
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DeviceFile, PartitionProperties, DiskProperties}
+import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
 
 
 class UDisksUnitMonitor extends Actor with Logging {
@@ -13,6 +14,7 @@ class UDisksUnitMonitor extends Actor with Logging {
   lazy val udisks = new UDisksMonitor(this.self)
 
   var knownDisks = Map.empty[DeviceFile, DiskProperties]
+  var knownPartitions = Map.empty[DeviceFile, UnitUID]
 
   override def preStart() {
     //get initial devices
@@ -20,6 +22,7 @@ class UDisksUnitMonitor extends Actor with Logging {
   }
 
   override def postStop() {
+    //shutdown UDisks DBus connection
     udisks.close()
   }
 
@@ -38,14 +41,17 @@ class UDisksUnitMonitor extends Actor with Logging {
       findDisk(partitionProperties) match {
 
         case Some(diskProperties) =>
-          val unitActor: () => Actor = if(!partitionProperties.lvmDevice && partitionProperties.mounted.isEmpty) {
-            () => new TrueCryptedPartitionUnitActor(partitionProperties, diskProperties)
+          val (unit, unitActor) = if(!partitionProperties.lvmDevice && partitionProperties.mounted.isEmpty) {
+            val unit = new TrueCryptedPartitionUnit(partitionProperties, diskProperties)
+            (unit, () => new TrueCryptedPartitionUnitActor(unit))
           } else {
-            () => new UnencryptedPartitionUnitActor(partitionProperties, diskProperties)
+            val unit = new NonEncryptedPartitionUnit(partitionProperties, diskProperties)
+            (unit, () => new NonEncryptedPartitionUnitActor(unit))
           }
 
           val unitActorRef = context.actorOf(Props(unitActor))
-          context.parent ! RegisterUnit(partitionProperties.deviceFile, unitActorRef )
+          this.knownPartitions += (partitionProperties.deviceFile -> unit.uid)
+          context.parent ! RegisterUnit(unit.uid, unitActorRef)
 
         case None =>
           error("Could not find DiskProperties for Partition: " + partitionProperties.deviceFile)
@@ -57,9 +63,14 @@ class UDisksUnitMonitor extends Actor with Logging {
       if(this.knownDisks.contains(deviceFile)) {
         //remove from known disks
         this.knownDisks = this.knownDisks.filterNot(kv => kv._1 == deviceFile)
-      } else {
+
+      //is known partition?
+      } else if(this.knownPartitions.contains(deviceFile)) {
         //inform others that a Unit (Partition is no longer available)
-        context.parent ! DeRegisterUnit(deviceFile)
+        context.parent ! DeRegisterUnit(this.knownPartitions(deviceFile))
+
+        //remove from known partitions
+        this.knownPartitions = this.knownPartitions.filterNot(kv => kv._1 == deviceFile)
       }
   }
 

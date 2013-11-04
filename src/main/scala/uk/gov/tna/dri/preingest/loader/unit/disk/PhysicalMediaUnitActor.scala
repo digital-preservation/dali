@@ -5,19 +5,15 @@ import uk.gov.tna.dri.preingest.loader.store.DataStore
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
 import scalax.file.{PathSet, Path}
-import scalax.file.PathMatcher.IsFile
+import scalax.file.PathMatcher.{IsDirectory, IsFile}
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
 import uk.gov.tna.dri.preingest.loader.Crypto
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
+import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
 
 trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
 
   protected val DESTINATION = Path.fromString("/unsafe_in")  //TODO make configurable
-
-  val partition: PartitionProperties
-  val disk: DiskProperties
-
-  def uid = partition.deviceFile
 
   protected def tempMountPoint(username: String, volume: String) : Path = {
     val mountPoint = DataStore.userStore(username) / s"${volume.split('/').last}"
@@ -31,6 +27,11 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
 
   protected def totalSize(paths: PathSet[Path]) = paths.toList.map(_.size).map(_.getOrElse(0l)).reduceLeft(_ + _)
 }
+
+/*
+trait PartitionUnitActor[T <: PartitionUnit] extends PhysicalMediaUnitActor[T] {
+
+}*/
 
 trait PartitionUnit extends PhysicalMediaUnit {
   protected val partition: PartitionProperties
@@ -62,13 +63,10 @@ trait PartitionUnit extends PhysicalMediaUnit {
 }
 
 trait EncryptedPartitionUnit extends PartitionUnit with EncryptedDRIUnit
+case class TrueCryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends EncryptedPartitionUnit
 
 
-case class TrueCryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties) extends EncryptedPartitionUnit
-
-class TrueCryptedPartitionUnitActor(val partition: PartitionProperties, val disk: DiskProperties) extends PhysicalMediaUnitActor[TrueCryptedPartitionUnit] with EncryptedDRIUnitActor[TrueCryptedPartitionUnit] { //TODO consider subclassing PhysicalUnit
-
-  def unit = TrueCryptedPartitionUnit(partition, disk)
+class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends PhysicalMediaUnitActor[TrueCryptedPartitionUnit] with EncryptedDRIUnitActor[TrueCryptedPartitionUnit] { //TODO consider subclassing PhysicalUnit
 
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String]) = copyData(username, parts, None, passphrase)
 
@@ -79,20 +77,38 @@ class TrueCryptedPartitionUnitActor(val partition: PartitionProperties, val disk
     }
   }
 
-  def updateDecryptDetail(username: String, passphrase: String) = ??? //TODO
+  def updateDecryptDetail(username: String, passphrase: String) = updateDecryptDetail(username, None, passphrase)
 
-  def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String) = ??? //TODO
+  def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String) {
+    DataStore.withTemporaryFile(Option(certificate)) {
+      cert =>
+        updateDecryptDetail(username, cert, passphrase)
+    }
+  }
+
+  private def updateDecryptDetail(username: String, certificate: Option[Path], passphrase: String) {
+    TrueCryptedPartition.getVolumeLabel(unit.src, certificate, passphrase).map {
+      volumeLabel =>
+
+        //extract parts and orphaned files
+        val topLevelPaths = TrueCryptedPartition.listTopLevel(unit.src, tempMountPoint(username, unit.src), certificate, passphrase)
+        val (dirs, files) = topLevelPaths.partition(_   .isDirectory)
+
+        //update the unit
+        this.unit = this.unit.copy(partition = this.unit.partition.copy(partitionLabel = Option(volumeLabel)), parts = Option(dirs.map(_.name)), orphanedFiles = Option(files.map(_.name)))
+    }
+  }
 
   private def copyData(username: String, parts: Seq[TargetedPart], certificate: Option[Path], passphrase: Option[String]) {
-    val mountPoint = tempMountPoint(username, partition.deviceFile)
-    TrueCrypt.withVolume(partition.deviceFile, certificate, passphrase.get, mountPoint) {
-      val files = mountPoint ** IsFile filterNot { f => DataStore.isWindowsJunkDir(f.parent.get.name) }
+    val mountPoint = tempMountPoint(username, unit.partition.deviceFile)
+    TrueCrypt.withVolume(unit.partition.deviceFile, certificate, passphrase.get, mountPoint) {
+      val files = mountPoint ** IsFile filterNot { f => DataStore.isJunkFile(f.parent.get.name) }
       val total = totalSize(files)
       sender ! UnitStatus(unit, Option(UnitAction(0))) //TODO inject sender?
 
       var completed: Long = 0
       for(file <- files) {
-        val label = unit.label.split(' ')(0) //TODO temp remove when label does not include the filesystem info
+        val label = unit.label
         val destination = DESTINATION / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
         copyFile(file, destination)
         completed += file.size.get
@@ -107,22 +123,11 @@ class TrueCryptedPartitionUnitActor(val partition: PartitionProperties, val disk
   }
 }
 
-case class UnencryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties) extends PartitionUnit {
-  val encrypted = false
-}
+case class NonEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends PartitionUnit with NonEncryptedDRIUnit
 
 //TODO not yet implemented
-class UnencryptedPartitionUnitActor(val partition: PartitionProperties, val disk: DiskProperties) extends PhysicalMediaUnitActor[UnencryptedPartitionUnit] { //TODO consider subclassing PhysicalUnit
-
-  def unit = UnencryptedPartitionUnit(partition, disk)
-
+class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extends PhysicalMediaUnitActor[NonEncryptedPartitionUnit] {
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String]) = ???
-
-  def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String]) = ???
-
-  def updateDecryptDetail(username: String, passphrase: String) = ??? //TODO
-
-  def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String) = ??? //TODO
 }
 
 //def
@@ -161,7 +166,7 @@ class UnencryptedPartitionUnitActor(val partition: PartitionProperties, val disk
 //          volumeLabel =>
 //            val updatedPendingUnitLabel = du.pendingUnit.label.replace(DBusUDisks.UNKNOWN_LABEL, volumeLabel)
 //            val prts = TrueCryptedPartition.listTopLevelDirs(du.username)(du.pendingUnit.src, tmpCert, du.passphrase.get).map(Part(volumeLabel, _))
-//            du.pendingUnit.copy(label = updatedPendingUnitLabel, parts = Some(prts))
+//            du.pendingUnit.copy(label = updatedPendingUnitLabel, parts = Option(prts))
 //        }
 //    }
 //  }

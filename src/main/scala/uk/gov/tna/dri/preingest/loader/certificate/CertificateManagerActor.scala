@@ -16,6 +16,7 @@ case class Certificate(detail: CertificateDetail)
 case class ListCertificates(username: String)
 case class GetCertificate(username: String, name: CertificateName, reply: Option[CertificateDetail => Any] = None)
 case class CertificateList(certificates: Seq[CertificateName])
+case class NoCertificate(name: CertificateName, cause: Any)
 
 class CertificateManagerActor extends Actor with Logging {
 
@@ -46,6 +47,8 @@ class CertificateManagerActor extends Actor with Logging {
       getCertificate(cert, passphrase(username)) match {
         case Left(t) =>
           error(t.getMessage, t)
+          sender ! NoCertificate(name, reply)
+
         case Right(certificateData) =>
           reply match {
             case Some(f) =>

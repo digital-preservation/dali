@@ -3,6 +3,7 @@ package uk.gov.tna.dri.preingest.loader.store
 import scalax.file.Path
 import uk.gov.tna.dri.preingest.loader.Crypto
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
+import scalax.file.PathMatcher.FunctionMatcher
 
 object DataStore {
 
@@ -35,5 +36,5 @@ object DataStore {
       f(None)
   }
 
-  def isWindowsJunkDir(name: String) = name.matches("System Volume Information|^Recycler.*|^\\..+")
+  def isJunkFile(name: String) = name.matches("System Volume Information|^.Trash-.+|^Recycler.*|^\\..+")
 }

@@ -5,7 +5,7 @@ package uk.gov.tna.dri.preingest.loader.unit
  * @param timestamp milliseconds since the epoch
  */
 
-//TODO delete
+@deprecated //TODO delete
 case class PendingUnit(interface: String, src: String, label: String, size: Option[Long], timestamp: Option[Long], parts: Option[Seq[Part]] = None)
 case class Part(unitId: String, series: String)
 

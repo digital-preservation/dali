@@ -140,7 +140,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
           val username = x.username //TODO fix above, this is a temp solution
 
           import uk.gov.tna.dri.preingest.loader.ClientAction._
-          val clientAction = json.extractOpt[Load].orElse(json.extractOpt[Decrypt].orElse(json.extractOpt[Pending]))
+          val clientAction = json.extractOpt[Decrypt].orElse(json.extractOpt[Load].orElse(json.extractOpt[Pending]))
           clientAction match {
             case Some(p: Pending) =>
               preIngestLoaderActor ! ListUnits(uuid)

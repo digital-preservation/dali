@@ -17,7 +17,9 @@ case class DecryptUnit(username: String, pendingUnit: PendingUnit, certificate: 
 
 case object Listen
 
-//TODO delete
+
+
+@deprecated //TODO delete
 class PendingUnitsActor extends Actor with Logging {
 
   lazy val uploadedUnitMonitor = context.actorOf(Props[UploadedUnitMonitor], name="UploadedUnitMonitor")
