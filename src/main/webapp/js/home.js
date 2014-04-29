@@ -286,7 +286,7 @@ function toHumanTime(timestamp) {
    return d.format("D, dS M Y @ H:i") + " " + d.toString().replace(/[^\(]+(\(.+\))/, "$1"); //workaround to add timezone as 'e' in above code seems broken in date.js library
 }
 
-function copyUnitPropetries(srcUnit, destUnit) {
+function copyUnitProperties(srcUnit, destUnit) {
    destUnit.label = srcUnit.label;
    destUnit.size = srcUnit.size;
    destUnit.timestamp = srcUnit.size;
@@ -351,7 +351,7 @@ $(document).ready(function() {
 
                      if(existingIdx > -1) {
                         //do update
-                        copyUnitPropetries(v, model[existingIdx]);
+                        copyUnitProperties(v, model[existingIdx]);
                      } else {
                         //create new
                         model.push(v);
