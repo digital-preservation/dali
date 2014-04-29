@@ -91,8 +91,7 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
       volumeLabel =>
 
         //extract parts and orphaned files
-        val topLevelPaths = TrueCryptedPartition.listTopLevel(unit.src, tempMountPoint(username, unit.src), certificate, passphrase)
-        val (dirs, files) = topLevelPaths.partition(_   .isDirectory)
+        val (dirs, files) = TrueCryptedPartition.listTopLevel(unit.src, tempMountPoint(username, unit.src), certificate, passphrase)(_.partition(_.isDirectory))
 
         //update the unit
         this.unit = this.unit.copy(partition = this.unit.partition.copy(partitionLabel = Option(volumeLabel)), parts = Option(dirs.map(_.name)), orphanedFiles = Option(files.map(_.name)))

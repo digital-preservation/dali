@@ -36,5 +36,5 @@ object DataStore {
       f(None)
   }
 
-  def isJunkFile(name: String) = name.matches("System Volume Information|^.Trash-.+|^Recycler.*|^\\..+")
+  def isJunkFile(name: String) = name.matches("""System Volume Information|\$RECYCLE\.BIN|^.Trash-.+|^Recycler.*|^\\..+""")
 }

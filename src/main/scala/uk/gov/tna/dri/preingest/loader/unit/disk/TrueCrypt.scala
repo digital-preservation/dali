@@ -137,10 +137,10 @@ object TrueCryptedPartition {
 //    }
 //  }
 
-  def listTopLevel(volume: String, mount: Path, certificate: Option[Path], passphrase: String) : Seq[Path] = {
+  def listTopLevel[T](volume: String, mount: Path, certificate: Option[Path], passphrase: String)(f: Seq[Path] => T): T = {
     TrueCrypt.withVolume(volume, certificate, passphrase, mount) {
       val files = mount * ((p: Path) => !DataStore.isJunkFile(p.name))
-      files.toSet.toSeq
+      f(files.toSet.toSeq)
     }
   }
 }
