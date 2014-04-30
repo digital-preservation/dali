@@ -365,7 +365,7 @@ $(document).ready(function() {
                      if(v.uid == model.pendingUnit.uid) {
                          model.pendingUnit = v;
                          //has part discovery completed? if so disable decrypting message
-                         if(v.part) {
+                         if(v.parts) {
                              model.decrypting = false;    //hide decrypting message
                          }
                      }
@@ -449,7 +449,7 @@ $(document).ready(function() {
           return;
       }
 
-    console.debug("Received message: " + json);
+    console.debug("Received message: " + json.toString());
   };
 
   request.onClose = function(response) {
