@@ -2,8 +2,6 @@ package uk.gov.tna.dri.preingest.loader.unit
 
 import scalax.file.Path
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit._
-import uk.gov.tna.dri.preingest.loader.unit.TargetedPart
-import uk.gov.tna.dri.preingest.loader.unit.UploadedUnit
 
 case class UploadedUnit(uid: UnitUID, interface: Interface, src: Source, label: Label, size: Bytes, timestamp: Milliseconds, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends ElectronicAssemblyUnit with NonEncryptedDRIUnit {
   def unitType = "Uploaded"
