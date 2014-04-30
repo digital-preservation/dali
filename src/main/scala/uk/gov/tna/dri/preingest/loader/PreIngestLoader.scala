@@ -142,6 +142,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
           import uk.gov.tna.dri.preingest.loader.ClientAction._
           val clientAction = json.extractOpt[Decrypt].orElse(json.extractOpt[Load].orElse(json.extractOpt[Pending]))
           clientAction match {
+
             case Some(p: Pending) =>
               preIngestLoaderActor ! ListUnits(uuid)
 
@@ -149,11 +150,23 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
               preIngestLoaderActor ! UpdateUnitDecryptDetail(username, uid, certificate, passphrase, Option(uuid))
 
             case Some(l: Load) =>
+              l match {
+                case List(
+                  ("unit", JObject(List(("uid", JString(uid)),("part", JArray(jParts))))),
+                  ("certificate", certificate),
+                  ("passphrase", passphrase)
+                ) =>
+                  val parts : Seq[TargetUnitPart] = jParts.map {
+                    case JObject(List(("unit", JString(unit)), ("series", JString(series)), ("destination", JString(destination)))) =>
+                      TargetUnitPart(unit, series, destination)
+                  }
 
+                  preIngestLoaderActor ! LoadUnit(uid, parts)
+
+              }
             case None =>
               println("Unknown Client Action")
           }
-
 
 //          json match {
 //            //case JObject(List(("action", JString(jValue)), )) =>
