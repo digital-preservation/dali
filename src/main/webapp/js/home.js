@@ -91,10 +91,11 @@ function LoadModalCtrl($scope, $http) {
 
 function doStartLoad(pendingUnit, cert, pass) {
   var parts = [];
-  $.each(pendingUnit.part, function(i, v) {
+  var unitName = pendingUnit.label;
+  $.each(pendingUnit.parts, function(i, v) {
     parts.push({
-      unit: v.unit,
-      series: v.series,
+      unit: unitName,
+      series: v,
       destination: v.destination
     });
   });
@@ -290,7 +291,7 @@ function copyUnitProperties(srcUnit, destUnit) {
    destUnit.label = srcUnit.label;
    destUnit.size = srcUnit.size;
    destUnit.timestamp = srcUnit.size;
-
+   destUnit.parts = srcUnit.parts;
    //TODO update action and progress of action!
 }
 

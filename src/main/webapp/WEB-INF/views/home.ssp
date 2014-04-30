@@ -96,8 +96,8 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Pre Holding</td>
-                        <td>abc.gpgz</td>
+                        <td>{{pendingUnit.destination}}</td>
+                        <td>xyz.gpgz</td>
                         <td>2.1GB</td>
                         <td>Thu, 3rd October 2013</td>
                         <td>dri-upload1</td>
