@@ -87,6 +87,17 @@ function LoadModalCtrl($scope, $http) {
         //reset dialog
         mLoadModal.nextEnabled = true; //re-enable for next time
     };
+    
+    /*$scope.safeApply = function(fn) {
+        var phase = this.$root.$$phase;
+        if(phase == '$apply' || phase == '$digest') {
+            if(fn && (typeof(fn) === 'function')) {
+                fn();
+            }
+        } else {
+            this.$apply(fn);
+        }
+    }; */
 }
 
 function expandPendingUnitParts(pendingUnit) {
@@ -261,6 +272,7 @@ function updateModel(ctrlElemId, fnUpdateModel, m) {
     var ctrlElem = $(ctrlElemId);
     var scope = angular.element(ctrlElem).scope();
 
+      //scope.$safeApply(function() {
       scope.$apply(function() {
           fnUpdateModel(m);
       });
