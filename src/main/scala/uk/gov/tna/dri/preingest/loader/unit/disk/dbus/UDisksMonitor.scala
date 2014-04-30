@@ -6,11 +6,12 @@ import org.freedesktop.dbus._
 import scala.collection.mutable
 import org.freedesktop.{DBus, UDisks}
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DiskProperties, PartitionProperties, StoreProperties, DeviceFile}
+import grizzled.slf4j.Logging
 
 case class DeviceAdded(storeProperties: StoreProperties)
 case class DeviceRemoved(deviceFile: DeviceFile)
 
-class UDisksMonitor(udisksMonitor: ActorRef) {
+class UDisksMonitor(udisksMonitor: ActorRef) extends Logging {
 
   import org.freedesktop.UDisks.{Device, DeviceRemoved => UDeviceRemoved, DeviceAdded => UDeviceAdded}
 
@@ -111,7 +112,13 @@ class UDisksMonitor(udisksMonitor: ActorRef) {
 
     if(isPartition) {
       PartitionProperties(
-        partitionType = Integer.parseInt(getStr("PartitionType").substring(2), 16),
+        partitionType = try {
+          Integer.parseInt(getStr("PartitionType").substring(2), 16)
+        } catch {
+          case e: Exception =>
+            warn(s"Expected PartitionType to be an integer for $nativePath but received ${getStr("PartitionType")}")
+            -1
+        },
         partitionLabel = nonEmpty(getStr("PartitionLabel")).orElse(nonEmpty(getStr("IdLabel"))),
         interface,
         nativePath,
