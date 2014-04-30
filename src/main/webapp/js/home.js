@@ -89,16 +89,20 @@ function LoadModalCtrl($scope, $http) {
     };
 }
 
-function doStartLoad(pendingUnit, cert, pass) {
+function expandPendingUnitParts(pendingUnit) {
   var parts = [];
   var unitName = pendingUnit.label;
   $.each(pendingUnit.parts, function(i, v) {
     parts.push({
       unit: unitName,
       series: v,
-      destination: v.destination
+      destination: ''
     });
   });
+  return parts;
+}
+
+function doStartLoad(pendingUnit, cert, pass) {
 
   subSocket.push(JSON.stringify({
     action: 'load',
@@ -367,6 +371,7 @@ $(document).ready(function() {
                          model.pendingUnit = v;
                          //has part discovery completed? if so disable decrypting message
                          if(v.parts) {
+                             model.pendingUnit.parts = expandPendingUnitParts(v);
                              model.decrypting = false;    //hide decrypting message
                          }
                      }

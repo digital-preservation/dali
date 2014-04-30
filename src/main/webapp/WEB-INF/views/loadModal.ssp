@@ -61,7 +61,7 @@
                             </thead>
                             <tbody id="pendingUnits"">
                                 <tr ng-repeat="p in loadModal.pendingUnit.parts">
-                                    <td>{{p}}</td>
+                                    <td>{{p.series}}</td>
                                     <td>
                                         <select ng-model="p.destination" ng-options="d for d in loadModal.destinations" class="form-control" ng-required="!p.destination">
                                             <option value="">-- select destination --</option>
@@ -74,7 +74,7 @@
 
                 </div>
                 <div class="step-pane" id="step3">
-                    <div class="well startLoading">                                                                       startLoad
+                    <div class="well startLoading">
                         <button type="button" class="btn btn-primary" ng-click="startLoad()">Start Load&#160;&gt;&gt;</button>
                     </div>
                 </div>
