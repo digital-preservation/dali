@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <scalatra.version>2.2.1</scalatra.version>
+        <scalatra.version>2.2.2</scalatra.version>
 		<jetty.version>8.1.13.v20130916</jetty.version>
         <bouncycastle.version>1.50</bouncycastle.version>
     </properties>
