@@ -10,17 +10,29 @@ import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
 import uk.gov.tna.dri.preingest.loader.Crypto
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
+import java.io.IOException
 
 trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
 
   protected val DESTINATION = Path.fromString("/unsafe_in")  //TODO make configurable
 
-  protected def tempMountPoint(username: String, volume: String) : Path = {
-    val mountPoint = DataStore.userStore(username) / s"${volume.split('/').last}"
-    if(!mountPoint.exists) {
-      mountPoint.createDirectory()
+  protected def tempMountPoint(username: String, volume: String) : Either[IOException , Path] = {
+    DataStore.userStore(username) match {
+      case l@ Left(ioe) =>
+        l
+      case Right(userStore) =>
+        val mountPoint = userStore / s"${volume.split('/').last}"
+        if (!mountPoint.exists) {
+          try {
+            Right(mountPoint.createDirectory(createParents = true, failIfExists = true))
+          } catch {
+            case ioe: IOException =>
+              Left(ioe)
+          }
+        } else {
+          Right(mountPoint)
+        }
     }
-    mountPoint
   }
 
   protected def copyFile(file: Path, dest: Path) = file.copyTo(dest, createParents = true, copyAttributes = true)
@@ -86,38 +98,50 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
     }
   }
 
-  private def updateDecryptDetail(username: String, certificate: Option[Path], passphrase: String) {
+  private def updateDecryptDetail(username: String, certificate: Option[Path], passphrase: String) : Boolean = {
     TrueCryptedPartition.getVolumeLabel(unit.src, certificate, passphrase).map {
       volumeLabel =>
 
         //extract parts and orphaned files
-        val (dirs, files) = TrueCryptedPartition.listTopLevel(unit.src, tempMountPoint(username, unit.src), certificate, passphrase)(_.partition(_.isDirectory))
-
-        //update the unit
-        this.unit = this.unit.copy(partition = this.unit.partition.copy(partitionLabel = Option(volumeLabel)), parts = Option(dirs.map(_.name)), orphanedFiles = Option(files.map(_.name)))
-    }
+        tempMountPoint(username, unit.src) match {
+          case Left(ioe) =>
+            error(s"Unable to update decrypted detail for unit: ${unit.uid}", ioe)
+            false
+          case Right(tempMountPoint) =>
+            val (dirs, files) = TrueCryptedPartition.listTopLevel(unit.src, tempMountPoint, certificate, passphrase)(_.partition(_.isDirectory))
+            //update the unit
+            this.unit = this.unit.copy(partition = this.unit.partition.copy(partitionLabel = Option(volumeLabel)), parts = Option(dirs.map(_.name)), orphanedFiles = Option(files.map(_.name)))
+            true
+        }
+    }.getOrElse(false)
   }
 
   private def copyData(username: String, parts: Seq[TargetedPart], certificate: Option[Path], passphrase: Option[String]) {
-    val mountPoint = tempMountPoint(username, unit.partition.deviceFile)
-    TrueCrypt.withVolume(unit.partition.deviceFile, certificate, passphrase.get, mountPoint) {
-      val files = mountPoint ** IsFile filterNot { f => DataStore.isJunkFile(f.parent.get.name) }
-      val total = totalSize(files)
-      sender ! UnitStatus(unit, Option(UnitAction(0))) //TODO inject sender?
+    tempMountPoint(username, unit.partition.deviceFile) match {
+      case Left(ioe) =>
+        error(s"Unable to copy data for unit: ${unit.uid}", ioe)
+        sender ! UnitError("Unable to copy data for unit") //TODO inject sender?
 
-      var completed: Long = 0
-      for(file <- files) {
-        val label = unit.label
-        val destination = DESTINATION / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
-        copyFile(file, destination)
-        completed += file.size.get
+      case Right(mountPoint) =>
+        TrueCrypt.withVolume(unit.partition.deviceFile, certificate, passphrase.get, mountPoint) {
+          val files = mountPoint ** IsFile filterNot { f => DataStore.isJunkFile(f.parent.get.name) }
+          val total = totalSize(files)
+          sender ! UnitStatus(unit, Option(UnitAction(0))) //TODO inject sender?
 
-        val percentageDone = ((completed.toDouble / total) * 100).toInt
+          var completed: Long = 0
+          for(file <- files) {
+            val label = unit.label
+            val destination = DESTINATION / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
+            copyFile(file, destination)
+            completed += file.size.get
 
-        sender ! UnitStatus(unit, Option(UnitAction(percentageDone))) //TODO inject sender?
-      }
+            val percentageDone = ((completed.toDouble / total) * 100).toInt
 
-      sender ! UnitStatus(unit, Option(UnitAction(100))) //TODO inject sender?
+            sender ! UnitStatus(unit, Option(UnitAction(percentageDone))) //TODO inject sender?
+          }
+
+          sender ! UnitStatus(unit, Option(UnitAction(100))) //TODO inject sender?
+        }
     }
   }
 }

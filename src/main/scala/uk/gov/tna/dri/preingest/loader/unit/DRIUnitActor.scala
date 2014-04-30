@@ -33,6 +33,7 @@ trait DRIUnitActor[T <: DRIUnit] extends ComposableActor with Logging {
 }
 
 case class WithCert(reply: Any, certificate: CertificateDetail)
+case class UnitError(error: String)
 
 trait EncryptedDRIUnitActor[T <: EncryptedDRIUnit] extends DRIUnitActor[T] {
 

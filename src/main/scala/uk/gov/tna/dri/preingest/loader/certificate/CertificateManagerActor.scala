@@ -17,6 +17,7 @@ case class ListCertificates(username: String)
 case class GetCertificate(username: String, name: CertificateName, reply: Option[CertificateDetail => Any] = None)
 case class CertificateList(certificates: Seq[CertificateName])
 case class NoCertificate(name: CertificateName, cause: Any)
+case class CertificateManagerError(error: String)
 
 class CertificateManagerActor extends Actor with Logging {
 
@@ -26,35 +27,55 @@ class CertificateManagerActor extends Actor with Logging {
 
     case StoreCertificates(username: String, certificates: Seq[CertificateDetail]) =>
       for(certificate <- certificates) {
-        storeCertificate(DataStore.userStore(username), certificate, passphrase(username)) match {
-          case Left(t) =>
-            error(t.getMessage, t)
-          case Right(certificatePath) =>
-            sender ! CertificateRef(certificate._1, certificatePath)
+        DataStore.userStore(username) match {
+          case Left(ioe) =>
+            error(s"Could not list certificates for user: $username", ioe)
+            sender ! CertificateManagerError("Could not access certificates store")
+
+          case Right(ks) =>
+            storeCertificate(ks, certificate, passphrase(username)) match {
+              case Left(t) =>
+                error(s"Could not store the certificate for user: $username", t)
+                sender ! CertificateManagerError("Could not store certificate")
+              case Right(certificatePath) =>
+                sender ! CertificateRef(certificate._1, certificatePath)
+            }
         }
       }
 
     case ListCertificates(username: String) =>
-      val ks = DataStore.userStore(username)
-      val certificates = ks * s"*.$ENCRYPTED_FILE_EXT"
-      val certNames = certificates.seq.map(_.name.replace(s".$ENCRYPTED_FILE_EXT", "")).toSeq
-      sender ! CertificateList(certNames)
+      DataStore.userStore(username) match {
+        case Left(ioe) =>
+          error(s"Could not list certificates for user: $username", ioe)
+          sender ! CertificateManagerError("Could not access certificates store")
+
+        case Right(ks) =>
+          val certificates = ks * s"*.$ENCRYPTED_FILE_EXT"
+          val certNames = certificates.seq.map(_.name.replace(s".$ENCRYPTED_FILE_EXT", "")).toSeq
+          sender ! CertificateList(certNames)
+      }
 
     case GetCertificate(username, name, reply) =>
-      val ks = DataStore.userStore(username)
-      val cert = ks / s"$name.$ENCRYPTED_FILE_EXT"
+      DataStore.userStore(username) match {
+        case Left(ioe) =>
+          error(s"Could not list certificates for user: $username", ioe)
+          sender ! CertificateManagerError("Could not access certificates store")
 
-      getCertificate(cert, passphrase(username)) match {
-        case Left(t) =>
-          error(t.getMessage, t)
-          sender ! NoCertificate(name, reply)
+        case Right(ks) =>
+          val cert = ks / s"$name.$ENCRYPTED_FILE_EXT"
 
-        case Right(certificateData) =>
-          reply match {
-            case Some(f) =>
-              sender ! f((name, certificateData))
-            case None =>
-              sender ! Certificate((name, certificateData))
+          getCertificate(cert, passphrase(username)) match {
+            case Left(t) =>
+              error(t.getMessage, t)
+              sender ! NoCertificate(name, reply)
+
+            case Right(certificateData) =>
+              reply match {
+                case Some(f) =>
+                  sender ! f((name, certificateData))
+                case None =>
+                  sender ! Certificate((name, certificateData))
+              }
           }
       }
   }

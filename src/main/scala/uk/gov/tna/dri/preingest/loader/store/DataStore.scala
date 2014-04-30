@@ -3,7 +3,7 @@ package uk.gov.tna.dri.preingest.loader.store
 import scalax.file.Path
 import uk.gov.tna.dri.preingest.loader.Crypto
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
-import scalax.file.PathMatcher.FunctionMatcher
+import java.io.IOException
 
 object DataStore {
 
@@ -14,13 +14,20 @@ object DataStore {
    *
    * Generates a KeyStore path based on the username
    */
-  def userStore(username: String) : Path = {
+  def userStore(username: String) : Either[IOException, Path] = {
     val dUsername = Crypto.base64Unsafe(Crypto.digest(username, None, DigestAlgorithm.RIPEMD320))
     val store = settingsDir / dUsername
+
     if(!store.exists) {
-      store.doCreateDirectory()
+      try {
+        Right(store.createDirectory(createParents = true, failIfExists = false))
+      } catch {
+        case ioe: IOException =>
+          Left(ioe)
+      }
+    } else {
+      Right(store)
     }
-    store
   }
 
   def withTemporaryFile[T](fileDetail: Option[(String, Array[Byte])])(f: Option[Path] => T) : T = fileDetail match {
