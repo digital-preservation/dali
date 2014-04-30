@@ -12,6 +12,6 @@ object ClientAction {
   case class UnitRef(uid: UnitUID)
 
   case class Load(action: String, unit: LoadUnit,  certificate: Option[String], passphrase: Option[String]) extends Action(action)
-  case class LoadUnit(uid: UnitUID, parts: Seq[TargetUnitPart])
+  case class LoadUnit(interface: String, src:String, label:String,  parts: Seq[TargetUnitPart])
   case class TargetUnitPart(uid: UnitUID, series: String, destination:String )
 }

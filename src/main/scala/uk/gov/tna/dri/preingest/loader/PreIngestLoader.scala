@@ -151,8 +151,11 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
 
             case Some(l: Load) =>
               l match {
+
+                //l is  like this Load(load,LoadUnit(USB,/dev/sdb1,10,List()),Some(loader_test_keyfile_2),Some(L0@der$)) , we have to match it correctly
+
                 case List(
-                  ("unit", JObject(List(("uid", JString(uid)),("part", JArray(jParts))))),
+                  ("unit", JObject(List(("interface", JString(interface)), ("src", JString(src)), ("label", JString(label)) ,("parts", JArray(jParts))))),
                   ("certificate", certificate),
                   ("passphrase", passphrase)
                 ) =>
@@ -161,7 +164,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
                       TargetUnitPart(unit, series, destination)
                   }
 
-                  preIngestLoaderActor ! LoadUnit(uid, parts)
+                  preIngestLoaderActor ! LoadUnit(interface, src, label, parts)
 
               }
             case None =>
