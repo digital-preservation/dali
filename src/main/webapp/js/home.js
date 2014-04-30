@@ -88,6 +88,7 @@ function LoadModalCtrl($scope, $http) {
         mLoadModal.nextEnabled = true; //re-enable for next time
     };
     
+    // Taken from https://coderwall.com/p/ngisma - but disabled as seems to cause other problems!
     /*$scope.safeApply = function(fn) {
         var phase = this.$root.$$phase;
         if(phase == '$apply' || phase == '$digest') {
