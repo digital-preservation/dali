@@ -110,7 +110,7 @@ function doStartLoad(pendingUnit, cert, pass) {
         interface: pendingUnit.interface,
         src: pendingUnit.src,
         label: pendingUnit.label,
-        part: parts
+        part: pendingUnit.parts
     },
     certificate: cert.name,
     passphrase: pass
@@ -295,7 +295,9 @@ function copyUnitProperties(srcUnit, destUnit) {
    destUnit.label = srcUnit.label;
    destUnit.size = srcUnit.size;
    destUnit.timestamp = srcUnit.size;
-   destUnit.parts = srcUnit.parts;
+   if (srcUnit.parts) {
+     destUnit.parts = expandPendingUnitParts(srcUnit);
+   }
    //TODO update action and progress of action!
 }
 
