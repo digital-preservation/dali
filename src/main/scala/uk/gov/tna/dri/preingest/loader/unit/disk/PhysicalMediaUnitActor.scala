@@ -133,9 +133,11 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
             val percentageDone = ((completed.toDouble / total) * 100).toInt
 
             sender ! UnitStatus(unit, Option(UnitAction(percentageDone))) //TODO inject sender?
+            trace(s"[{$percentageDone}%] Copied file: ${file.path}")
           }
 
           sender ! UnitStatus(unit, Option(UnitAction(100))) //TODO inject sender?
+          info(s"Finished Copying Unit: ${parts.head.part.unitId}")
         }
     }
   }
