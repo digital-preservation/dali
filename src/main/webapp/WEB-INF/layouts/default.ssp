@@ -68,7 +68,7 @@
 
         <div id="footer">
             <div class="container">
-                <p class="text-muted credit copyright">Copyright &#169; 2013 The National Archives.</p>
+                <p class="text-muted credit copyright">Copyright &#169; 2014 The National Archives.</p>
                 #if(username != "")
                 <p class="credit logout"><a href="${baseUrl}logout">Logout: <%= username %></a></p>
                 #end
