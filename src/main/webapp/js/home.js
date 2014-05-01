@@ -110,7 +110,7 @@ function expandPendingUnitParts(pendingUnit) {
     parts.push({
       unit: unitName,
       series: v,
-      destination: 'Holding' //TODO get from drop-down(s)
+      destination: ''
     });
   });
   return parts;

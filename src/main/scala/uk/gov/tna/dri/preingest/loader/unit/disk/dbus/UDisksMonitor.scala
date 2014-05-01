@@ -1,6 +1,5 @@
 package uk.gov.tna.dri.preingest.loader.unit.disk.dbus
 
-import uk.gov.tna.dri.preingest.loader.unit.PartitionTypes
 import akka.actor.ActorRef
 import org.freedesktop.dbus._
 import scala.collection.mutable

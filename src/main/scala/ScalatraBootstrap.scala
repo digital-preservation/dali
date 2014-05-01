@@ -4,7 +4,6 @@ import javax.servlet.ServletContext
 import uk.gov.tna.dri.preingest.loader.auth.RememberMeDb
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateManagerActor
 import uk.gov.tna.dri.preingest.loader.{PreIngestLoaderActor, PreIngestLoader}
-import uk.gov.tna.dri.preingest.loader.unit.{UnitManagerActor, PendingUnitsActor}
 
 class ScalatraBootstrap extends LifeCycle {
 
