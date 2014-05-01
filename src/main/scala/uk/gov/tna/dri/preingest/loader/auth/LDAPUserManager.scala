@@ -3,11 +3,17 @@ package uk.gov.tna.dri.preingest.loader.auth
 
 object LDAPUserManager extends AuthManager[Int, User] {
 
-  val testUser = User(1, "adam", "adam")
+  val testUsers = Map(
+    1 -> User(1, "adam", "adam"),
+    2 -> User(2, "aretter", "aretter")
+  )
 
-  //TODO implement
-  def find(key: Int): Option[User] = if(key == 1) Some(testUser) else None
+  //TODO implement for ldap
+  def find(key: Int): Option[User] = testUsers.get(key)
 
-  //TODO implement
-  def validate(userName: String, password: String) : Option[User] = if(userName == "adam" && password=="adam") Some(testUser) else None
+  //TODO implement for ldap
+  def validate(userName: String, password: String) : Option[User] = testUsers.values.collectFirst {
+    case user if(user.username == userName && user.password == password) =>
+      user
+  }
 }

@@ -43,7 +43,7 @@ object TrueCrypt extends Logging {
       "--protect-hidden=no",
       "--fs-options=ro,uid=dev,gid=dev",
       "--mount-options=ro",
-      s"--password=$passphrase",         //TODO should not pass as an arg, should pass on StdIn!
+      s"--password=$passphrase",         //TODO should not pass as an arg, should pass on StdIn! (see `val = resultCode` below)
       "--mount", device) ++ (certificate match {
       case Some(certificate) =>
         Seq(
@@ -81,7 +81,7 @@ object TrueCrypt extends Logging {
     import scala.sys.process._
     val listCmd = Seq(TRUECRYPT_CMD, "--text", "--list")
 
-    //extracts mounted volumes from the list produced by tryecrypt list command
+    //extracts mounted volumes from the list produced by truecrypt list command
     val listLogger = new ProcessLogger {
       val TCListItemExtractor = """([0-9]+):\s([a-z0-9_\-/]+)\s([a-z0-9_\-/]+)\s([A-Za-z0-9_\-/]+)\s""".r
 
@@ -124,18 +124,12 @@ object TrueCrypt extends Logging {
 
 object TrueCryptedPartition {
 
-  def getVolumeLabel(volume: String, certificate: Option[Path], passphrase: String) : Option[String] =
+  def getVolumeLabel(volume: String, certificate: Option[Path], passphrase: String): Option[String] = {
     TrueCrypt.withVolumeNoFs(volume, certificate, passphrase) {
       val tcVirtualDevice = TrueCrypt.listTruecryptMountedVolumes.map(_.filter(_.volume == volume).head.virtualDevice)
       tcVirtualDevice.flatMap(NTFS.getLabel)
     }
-
-//  def listTopLevelDirs(volume: String, mount: Path, certificate: Option[Path], passphrase: String) : Seq[String] = {
-//    TrueCrypt.withVolume(volume, certificate, passphrase, mount) {
-//      val subDirs = mount * IsDirectory filterNot { dir => DataStore.isWindowsJunkDir(dir.name) }
-//      subDirs.seq.map(_.name).toSeq
-//    }
-//  }
+  }
 
   def listTopLevel[T](volume: String, mount: Path, certificate: Option[Path], passphrase: String)(f: Seq[Path] => T): T = {
     TrueCrypt.withVolume(volume, certificate, passphrase, mount) {

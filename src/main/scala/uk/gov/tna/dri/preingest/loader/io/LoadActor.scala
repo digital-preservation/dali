@@ -17,6 +17,11 @@ object LoadStatus extends Enumeration {
   val Complete = Value("Complete")
 }
 
+/**
+ * TODO This is probably no longer used - it may be needed for
+ * reporting the status of loading a unit during copy
+ * operation, need to check this - Adam.
+ */
 case class UnitLoadStatus(src: String, complete: Int, status: LoadStatus.LoadStatus)
 
 //class LoadActor extends Actor with Logging {

@@ -8,6 +8,7 @@ import uk.gov.tna.dri.preingest.loader.UserErrorMessages._
 
 case class UnitAction(progress: Int)
 
+case object Listen
 case class RegisterUnit(unitUid: UnitUID, unit: ActorRef)
 case class DeRegisterUnit(unitUid: UnitUID)
 case class SendUnitStatus(listener: ActorRef, clientId: Option[String] = None)

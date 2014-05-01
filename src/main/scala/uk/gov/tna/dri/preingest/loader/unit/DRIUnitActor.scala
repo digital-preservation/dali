@@ -3,7 +3,7 @@ package uk.gov.tna.dri.preingest.loader.unit
 import grizzled.slf4j.Logging
 import akka.actor.ActorRef
 import uk.gov.tna.dri.preingest.loader.certificate.{NoCertificate, CertificateDetail, GetCertificate}
-import uk.gov.tna.dri.preingest.loader.{PartialFunctionBuilder, ComposableActor, UserErrorMessages}
+import uk.gov.tna.dri.preingest.loader.{ComposableActor, UserErrorMessages}
 
 
 case class Load(username: String, parts: Seq[TargetedPart], certificate: Option[String], passphrase: Option[String], clientId: Option[String])
