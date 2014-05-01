@@ -36,7 +36,14 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
     }
   }
 
-  protected def copyFile(file: Path, dest: Path) = file.copyTo(dest, createParents = true, copyAttributes = true)
+  protected def copyFile(file: Path, dest: Path) : Either[IOException, Path] = {
+    try{
+      Right(file.copyTo(dest, createParents = true, copyAttributes = true))
+    } catch {
+      case ioe: IOException =>
+        Left(ioe)
+    }
+  }
 
   protected def totalSize(paths: PathSet[Path]) = paths.toList.map(_.size).map(_.getOrElse(0l)).reduceLeft(_ + _)
 }
@@ -133,17 +140,21 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
           for(file <- files) {
             val label = unit.label
             val destination = DESTINATION / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
-            copyFile(file, destination)
-            completed += file.size.get
 
-            val percentageDone = ((completed.toDouble / total) * 100).toInt
-            trace(s"[{$percentageDone}%] Copied file: ${file.path}")
-            clientSender match {
-              case Some(sender) => sender ! UnitStatus(unit, Option(UnitAction(percentageDone)))
-              case None =>
+            copyFile(file, destination) match {
+              case Left(ioe) =>
+                error(s"Unable to copy data for unit: ${unit.uid}", ioe)
+                sender ! UnitError("Unable to copy data for unit") //TODO inject sender?
+
+              case Right(path) =>
+                completed += file.size.get
+                val percentageDone = ((completed.toDouble / total) * 100).toInt
+                trace(s"[{$percentageDone}%] Copied file: ${file.path}")
+                clientSender match {
+                    case Some(sender) => sender ! UnitStatus(unit, Option(UnitAction(percentageDone)))
+                    case None =>
+                }
             }
-
-
           }
           info(s"Finished Copying Unit: ${parts.head.part.unitId}")
           clientSender match {

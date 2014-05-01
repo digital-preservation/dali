@@ -6,4 +6,6 @@ object UserErrorMessages {
   val DECRYPT_NON_ENCRYPTED = "You cannot decrypt a non-encrypted unit"
 
   def NO_CERTIFICATE(action: String, id: String, certName: String) = s"Whilst $action for $id, the certificate $certName could not be retrieved"
+
+  def ALREADY_EXISTS(path: String) = s"File already exists $path"
 }
