@@ -54,6 +54,7 @@ function LoadModalCtrl($scope, $http) {
 
         //show waiting for decrypt
         mLoadModal.decrypting = true;
+        mLoadModal.nextEnabled = false;
       }
 
       if(selected == 2) {
@@ -392,6 +393,7 @@ $(document).ready(function() {
                          if(v.parts) {
                              model.pendingUnit.parts = expandPendingUnitParts(v);
                              model.decrypting = false;    //hide decrypting message
+                             model.nextEnabled = true;
                          }
                      }
                  });
