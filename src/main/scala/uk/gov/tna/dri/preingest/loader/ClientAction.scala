@@ -11,7 +11,9 @@ object ClientAction {
   case class Decrypt(action: String, unit: UnitRef, certificate: Option[String], passphrase: String) extends Action(action)
   case class UnitRef(uid: UnitUID)
 
-  case class Load(action: String, unit: LoadUnit,  certificate: Option[String], passphrase: Option[String]) extends Action(action)
-  case class LoadUnit(interface: String, src:String, label:String,  parts: Seq[TargetUnitPart])
-  case class TargetUnitPart(uid: UnitUID, series: String, destination:String )
+  //isHacky - needed to disambiguate between decrypt and load messages on the server side
+  case class Load(action: String, isHacky: Boolean, unit: LoadUnit, certificate: Option[String], passphrase: Option[String]) extends Action(action)
+  //case class LoadUnit(interface: String, src:String, label:String,  parts: Seq[TargetUnitPart])
+  case class LoadUnit(uid: UnitUID, parts: Seq[TargetUnitPart])
+  case class TargetUnitPart(unit: UnitUID, series: String, destination: String )
 }

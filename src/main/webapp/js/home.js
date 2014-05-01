@@ -108,7 +108,7 @@ function expandPendingUnitParts(pendingUnit) {
     parts.push({
       unit: unitName,
       series: v,
-      destination: ''
+      destination: 'Holding' //TODO get from drop-down(s)
     });
   });
   return parts;
@@ -116,13 +116,17 @@ function expandPendingUnitParts(pendingUnit) {
 
 function doStartLoad(pendingUnit, cert, pass) {
 
+  var partsCpy = pendingUnit.parts.slice(0);
+  $.each(partsCpy, function(i, v) {
+    delete v.$$hashKey;
+  });
+
   subSocket.push(JSON.stringify({
     action: 'load',
+    isHacky: true, //needed to disambiguate between decrypt and load messages on the server side
     unit: {
-        interface: pendingUnit.interface,
-        src: pendingUnit.src,
-        label: pendingUnit.label,
-        part: pendingUnit.parts
+        uid: pendingUnit.uid,
+        parts: partsCpy
     },
     certificate: cert.name,
     passphrase: pass

@@ -14,7 +14,7 @@ case class SendUnitStatus(listener: ActorRef, clientId: Option[String] = None)
 case class UnitStatus(unit: DRIUnit, action: Option[UnitAction] = None, clientId: Option[String] = None)
 case class RemoveUnit(unitUid: UnitUID)
 case class ListUnits(clientId: String)
-case class LoadUnit(username: String, unitUid: UnitUID, parts: Seq[TargetedPart], certificate: Option[String], passphrase: Option[String])
+case class LoadUnit(username: String, unitUid: UnitUID, parts: Seq[TargetedPart], certificate: Option[String], passphrase: Option[String], clientId: Option[String])
 case class UpdateUnitDecryptDetail(username: String, uid: UnitUID, certificate: Option[String], passphrase: String, clientId: Option[String] = None)
 case class UpdateDecryptDetail(username: String, listener: ActorRef, certificate: Option[String], passphrase: String, clientId: Option[String])
 case class UserProblemNotification(errorMsg: UserErrorMessage, clientId: Option[String])
@@ -77,7 +77,8 @@ class UnitManagerActor extends Actor with Logging {
         _ ! RemoveUnit(unitId)
       }
 
-    case LoadUnit(username, unitUid, parts, certificate, passphrase) =>
-      this.units(unitUid) ! Load(username, parts, certificate, passphrase)
+    case LoadUnit(username, unitUid, parts, certificate, passphrase, clientId) =>
+      val unitActor = this.units(unitUid)
+      unitActor ! Load(username, parts, certificate, passphrase, clientId)
   }
 }

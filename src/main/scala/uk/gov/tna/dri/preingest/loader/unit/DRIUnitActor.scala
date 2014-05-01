@@ -6,7 +6,7 @@ import uk.gov.tna.dri.preingest.loader.certificate.{NoCertificate, CertificateDe
 import uk.gov.tna.dri.preingest.loader.{PartialFunctionBuilder, ComposableActor, UserErrorMessages}
 
 
-case class Load(username: String, parts: Seq[TargetedPart], certificate: Option[String], passphrase: Option[String])
+case class Load(username: String, parts: Seq[TargetedPart], certificate: Option[String], passphrase: Option[String], clientId: Option[String])
 
 /**
  * Base trait of all UnitActors
@@ -24,7 +24,9 @@ trait DRIUnitActor[T <: DRIUnit] extends ComposableActor with Logging {
     case SendUnitStatus(listener: ActorRef, clientId: Option[String]) =>
       listener ! UnitStatus(unit, None, clientId)
 
-    case Load(username, parts, None, passphrase) =>
+    //below case statement is for non certificate-encrypted units, certificate encrypted units
+    //are handled in EncryptedDRIUnitActor
+    case Load(username, parts, None, passphrase, clientId) => //TODO specific client!
       copyData(username, parts, passphrase)
   }
 
@@ -40,13 +42,14 @@ trait EncryptedDRIUnitActor[T <: EncryptedDRIUnit] extends DRIUnitActor[T] {
   protected lazy val certificateManagerActor = context.actorFor("/user/certificateManagerActor")
 
   receiveBuilder += {
-    case Load(username, parts, Some(certificate), passphrase) =>
-      certificateManagerActor ! GetCertificate(username, certificate, Option(WithCert(Load(username, parts, Option(certificate), passphrase), _)))
+    case Load(username, parts, Some(certificate), passphrase, clientId) => //TODO specific client!
+      certificateManagerActor ! GetCertificate(username, certificate, Option(WithCert(Load(username, parts, Option(certificate), passphrase, clientId), _)))
 
-    case WithCert(Load(username, parts, _, passphrase), certificate) =>
+    case WithCert(Load(username, parts, _, passphrase, clientId), certificate) =>
       copyData(username, parts, certificate, passphrase)
 
-    case NoCertificate(cert, Load(_, _, _, _)) =>
+    case NoCertificate(cert, Load(username, _, _, _, _)) =>
+      error(s"Certificate '$cert' could be retrieved for: $username")
       //TODO let user know of problem
 
     case udd: UpdateDecryptDetail =>

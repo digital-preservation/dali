@@ -35,7 +35,8 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
   with FileUploadSupport
   with AtmosphereSupport
   with FutureSupport
-  with LDAPAuthenticationSupport {
+  with LDAPAuthenticationSupport
+  with Logging {
 
   implicit protected val jsonFormats: Formats = DefaultFormats
   protected implicit def executor: ExecutionContext = system.dispatcher
@@ -122,25 +123,26 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
        def receive = {
 
          case Connected =>
-           println(s"Client $uuid is connected")
+          info(s"Client $uuid is connected")
 
          case Disconnected(disconnector, Some(error)) =>
-           println(s"Client $uuid disconnected: " +  error)
+          warn(s"Client $uuid disconnected: " +  error)
 
-         case Error(Some(error)) =>
-           println("ERROR: " + error)
+         case Error(Some(err)) =>
+          error(err)
 
          case TextMessage(text) =>
-           println("RECEIVED TEXT: " + text)
+           debug("RECEIVED TEXT: " + text)
 
          case JsonMessage(json) =>
-          println("RECEIVED JSON: " + json)
+          debug("RECEIVED JSON: " + json)
 
           //val username = user.username //TODO causes NPE at the moment
           val username = x.username //TODO fix above, this is a temp solution
 
-          import uk.gov.tna.dri.preingest.loader.ClientAction._
-          val clientAction = json.extractOpt[Decrypt].orElse(json.extractOpt[Load].orElse(json.extractOpt[Pending]))
+          import uk.gov.tna.dri.preingest.loader.ClientAction.{Decrypt, Pending, UnitRef, Load}
+          //val clientAction = json.extractOpt[Decrypt].orElse(json.extractOpt[Load].orElse(json.extractOpt[Pending]))
+          val clientAction = json.extractOpt[Load].orElse(json.extractOpt[Decrypt].orElse(json.extractOpt[Pending]))
           clientAction match {
 
             case Some(p: Pending) =>
@@ -150,25 +152,28 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
               preIngestLoaderActor ! UpdateUnitDecryptDetail(username, uid, certificate, passphrase, Option(uuid))
 
             case Some(l: Load) =>
-              l match {
+              val parts = l.unit.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
+              preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid))
 
-                //l is  like this Load(load,LoadUnit(USB,/dev/sdb1,10,List()),Some(loader_test_keyfile_2),Some(L0@der$)) , we have to match it correctly
+//              l match {
+//
+//                //l is  like this Load(load,LoadUnit(USB,/dev/sdb1,10,List()),Some(loader_test_keyfile_2),Some(L0@der$)) , we have to match it correctly
+//
+//                case List(
+//                  ("unit", JObject(List(("interface", JString(interface)), ("src", JString(src)), ("label", JString(label)) ,("parts", JArray(jParts))))),
+//                  ("certificate", certificate),
+//                  ("passphrase", passphrase)
+//                ) =>
+//                  val parts : Seq[TargetUnitPart] = jParts.map {
+//                    case JObject(List(("unit", JString(unit)), ("series", JString(series)), ("destination", JString(destination)))) =>
+//                      TargetUnitPart(unit, series, destination)
+//                  }
 
-                case List(
-                  ("unit", JObject(List(("interface", JString(interface)), ("src", JString(src)), ("label", JString(label)) ,("parts", JArray(jParts))))),
-                  ("certificate", certificate),
-                  ("passphrase", passphrase)
-                ) =>
-                  val parts : Seq[TargetUnitPart] = jParts.map {
-                    case JObject(List(("unit", JString(unit)), ("series", JString(series)), ("destination", JString(destination)))) =>
-                      TargetUnitPart(unit, series, destination)
-                  }
+//                  preIngestLoaderActor ! LoadUnit(interface, src, label, parts)
 
-                  preIngestLoaderActor ! LoadUnit(interface, src, label, parts)
-
-              }
+//              }
             case None =>
-              println("Unknown Client Action")
+              error("Unknown Client Action!")
           }
 
 //          json match {
@@ -316,6 +321,9 @@ class PreIngestLoaderActor extends Actor with Logging {
 
     case uudd: UpdateUnitDecryptDetail =>
       unitManagerActor ! uudd
+
+    case lu: LoadUnit =>
+      unitManagerActor ! lu
   }
 
   def allOrOne(maybeClientId: Option[String])(client: AtmosphereClient) : Boolean = {
