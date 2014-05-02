@@ -26,11 +26,9 @@ class SettingsImpl(config: Config) extends Extension {
   }
 
   object DataStore {
-    val userData = Path.fromString(sys.props("user.home")) / config.getString("data-store.user-data")
+    val userData = Path.fromString(sys.props("user.home")) / config.getString("unit-loader.data-store.user-data")
     val digestAlgorithm = DigestAlgorithm.withName(config.getString("unit-loader.data-store.digest-algorithm"))
   }
-
-  val junkFiles = config.getStringList("junk-files").asScala.map(_.r)
 
   object Unit {
     val uploadedScheduleDelay = Duration(config.getMilliseconds("unit-loader.unit.manager.uploaded-check-schedule.delay"), TimeUnit.MILLISECONDS)
@@ -42,6 +40,8 @@ class SettingsImpl(config: Config) extends Extension {
     val uploadedUidGenDigestAlgorithm = DigestAlgorithm.withName(config.getString("unit-loader.unit.uploaded.uid-gen-digest-algorithm"))
 
     val uploadedGpgZipFileExtension = config.getString("unit-loader.unit.uploaded.gpg-zip-file-extension")
+
+    val junkFiles = config.getStringList("unit-loader.unit.junk-files").asScala.map(_.r)
 
     val destination = Path.fromString(config.getString("unit-loader.unit.destination"))
   }
