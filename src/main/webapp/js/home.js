@@ -313,7 +313,7 @@ function toHumanTime(timestamp) {
 function copyUnitProperties(srcUnit, destUnit) {
    destUnit.label = srcUnit.label;
    destUnit.size = srcUnit.size;
-   destUnit.timestamp = srcUnit.timestamp;
+   destUnit.timestamp = srcUnit.size;
    if (srcUnit.parts) {
      destUnit.parts = expandPendingUnitParts(srcUnit);
    }
@@ -399,10 +399,27 @@ $(document).ready(function() {
                      }
                  });
              });
-
-
-          //is this a removal from the pending units?
-          } else if(json.remove) {
+          }
+          // is this an error?
+          else if(json.error) {
+            $window.alert(json.error.message)
+            /* e.g.
+            {"error": [{
+                "uid": "123",
+                "message": "error message"
+            }]}
+            */
+          }
+          else if(json.progress) {
+            /* e.g.
+            {"progress": [{
+                "uid": "123",
+                "percentage": "100"
+            }]}
+            */
+          }
+          // is this a removal from the pending units?
+          else if(json.remove) {
            updatePending(function(model) {
               $.each(model, function(i, v) {
                $.each(json.remove.unit, function(y, vv) {

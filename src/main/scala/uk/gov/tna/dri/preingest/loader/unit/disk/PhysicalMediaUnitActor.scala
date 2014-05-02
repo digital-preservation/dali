@@ -5,13 +5,15 @@ import uk.gov.tna.dri.preingest.loader.store.DataStore
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
 import scalax.file.{PathSet, Path}
-import scalax.file.PathMatcher.{IsDirectory, IsFile}
+import scalax.file.PathMatcher.IsFile
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
-import uk.gov.tna.dri.preingest.loader.{PreIngestLoaderActor, Crypto}
+import uk.gov.tna.dri.preingest.loader.Crypto
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
 import java.io.IOException
 import akka.actor.ActorRef
+import scala.util.control.Breaks._
+import grizzled.slf4j.Logger
 
 trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
 
@@ -124,7 +126,7 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
       case Left(ioe) =>
         error(s"Unable to copy data for unit: ${unit.uid}", ioe)
         unitManager match {
-          case Some(sender) =>  sender ! UnitError(unit, "Unable to copy data for unit")
+          case Some(sender) =>  sender ! UnitError(unit, "Unable to copy data for unit:" + ioe.getMessage)
           case None =>
         }
 
@@ -137,25 +139,29 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
             case None =>
           }
           var completed: Long = 0
-          for(file <- files) {
-            val label = unit.label
-            val destination = DESTINATION / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
+          breakable {
+            for(file <- files) {
+              val label = unit.label
+              val destination = DESTINATION / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
 
-            copyFile(file, destination) match {
-              case Left(ioe) =>
-                error(s"Unable to copy data for unit: ${unit.uid}", ioe)
-                unitManager match {
-                  case Some(sender) => sender ! UnitError(unit, "Unable to copy data for unit")
-                  case None =>
-                }
-              case Right(path) =>
-                completed += file.size.get
-                val percentageDone = ((completed.toDouble / total) * 100).toInt
-                trace(s"[{$percentageDone}%] Copied file: ${file.path}")
-                unitManager match {
+              copyFile(file, destination) match {
+                case Left(ioe) =>
+                  error(s"Unable to copy data for unit: ${unit.uid}", ioe)
+                  unitManager match {
+                    case Some(sender) =>
+                      sender ! UnitError(unit, "Unable to copy data for unit:" + ioe.getMessage)
+                      break // break on first error
+                    case None => break // break on error
+                  }
+                case Right(path) =>
+                  completed += file.size.get
+                  val percentageDone = ((completed.toDouble / total) * 100).toInt
+                  trace(s"[{$percentageDone}%] Copied file: ${file.path}")
+                  unitManager match {
                     case Some(sender) => sender ! UnitProgress(unit, percentageDone)
                     case None =>
-                }
+                  }
+              }
             }
           }
           info(s"Finished Copying Unit: ${parts.head.part.unitId}")
