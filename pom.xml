@@ -10,6 +10,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
+        <scala.version>2.10</scala.version>
+        <scala.lib.version>${scala.version}.4</scala.lib.version>
         <scalatra.version>2.2.2</scalatra.version>
 		<jetty.version>8.1.15.v20140411</jetty.version>
         <bouncycastle.version>1.50</bouncycastle.version>
@@ -68,47 +70,39 @@
     </build>
 
     <dependencies>
-        <!-- TODO remove -->
-        <!-- dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-websocket</artifactId>
-            <version>${jetty.version}</version>
-        </dependency -->
-
-
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
-			<version>2.10.4</version>
+			<version>${scala.lib.version}</version>
 		</dependency>
         <dependency>
             <groupId>org.scalatra</groupId>
-            <artifactId>scalatra_2.10</artifactId>
+            <artifactId>scalatra_${scala.version}</artifactId>
             <version>${scalatra.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scalatra</groupId>
-            <artifactId>scalatra-atmosphere_2.10</artifactId>
+            <artifactId>scalatra-atmosphere_${scala.version}</artifactId>
             <version>${scalatra.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
-            <artifactId>json4s-jackson_2.10</artifactId>
+            <artifactId>json4s-jackson_${scala.version}</artifactId>
             <version>3.2.9</version>
         </dependency>
 		<dependency>
 			<groupId>org.scalatra</groupId>
-			<artifactId>scalatra-auth_2.10</artifactId>
+			<artifactId>scalatra-auth_${scala.version}</artifactId>
 			<version>${scalatra.version}</version>
 		</dependency>
         <dependency>
             <groupId>org.scalatra</groupId>
-            <artifactId>scalatra-scalate_2.10</artifactId>
+            <artifactId>scalatra-scalate_${scala.version}</artifactId>
             <version>${scalatra.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.scala-incubator.io</groupId>
-            <artifactId>scala-io-file_2.10</artifactId>
+            <artifactId>scala-io-file_${scala.version}</artifactId>
             <version>0.4.3</version>
         </dependency>
         <dependency>
@@ -122,6 +116,7 @@
             <version>3.1.0</version>
 			<scope>provided</scope>
         </dependency>
+
         <!-- Dependency for PGP and GPG Encryption-Decryption -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -133,15 +128,11 @@
             <artifactId>bcpg-jdk15on</artifactId>
             <version>${bouncycastle.version}</version>
         </dependency>
-        <!-- dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>${bouncycastle.version}</version>
-        </dependency -->
         <!-- end PGP/GOG dependency -->
+
 		<dependency>
 			<groupId>com.typesafe.slick</groupId>
-			<artifactId>slick_2.10</artifactId>
+			<artifactId>slick_${scala.version}</artifactId>
 			<version>1.0.1</version>
 		</dependency>
 		<dependency>
@@ -163,16 +154,10 @@
         </dependency>
 		<dependency>
 			<groupId>org.scalatra</groupId>
-			<artifactId>scalatra-specs2_2.10</artifactId>
+			<artifactId>scalatra-specs2_${scala.version}</artifactId>
 			<version>${scalatra.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-webapp</artifactId>
-			<version>${jetty.version}</version>
-			<scope>runtime</scope>
-		</dependency -->
     </dependencies>
 
     <repositories>
