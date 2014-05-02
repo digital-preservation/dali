@@ -83,12 +83,12 @@ case class TrueCryptedPartitionUnit(partition: PartitionProperties, disk: DiskPr
 
 class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends PhysicalMediaUnitActor[TrueCryptedPartitionUnit] with EncryptedDRIUnitActor[TrueCryptedPartitionUnit] { //TODO consider subclassing PhysicalUnit
 
-  def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], clientSender: Option[ActorRef]): Unit = copyData(username, parts, None, passphrase, clientSender)
+  def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef]): Unit = copyData(username, parts, None, passphrase, unitManager)
 
-  def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String], clientSender: Option[ActorRef]): Unit = {
+  def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String], unitManager: Option[ActorRef]): Unit = {
     DataStore.withTemporaryFile(Option(certificate)) {
       cert =>
-        copyData(username, parts, cert, passphrase, clientSender)
+        copyData(username, parts, cert, passphrase, unitManager)
     }
   }
 
@@ -119,12 +119,12 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
     }.getOrElse(false)
   }
 
-  private def copyData(username: String, parts: Seq[TargetedPart], certificate: Option[Path], passphrase: Option[String], clientSender: Option[ActorRef]) {
+  private def copyData(username: String, parts: Seq[TargetedPart], certificate: Option[Path], passphrase: Option[String], unitManager: Option[ActorRef]) {
     tempMountPoint(username, unit.partition.deviceFile) match {
       case Left(ioe) =>
         error(s"Unable to copy data for unit: ${unit.uid}", ioe)
-        clientSender match {
-          case Some(sender) =>  sender ! UnitError("Unable to copy data for unit")
+        unitManager match {
+          case Some(sender) =>  sender ! UnitError(unit, "Unable to copy data for unit")
           case None =>
         }
 
@@ -132,8 +132,8 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
         TrueCrypt.withVolume(unit.partition.deviceFile, certificate, passphrase.get, mountPoint) {
           val files = mountPoint ** IsFile filterNot { f => DataStore.isJunkFile(f.parent.get.name) }
           val total = totalSize(files)
-          clientSender match {
-            case Some(sender) => sender  ! UnitStatus(unit, Option(UnitAction(0)))
+          unitManager match {
+            case Some(sender) => sender  ! UnitProgress(unit, 0)
             case None =>
           }
           var completed: Long = 0
@@ -144,21 +144,23 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
             copyFile(file, destination) match {
               case Left(ioe) =>
                 error(s"Unable to copy data for unit: ${unit.uid}", ioe)
-                sender ! UnitError("Unable to copy data for unit") //TODO inject sender?
-
+                unitManager match {
+                  case Some(sender) => sender ! UnitError(unit, "Unable to copy data for unit")
+                  case None =>
+                }
               case Right(path) =>
                 completed += file.size.get
                 val percentageDone = ((completed.toDouble / total) * 100).toInt
                 trace(s"[{$percentageDone}%] Copied file: ${file.path}")
-                clientSender match {
-                    case Some(sender) => sender ! UnitStatus(unit, Option(UnitAction(percentageDone)))
+                unitManager match {
+                    case Some(sender) => sender ! UnitProgress(unit, percentageDone)
                     case None =>
                 }
             }
           }
           info(s"Finished Copying Unit: ${parts.head.part.unitId}")
-          clientSender match {
-            case Some(sender) => sender ! UnitStatus(unit, Option(UnitAction(100)))
+          unitManager match {
+            case Some(sender) => sender ! UnitProgress(unit, 100)
             case None =>
           }
 
@@ -171,6 +173,6 @@ case class NonEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskP
 
 //TODO not yet implemented
 class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extends PhysicalMediaUnitActor[NonEncryptedPartitionUnit] {
-  def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], clientSender: Option[ActorRef]) = ???
+  def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef]) = ???
 }
 
