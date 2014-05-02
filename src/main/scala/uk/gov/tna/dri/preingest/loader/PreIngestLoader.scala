@@ -146,7 +146,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
 
             case Some(l: Load) =>
               val parts = l.unit.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
-              preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid))
+              preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid), Option(preIngestLoaderActor))
 
             case None =>
               error("Unknown Client Action!")
@@ -166,6 +166,9 @@ class PreIngestLoaderActor extends Actor with Logging {
     //send unit status (i.e. add of update)
     case UnitStatus(unit, action, clientId) =>
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("update", unit)), allOrOne(clientId))
+
+    case UnitStatus(unit, action, none)  =>
+      AtmosphereClient.broadcast("/unit", JsonMessage(action.toString()))
 
     //remove unit detail
     case DeRegisterUnit(unitUid) =>

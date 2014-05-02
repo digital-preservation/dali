@@ -11,12 +11,13 @@ var mLoadModal = {
     ],
     passphrase: null,
     decrypting: false,
-    nextEnabled: true,
+    nextDisabled: false,
     destinations: [
         "Holding",
         "Pre-Ingest",
         "Holding + Sandbox"
-    ]
+    ],
+    exception: null
 };
 
 //Controller for displaying Pending Units grid
@@ -35,8 +36,8 @@ function PendingUnitsCtrl($scope) {
 //Controller for the Load modal dialog
 function LoadModalCtrl($scope, $http) {
     $scope.loadModal = mLoadModal;
-
-   updateCertsModel($http);
+    
+    updateCertsModel($http);
 
     $scope.uploadCertDialog = function() {
         //show the uploadCert modal
@@ -54,11 +55,11 @@ function LoadModalCtrl($scope, $http) {
 
         //show waiting for decrypt
         mLoadModal.decrypting = true;
-        mLoadModal.nextEnabled = false;
+        mLoadModal.nextDisabled = true;
       }
 
       if(selected == 2) {
-        mLoadModal.nextEnabled = false;
+        mLoadModal.nextDisabled = false;
       }
 
       //$('#LoadWizard').wizard('selectItem', { step: selectedIdx + 1 });
@@ -66,7 +67,7 @@ function LoadModalCtrl($scope, $http) {
     };
 
     $scope.startLoad = function () {
-
+    
         //disable the load button on the main dialog for the unit
         //TODO
 
@@ -86,7 +87,7 @@ function LoadModalCtrl($scope, $http) {
         $('#loadModal').modal('hide');
 
         //reset dialog
-        mLoadModal.nextEnabled = true; //re-enable for next time
+        mLoadModal.nextDisabled = false; // re-enable for next time
     };
     
     // Taken from https://coderwall.com/p/ngisma - but disabled as seems to cause other problems!
@@ -393,7 +394,7 @@ $(document).ready(function() {
                          if(v.parts) {
                              model.pendingUnit.parts = expandPendingUnitParts(v);
                              model.decrypting = false;    //hide decrypting message
-                             model.nextEnabled = true;
+                             model.nextDisabled = false;
                          }
                      }
                  });
