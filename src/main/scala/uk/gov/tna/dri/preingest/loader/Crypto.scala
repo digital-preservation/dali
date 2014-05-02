@@ -108,7 +108,7 @@ object Crypto {
           v
       }
     case Left(nsae) =>
-          throw nsae
+      throw nsae
   }
 
 }
