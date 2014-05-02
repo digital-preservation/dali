@@ -31,7 +31,7 @@ object Crypto {
 
   import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm.DigestAlgorithm
 
-  type DigestProvider[E <: Exception] = {def calculate(): Either[E, Array[Byte]]}
+  type DigestProvider[E <: Exception] = { def calculate(): Either[E, Array[Byte]] }
 
   private def digester(alg: DigestAlgorithm): Either[NoSuchAlgorithmException, MessageDigest] = {
     try {

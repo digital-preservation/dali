@@ -2,15 +2,14 @@ package uk.gov.tna.dri.preingest.loader.unit.disk
 
 import grizzled.slf4j.Logging
 import scala.collection.mutable
+import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
 object NTFS extends Logging {
 
-  val NTFSLABEL_CMD = "/sbin/ntfslabel"
-
-  def getLabel(volume: String) : Option[String] = {
+  def getLabel(settings: SettingsImpl, volume: String) : Option[String] = {
     import scala.sys.process._
 
-    val labelCmd = Seq("sudo", NTFSLABEL_CMD, volume)
+    val labelCmd = Seq("sudo", settings.NtfsProgs.labelBin.path, volume)
 
     val labelLogger = new ProcessLogger {
       val stdOut = new mutable.ListBuffer[String]

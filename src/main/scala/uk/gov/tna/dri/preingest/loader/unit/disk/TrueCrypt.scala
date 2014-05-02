@@ -5,6 +5,7 @@ import scalax.file.Path
 import scala.collection.mutable
 import uk.gov.tna.dri.preingest.loader.store.DataStore
 import scalax.file.PathMatcher.IsDirectory
+import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
 /**
  * if the exec's in here fail with the error
@@ -14,31 +15,29 @@ import scalax.file.PathMatcher.IsDirectory
  */
 object TrueCrypt extends Logging {
 
-  val TRUECRYPT_CMD = "/usr/bin/truecrypt" //TODO make configurable
-
-  def withVolume[T](volume: String, certificate: Option[Path], passphrase: String, mountPoint: Path)(volumeOperation: => T) : T = {
+  def withVolume[T](settings: SettingsImpl, volume: String, certificate: Option[Path], passphrase: String, mountPoint: Path)(volumeOperation: => T) : T = {
     try {
-      mount(volume, certificate, passphrase, Seq(mountPoint.path))
+      mount(settings, volume, certificate, passphrase, Seq(mountPoint.path))
       volumeOperation
     } finally {
-      dismount(volume)
+      dismount(settings, volume)
     }
   }
 
-  def withVolumeNoFs[T](volume: String, certificate: Option[Path], passphrase: String)(volumeOperation: => T) : T = {
+  def withVolumeNoFs[T](settings: SettingsImpl, volume: String, certificate: Option[Path], passphrase: String)(volumeOperation: => T) : T = {
     try {
-      mount(volume, certificate, passphrase, Seq("--filesystem=none"))
+      mount(settings, volume, certificate, passphrase, Seq("--filesystem=none"))
       volumeOperation
     } finally {
-      dismount(volume)
+      dismount(settings, volume)
     }
   }
 
-  private def mount(device: String, certificate: Option[Path], passphrase: String, extraCmdOptions: Seq[String]) {
+  private def mount(settings: SettingsImpl, device: String, certificate: Option[Path], passphrase: String, extraCmdOptions: Seq[String]) {
     import scala.sys.process._
 
     val mountCmd = Seq(
-      TRUECRYPT_CMD,
+      settings.Truecrypt.bin.path,
       "--text",
       "--protect-hidden=no",
       "--fs-options=ro,uid=dev,gid=dev",
@@ -62,11 +61,11 @@ object TrueCrypt extends Logging {
     }
   }
 
-  private def dismount(device: String) {
+  private def dismount(settings: SettingsImpl, device: String) {
     import scala.sys.process._
 
     val dismountCmd = Seq(
-      TRUECRYPT_CMD,
+      settings.Truecrypt.bin.path,
       "--text",
       "--dismount",
       device)
@@ -77,11 +76,11 @@ object TrueCrypt extends Logging {
     }
   }
 
-  def listTruecryptMountedVolumes : Option[Seq[MountedVolume]] = {
+  def listTruecryptMountedVolumes(settings: SettingsImpl) : Option[Seq[MountedVolume]] = {
     import scala.sys.process._
-    val listCmd = Seq(TRUECRYPT_CMD, "--text", "--list")
+    val listCmd = Seq(settings.Truecrypt.bin.path, "--text", "--list")
 
-    //extracts mounted volumes from the list produced by truecrypt list command
+    //extracts mounted volumes from the list produced by the truecrypt list command
     val listLogger = new ProcessLogger {
       val TCListItemExtractor = """([0-9]+):\s([a-z0-9_\-/]+)\s([a-z0-9_\-/]+)\s([A-Za-z0-9_\-/]+)\s""".r
 
@@ -124,16 +123,17 @@ object TrueCrypt extends Logging {
 
 object TrueCryptedPartition {
 
-  def getVolumeLabel(volume: String, certificate: Option[Path], passphrase: String): Option[String] = {
-    TrueCrypt.withVolumeNoFs(volume, certificate, passphrase) {
-      val tcVirtualDevice = TrueCrypt.listTruecryptMountedVolumes.map(_.filter(_.volume == volume).head.virtualDevice)
-      tcVirtualDevice.flatMap(NTFS.getLabel)
+  def getVolumeLabel(settings: SettingsImpl, volume: String, certificate: Option[Path], passphrase: String): Option[String] = {
+    TrueCrypt.withVolumeNoFs(settings, volume, certificate, passphrase) {
+      val tcVirtualDevice = TrueCrypt.listTruecryptMountedVolumes(settings).map(_.filter(_.volume == volume).head.virtualDevice)
+      tcVirtualDevice.flatMap(NTFS.getLabel(settings, _))
     }
   }
 
-  def listTopLevel[T](volume: String, mount: Path, certificate: Option[Path], passphrase: String)(f: Seq[Path] => T): T = {
-    TrueCrypt.withVolume(volume, certificate, passphrase, mount) {
-      val files = mount * ((p: Path) => !DataStore.isJunkFile(p.name))
+  def listTopLevel[T](settings: SettingsImpl, volume: String, mount: Path, certificate: Option[Path], passphrase: String)(f: Seq[Path] => T): T = {
+    TrueCrypt.withVolume(settings: SettingsImpl, volume: String, certificate, passphrase, mount) {
+      import uk.gov.tna.dri.preingest.loader.unit.isJunkFile
+      val files = mount * ((p: Path) => !isJunkFile(settings, p.name))
       f(files.toSet.toSeq)
     }
   }

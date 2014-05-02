@@ -4,19 +4,16 @@ import akka.actor.ActorRef
 import org.freedesktop.dbus._
 import scala.collection.mutable
 import org.freedesktop.{DBus, UDisks}
+import uk.gov.tna.dri.preingest.loader.SettingsImpl
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DiskProperties, PartitionProperties, StoreProperties, DeviceFile}
 import grizzled.slf4j.Logging
 
 case class DeviceAdded(storeProperties: StoreProperties)
 case class DeviceRemoved(deviceFile: DeviceFile)
 
-class UDisksMonitor(udisksMonitor: ActorRef) extends Logging {
+class UDisksMonitor(settings: SettingsImpl, udisksMonitor: ActorRef) extends Logging {
 
   import org.freedesktop.UDisks.{Device, DeviceRemoved => UDeviceRemoved, DeviceAdded => UDeviceAdded}
-
-  val UDISKS_BUS_NAME = "org.freedesktop.UDisks" //TODO external config
-  val UDISKS_PATH = "/org/freedesktop/UDisks" //TODO external config
-  val IGNORE_DEVICES = List("^/dev/sda.*".r, "^/dev/dm.*".r, "/dev/sr0".r) //TODO external config
 
   lazy val dbus = DBusConnection.getConnection(DBusConnection.SYSTEM)
 
@@ -35,7 +32,7 @@ class UDisksMonitor(udisksMonitor: ActorRef) extends Logging {
         dbusDeviceMappings += (path -> sProps.deviceFile) //add mapping
       }
 
-      if(IGNORE_DEVICES.find(_.findFirstMatchIn(sProps.deviceFile).nonEmpty).isEmpty)
+      if(settings.DBus.udisksIgnoreDevices.find(_.findFirstMatchIn(sProps.deviceFile).nonEmpty).isEmpty)
         udisksMonitor ! DeviceAdded(sProps)
     }
   })
@@ -48,7 +45,7 @@ class UDisksMonitor(udisksMonitor: ActorRef) extends Logging {
           dbusDeviceMappings.synchronized {
             dbusDeviceMappings -= path //remove mapping
           }
-          if(IGNORE_DEVICES.find(_.findFirstMatchIn(devicePath).nonEmpty).isEmpty)
+          if(settings.DBus.udisksIgnoreDevices.find(_.findFirstMatchIn(devicePath).nonEmpty).isEmpty)
             udisksMonitor ! DeviceRemoved(devicePath)
 
         case None =>
@@ -57,7 +54,7 @@ class UDisksMonitor(udisksMonitor: ActorRef) extends Logging {
   })
 
   def getAttachedDevices() {
-    val udisks = dbus.getRemoteObject(UDISKS_BUS_NAME, UDISKS_PATH, classOf[UDisks])
+    val udisks = dbus.getRemoteObject(settings.DBus.udisksBusName, settings.DBus.udisksPath, classOf[UDisks])
 
     import scala.collection.JavaConverters._
 
@@ -65,10 +62,10 @@ class UDisksMonitor(udisksMonitor: ActorRef) extends Logging {
       udisks.EnumerateDevices().asScala.map {
         device =>
           val path = getRemoteObjectPath(device)
-          val props = getProperties(UDISKS_BUS_NAME, path, classOf[Device])
+          val props = getProperties(settings.DBus.udisksBusName, path, classOf[Device])
           (path -> getStoreProperties(props))
       }
-      .filterNot(x => IGNORE_DEVICES.find(_.findFirstIn(x._2.deviceFile).nonEmpty).nonEmpty)
+      .filterNot(x => settings.DBus.udisksIgnoreDevices.find(_.findFirstIn(x._2.deviceFile).nonEmpty).nonEmpty)
       .sortBy(_._2.deviceFile.length)
       .map {
         case (dbusPath, storeProperties) =>

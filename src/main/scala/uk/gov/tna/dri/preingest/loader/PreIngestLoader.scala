@@ -36,6 +36,8 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
   with LDAPAuthenticationSupport
   with Logging {
 
+  protected val settings = Settings(system)
+
   implicit protected val jsonFormats: Formats = DefaultFormats
   protected implicit def executor: ExecutionContext = system.dispatcher
 
