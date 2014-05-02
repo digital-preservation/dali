@@ -165,10 +165,14 @@ class PreIngestLoaderActor extends Actor with Logging {
 
     //send unit status (i.e. add of update)
     case UnitStatus(unit, action, clientId) =>
-      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("update", unit)), allOrOne(clientId))
+      action match {
+        case "update" =>
+          AtmosphereClient.broadcast("/unit", JsonMessage(toJson("update", unit)), allOrOne(clientId))
 
-    case UnitStatus(unit, action, none)  =>
-      AtmosphereClient.broadcast("/unit", JsonMessage(action.toString()))
+        case _ =>
+          //TODO finish implementing (decide on status/errors) or use a different case class than UnitStatus
+          AtmosphereClient.broadcast("/unit", JsonMessage(action.toString()), allOrOne(clientId))
+      }
 
     //remove unit detail
     case DeRegisterUnit(unitUid) =>
