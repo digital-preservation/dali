@@ -313,7 +313,7 @@ function toHumanTime(timestamp) {
 function copyUnitProperties(srcUnit, destUnit) {
    destUnit.label = srcUnit.label;
    destUnit.size = srcUnit.size;
-   destUnit.timestamp = srcUnit.size;
+   destUnit.timestamp = srcUnit.timestamp;
    if (srcUnit.parts) {
      destUnit.parts = expandPendingUnitParts(srcUnit);
    }
