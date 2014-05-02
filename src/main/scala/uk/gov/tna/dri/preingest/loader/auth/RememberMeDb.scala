@@ -35,7 +35,7 @@ object RememberMeDb {
     }
   }
 
-  def ?(token: String) : Option[Int] = {
+  def ?(token: String) : Option[String] = {
     withDb {
       Query(Mapping).filter(_.token === token).firstOption.map(_._1)
     }
@@ -48,8 +48,8 @@ object RememberMeDb {
   }
 }
 
-object Mapping extends Table[(Int, String)]("remember_me_mapping") {
-  def id = column[Int]("id", O.PrimaryKey)
+object Mapping extends Table[(String, String)]("remember_me_mapping") {
+  def id = column[String]("id", O.PrimaryKey)
   def token = column[String]("token")
   def * = id ~ token
 }

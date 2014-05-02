@@ -9,11 +9,11 @@ trait LDAPAuthenticationSupport extends ScentrySupport[User] with UserPasswordAu
 
   protected def fromSession = {
     case id: String =>
-      LDAPUserManager.find(id.toInt).getOrElse(null)
+      LDAPUserManager.find(id).getOrElse(null)
   }
   protected def toSession = {
     case user: User =>
-      user.id.toString
+      user.id
   }
   protected val scentryConfig = (new ScentryConfig{}).asInstanceOf[ScentryConfiguration]
 

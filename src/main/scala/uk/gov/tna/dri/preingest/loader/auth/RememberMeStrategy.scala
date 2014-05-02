@@ -22,7 +22,7 @@ class RememberMeStrategy(protected override val app: ScalatraBase) extends Scent
     }
   }
 
-  def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+  override def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     app.cookies.get(COOKIE_KEY).flatMap {
       token =>
         RememberMeDb ? token flatMap {
