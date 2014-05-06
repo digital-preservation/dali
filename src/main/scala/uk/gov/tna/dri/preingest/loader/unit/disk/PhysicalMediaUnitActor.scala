@@ -140,7 +140,7 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
           breakable {
             for(file <- files) {
               val label = unit.label
-              val destination = settings.unit.destination / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
+              val destination = settings.Unit.destination / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
 
               copyFile(file, destination) match {
                 case Left(ioe) =>

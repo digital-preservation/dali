@@ -54,4 +54,10 @@ object DataStore {
     case None =>
       f(None)
   }
+
+  def getTopParent(file:Path, mount:Path) : String = {
+    val relFile = file relativize mount
+    val root = relFile.segments.head
+    return root
+  }
 }
