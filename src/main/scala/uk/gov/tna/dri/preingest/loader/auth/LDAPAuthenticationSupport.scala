@@ -26,9 +26,6 @@ trait LDAPAuthenticationSupport extends ScentrySupport[User] with UserPasswordAu
   override protected def registerAuthStrategies = {
     scentry.register(new UserPasswordStrategy(self))
     scentry.register(new RememberMeStrategy(self))
-
-    //scentry.register("UserPassword", app ⇒ new UserPasswordStrategy(app))
-    //scentry.register("RememberMe", app ⇒ new RememberMeStrategy(app))
   }
 
 }
