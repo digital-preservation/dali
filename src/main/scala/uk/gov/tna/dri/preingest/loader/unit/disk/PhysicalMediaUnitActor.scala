@@ -149,7 +149,7 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
                   error(s"Unable to copy data for unit: ${unit.uid}", ioe)
                   unitManager match {
                     case Some(sender) =>
-                      sender ! UnitError(unit, "Unable to copy data for unit:" + ioe.getMessage)
+                      sender ! UnitError(unit, "Unable to copy data for unit: " + ioe.getMessage)
                       break // break on first error
                     case None => break // break on error
                   }
