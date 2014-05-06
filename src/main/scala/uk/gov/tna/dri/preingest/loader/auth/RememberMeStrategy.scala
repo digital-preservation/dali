@@ -6,7 +6,9 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.concurrent.duration._
 import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
-class RememberMeStrategy(protected override val app: ScalatraBase, val settings: SettingsImpl) extends ScentryStrategy[User] {
+class RememberMeStrategy(protected override val app: ScalatraBase, val settings: SettingsImpl)
+  extends ScentryStrategy[User]
+  with LDAPUserManager {
 
   override def name: String = "RememberMe"
 
@@ -25,7 +27,7 @@ class RememberMeStrategy(protected override val app: ScalatraBase, val settings:
       token =>
         RememberMeDb ? token flatMap {
           userId =>
-            LDAPUserManager.find(userId)
+            find(userId)
         }
     }
   }

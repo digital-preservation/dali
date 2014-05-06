@@ -4,14 +4,16 @@ import org.scalatra.auth.{ScentryConfig, ScentrySupport}
 import org.scalatra.ScalatraBase
 import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
-trait LDAPAuthenticationSupport extends ScentrySupport[User] with UserPasswordAuthSupport[User] {
+trait LDAPAuthenticationSupport extends ScentrySupport[User]
+  with UserPasswordAuthSupport[User]
+  with LDAPUserManager {
   self: ScalatraBase =>
 
   protected val settings: SettingsImpl
 
   protected def fromSession = {
     case id: String =>
-      LDAPUserManager.find(id).getOrElse(null)
+      find(id).getOrElse(null)
   }
   protected def toSession = {
     case user: User =>
@@ -26,7 +28,7 @@ trait LDAPAuthenticationSupport extends ScentrySupport[User] with UserPasswordAu
   }
 
   override protected def registerAuthStrategies = {
-    scentry.register(new UserPasswordStrategy(self))
+    scentry.register(new UserPasswordStrategy(self, settings))
     scentry.register(new RememberMeStrategy(self, settings))
   }
 

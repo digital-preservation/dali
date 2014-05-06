@@ -3,29 +3,17 @@ package uk.gov.tna.dri.preingest.loader.auth
 import com.unboundid.ldap.sdk.{LDAPConnectionOptions, Attribute, SearchScope, LDAPConnection}
 import grizzled.slf4j.Logging
 import resource._
+import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
 
-object LDAPUserManager extends AuthManager[String, User] with Logging {
+trait LDAPUserManager extends AuthManager[String, User] with Logging {
 
-  val LDAP_SERVER = "web.local" //TODO make configurable
-  val LDAP_PORT = 389 //TODO make configurable
-  val LDAP_BIND_USER = "USERNAME@web.local" //TODO make configurable
-  val LDAP_BIND_PASSWORD = "PASSWORD" //TODO make configurable //TODO do not commit
+  protected val settings: SettingsImpl
 
-  val LDAP_SEARCH_BASE = "DC=web,DC=local" //TODO make configurable
-
-  val LDAP_USER_OBJECT_CLASS = "user" //TODO make configurable
-  val LDAP_USER_DN_ATTRIBUTE = "distinguishedName" //TODO make configurable
-  val LDAP_USER_EMAIL_ATTRIBUTE = "mail" //TODO make configurable
-  val LDAP_UID_ATTRIBUTE = "sAMAccountName" //TODO make configurable
-  val LDAP_GROUP_ATTRIBUTE = "memberOf" //TODO make configurable
-  val LDAP_GROUP = "CN=g-gitlab-users,OU=Global Security Groups,OU=All Groups,DC=web,DC=local" //TODO make configurable
-
-  //TODO make configurable
-  val LDAP_OPTS = {
+  private val LDAP_OPTS = {
     val opts = new LDAPConnectionOptions()
-    opts.setConnectTimeoutMillis(5000)
-    opts.setResponseTimeoutMillis(5000)
+    opts.setConnectTimeoutMillis(settings.Auth.ldapTimeoutConnection)
+    opts.setResponseTimeoutMillis(settings.Auth.ldapTimeoutRequest)
     opts
   }
 
@@ -33,7 +21,7 @@ object LDAPUserManager extends AuthManager[String, User] with Logging {
    * Attempts to find a user by DN from LDAP
    */
   def find(key: String): Option[User] = {
-    ldapOperation(LDAP_BIND_USER, LDAP_BIND_PASSWORD, findUserByDn(_, key)) match {
+    ldapOperation(settings.Auth.ldapBindUser, settings.Auth.ldapBindPassword, findUserByDn(_, key)) match {
 
       case Left(ts) =>
         ts.map(error("Could not find user by DN in LDAP", _))
@@ -57,7 +45,7 @@ object LDAPUserManager extends AuthManager[String, User] with Logging {
    */
   def validate(userName: String, password: String): Option[User] = {
 
-    ldapOperation(LDAP_BIND_USER, LDAP_BIND_PASSWORD, findUserDN(_, userName)) match {
+    ldapOperation(settings.Auth.ldapBindUser, settings.Auth.ldapBindPassword, findUserDN(_, userName)) match {
       case Left(ts) =>
         ts.map(error("Could not find user in LDAP", _))
         None
@@ -78,7 +66,7 @@ object LDAPUserManager extends AuthManager[String, User] with Logging {
     }
   }
 
-  private def findUserByDn(ldap: LDAPConnection, dn: String) = ldapSearch(ldap, ldapUserByDnFilter(dn), Seq(LDAP_UID_ATTRIBUTE, LDAP_USER_EMAIL_ATTRIBUTE)).map(attrs => (dn, attrs(LDAP_UID_ATTRIBUTE).getValue, attrs.get(LDAP_USER_EMAIL_ATTRIBUTE).map(_.getValue)))
+  private def findUserByDn(ldap: LDAPConnection, dn: String) = ldapSearch(ldap, ldapUserByDnFilter(dn), Seq(settings.Auth.ldapUserAttributeUid, settings.Auth.ldapUserAttributeEmail)).map(attrs => (dn, attrs(settings.Auth.ldapUserAttributeUid).getValue, attrs.get(settings.Auth.ldapUserAttributeEmail).map(_.getValue)))
 
   /**
    * Finds a User in LDAP
@@ -89,7 +77,7 @@ object LDAPUserManager extends AuthManager[String, User] with Logging {
    *
    * @return Some(dn) or None if the user cannot be found in LDAP
    */
-  private def findUserDN(ldap: LDAPConnection, userName: String): Option[String] = ldapSearch(ldap, ldapUserFilter(userName), Seq(LDAP_USER_DN_ATTRIBUTE)).flatMap(_.get(LDAP_USER_DN_ATTRIBUTE).map(_.getValue))
+  private def findUserDN(ldap: LDAPConnection, userName: String): Option[String] = ldapSearch(ldap, ldapUserFilter(userName), Seq(settings.Auth.ldapUserAttributeDN)).flatMap(_.get(settings.Auth.ldapUserAttributeDN).map(_.getValue))
 
   /**
    * Gets a User from LDAP
@@ -102,10 +90,10 @@ object LDAPUserManager extends AuthManager[String, User] with Logging {
    *         a User
    */
   private def getUser(ldap: LDAPConnection, userName: String): Option[String => User] = {
-    ldapSearch(ldap, ldapUserFilter(userName), Seq(LDAP_USER_DN_ATTRIBUTE, LDAP_USER_EMAIL_ATTRIBUTE)).map {
+    ldapSearch(ldap, ldapUserFilter(userName), Seq(settings.Auth.ldapUserAttributeDN, settings.Auth.ldapUserAttributeEmail)).map {
       attrs =>
         (password: String) =>
-          User(attrs(LDAP_USER_DN_ATTRIBUTE).getValue, userName, password, attrs.get(LDAP_USER_EMAIL_ATTRIBUTE).map(_.getValue))
+          User(attrs(settings.Auth.ldapUserAttributeDN).getValue, userName, password, attrs.get(settings.Auth.ldapUserAttributeEmail).map(_.getValue))
     }
   }
 
@@ -119,7 +107,7 @@ object LDAPUserManager extends AuthManager[String, User] with Logging {
    * @return Either a sequence of exceptions or the result of $op
    */
   private def ldapOperation[T](bindUser: String, bindPassword: String, op: (LDAPConnection) => T): Either[Seq[Throwable], T] = {
-    managed(new LDAPConnection(LDAP_OPTS, LDAP_SERVER, LDAP_PORT, bindUser, bindPassword)).map(op).either
+    managed(new LDAPConnection(LDAP_OPTS, settings.Auth.ldapServer, settings.Auth.ldapPort, bindUser, bindPassword)).map(op).either
   }
 
   /**
@@ -132,7 +120,7 @@ object LDAPUserManager extends AuthManager[String, User] with Logging {
    * @return Map of key/value where the keys is the requested attributes, or None if no search results
    */
   private def ldapSearch(ldap: LDAPConnection, filter: String, attributes: Seq[String]) : Option[Map[String, Attribute]] = {
-    val searchResults = ldap.search(LDAP_SEARCH_BASE, SearchScope.SUB, filter, attributes: _*)
+    val searchResults = ldap.search(settings.Auth.ldapSearchBase, SearchScope.SUB, filter, attributes: _*)
 
     if(searchResults.getEntryCount() > 0) {
       val entry = searchResults.getSearchEntries().get(0)
@@ -155,7 +143,7 @@ object LDAPUserManager extends AuthManager[String, User] with Logging {
    *
    * @return The LDAP filter string
    */
-  private def ldapUserFilter(userName: String) = s"(&(objectClass=$LDAP_USER_OBJECT_CLASS)($LDAP_UID_ATTRIBUTE=$userName)($LDAP_GROUP_ATTRIBUTE=$LDAP_GROUP))"
+  private def ldapUserFilter(userName: String) = s"(&(objectClass=${settings.Auth.ldapUserObjectClass})(${settings.Auth.ldapUserAttributeUid}=$userName)(${settings.Auth.ldapUserAttributeGroupMembership}=${settings.Auth.ldapApplicationGroup}))"
 
   /**
    * Creates an LDAP filter for
@@ -166,5 +154,5 @@ object LDAPUserManager extends AuthManager[String, User] with Logging {
    *
    * @return The LDAP filter string
    */
-  private def ldapUserByDnFilter(dn: String) = s"(&(objectClass=$LDAP_USER_OBJECT_CLASS)($LDAP_USER_DN_ATTRIBUTE=$dn)($LDAP_GROUP_ATTRIBUTE=$LDAP_GROUP))"
+  private def ldapUserByDnFilter(dn: String) = s"(&(objectClass=${settings.Auth.ldapUserObjectClass})(${settings.Auth.ldapUserAttributeDN}=$dn)(${settings.Auth.ldapUserAttributeGroupMembership}=${settings.Auth.ldapApplicationGroup}))"
 }

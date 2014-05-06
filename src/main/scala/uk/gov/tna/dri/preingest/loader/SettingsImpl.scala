@@ -16,6 +16,21 @@ import scala.collection.JavaConverters._
 class SettingsImpl(config: Config) extends Extension {
 
   object Auth {
+
+    val ldapServer = config.getString("unit-loader.auth.ldap.server")
+    val ldapPort = config.getInt("unit-loader.auth.ldap.port")
+    val ldapBindUser = config.getString("unit-loader.auth.ldap.bind.user")
+    val ldapBindPassword = config.getString("unit-loader.auth.ldap.bind.password")
+    val ldapSearchBase = config.getString("unit-loader.auth.ldap.search-base")
+    val ldapUserObjectClass = config.getString("unit-loader.auth.ldap.user.object-class")
+    val ldapUserAttributeDN = config.getString("unit-loader.auth.ldap.user.attribute.dn")
+    val ldapUserAttributeEmail = config.getString("unit-loader.auth.ldap.user.attribute.email")
+    val ldapUserAttributeUid = config.getString("unit-loader.auth.ldap.user.attribute.uid")
+    val ldapUserAttributeGroupMembership = config.getString("unit-loader.auth.ldap.user.attribute.group-membership")
+    val ldapApplicationGroup = config.getString("unit-loader.auth.ldap.application-group")
+    val ldapTimeoutConnection = config.getInt("unit-loader.auth.ldap.timeout.connection")
+    val ldapTimeoutRequest = config.getInt("unit-loader.auth.ldap.timeout.request")
+
     val rememberMeCookieKey = config.getString("unit-loader.auth.remember-me.cookie.key")
     val rememberMeCookieLifetime = Duration(config.getMilliseconds("unit-loader.auth.remember-me.cookie.lifetime"), TimeUnit.MILLISECONDS)
   }

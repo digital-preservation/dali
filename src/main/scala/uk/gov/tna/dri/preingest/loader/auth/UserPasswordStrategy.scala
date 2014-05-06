@@ -3,6 +3,7 @@ package uk.gov.tna.dri.preingest.loader.auth
 import org.scalatra.ScalatraBase
 import org.scalatra.auth.{ScentrySupport, ScentryStrategy}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
 trait UserPasswordAuthSupport[UserType <: AnyRef] {
   self: (ScalatraBase with ScentrySupport[UserType]) =>
@@ -17,7 +18,9 @@ trait UserPasswordAuthSupport[UserType <: AnyRef] {
   }
 }
 
-class UserPasswordStrategy(protected override val app: ScalatraBase) extends ScentryStrategy[User] {
+class UserPasswordStrategy(protected override val app: ScalatraBase, val settings: SettingsImpl)
+  extends ScentryStrategy[User]
+  with LDAPUserManager {
 
   override def name: String = UserPasswordStrategy.STRATEGY_NAME
 
@@ -30,7 +33,7 @@ class UserPasswordStrategy(protected override val app: ScalatraBase) extends Sce
   def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse): Option[User] = {
     (app.params.get(UserPasswordStrategy.USERNAME), app.params.get(UserPasswordStrategy.PASSWORD)) match {
       case (Some(username), Some(password)) =>
-        LDAPUserManager.validate(username, password)
+        validate(username, password)
       case _ =>
         None
     }
