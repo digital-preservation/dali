@@ -132,7 +132,7 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
 
       case Right(mountPoint) =>
         TrueCrypt.withVolume(unit.partition.deviceFile, certificate, passphrase.get, mountPoint) {
-          val files = mountPoint ** IsFile filterNot { f => DataStore.isJunkFile(f.parent.get.name) }
+          val files = mountPoint ** IsFile  filter {f => parts.exists(  p => p.part.series == DataStore.getTopParent(f, mountPoint)) }
           val total = totalSize(files)
           unitManager match {
             case Some(sender) => sender  ! UnitProgress(unit, 0)
@@ -154,7 +154,7 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
                     case None => break // break on error
                   }
                 case Right(path) =>
-                  completed += file.size.get
+                  completed += file.size.getOrElse(0L)
                   val percentageDone = ((completed.toDouble / total) * 100).toInt
                   trace(s"[{$percentageDone}%] Copied file: ${file.path}")
                   unitManager match {
