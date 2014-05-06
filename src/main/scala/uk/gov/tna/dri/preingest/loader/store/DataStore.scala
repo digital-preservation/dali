@@ -4,6 +4,7 @@ import scalax.file.Path
 import uk.gov.tna.dri.preingest.loader.Crypto
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
 import java.io.IOException
+import uk.gov.tna.dri.preingest.loader.unit.TargetedPart
 
 object DataStore {
 
@@ -44,4 +45,12 @@ object DataStore {
   }
 
   def isJunkFile(name: String) = name.matches("""System Volume Information|\$RECYCLE\.BIN|^.Trash-.+|^Recycler.*|^\\..+""")
+
+  def getTopParent(file:Path, mount:Path) : String = {
+    val relFile = file relativize mount
+    val root = relFile.segments.head
+    return root
+  }
+
+
 }
