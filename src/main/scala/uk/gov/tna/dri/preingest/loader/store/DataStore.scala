@@ -3,6 +3,7 @@ package uk.gov.tna.dri.preingest.loader.store
 import scalax.file.Path
 import uk.gov.tna.dri.preingest.loader.{SettingsImpl, Crypto}
 import java.io.IOException
+import uk.gov.tna.dri.preingest.loader.unit.TargetedPart
 
 object DataStore {
 

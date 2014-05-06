@@ -5,12 +5,15 @@ import uk.gov.tna.dri.preingest.loader.store.DataStore
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
 import scalax.file.{PathSet, Path}
-import scalax.file.PathMatcher.{IsDirectory, IsFile}
+import scalax.file.PathMatcher.IsFile
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
 import uk.gov.tna.dri.preingest.loader.Crypto
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
 import java.io.IOException
+import akka.actor.ActorRef
+import scala.util.control.Breaks._
+import grizzled.slf4j.Logger
 
 trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
 
@@ -33,7 +36,14 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
     }
   }
 
-  protected def copyFile(file: Path, dest: Path) = file.copyTo(dest, createParents = true, copyAttributes = true)
+  protected def copyFile(file: Path, dest: Path) : Either[IOException, Path] = {
+    try{
+      Right(file.copyTo(dest, createParents = true, copyAttributes = true))
+    } catch {
+      case ioe: IOException =>
+        Left(ioe)
+    }
+  }
 
   protected def totalSize(paths: PathSet[Path]) = paths.toList.map(_.size).map(_.getOrElse(0l)).reduceLeft(_ + _)
 }
@@ -73,12 +83,12 @@ case class TrueCryptedPartitionUnit(partition: PartitionProperties, disk: DiskPr
 
 class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends PhysicalMediaUnitActor[TrueCryptedPartitionUnit] with EncryptedDRIUnitActor[TrueCryptedPartitionUnit] { //TODO consider subclassing PhysicalUnit
 
-  def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String]) = copyData(username, parts, None, passphrase)
+  def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef]): Unit = copyData(username, parts, None, passphrase, unitManager)
 
-  def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String]) {
+  def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String], unitManager: Option[ActorRef]): Unit = {
     DataStore.withTemporaryFile(Option(certificate)) {
       cert =>
-        copyData(username, parts, cert, passphrase)
+        copyData(username, parts, cert, passphrase, unitManager)
     }
   }
 
@@ -109,33 +119,55 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
     }.getOrElse(false)
   }
 
-  private def copyData(username: String, parts: Seq[TargetedPart], certificate: Option[Path], passphrase: Option[String]) {
+  private def copyData(username: String, parts: Seq[TargetedPart], certificate: Option[Path], passphrase: Option[String], unitManager: Option[ActorRef]) {
     tempMountPoint(username, unit.partition.deviceFile) match {
       case Left(ioe) =>
         error(s"Unable to copy data for unit: ${unit.uid}", ioe)
-        sender ! UnitError("Unable to copy data for unit") //TODO inject sender?
+        unitManager match {
+          case Some(sender) =>  sender ! UnitError(unit, "Unable to copy data for unit:" + ioe.getMessage)
+          case None =>
+        }
 
       case Right(mountPoint) =>
         TrueCrypt.withVolume(settings, unit.partition.deviceFile, certificate, passphrase.get, mountPoint) {
-          val files = mountPoint ** IsFile filterNot { f => isJunkFile(settings, f.parent.get.name) }
+          val files = mountPoint ** IsFile  filter {f => parts.exists(  p => p.part.series == DataStore.getTopParent(f, mountPoint)) }
           val total = totalSize(files)
-          sender ! UnitStatus(unit, Option(UnitAction(0))) //TODO inject sender?
-
+          unitManager match {
+            case Some(sender) => sender  ! UnitProgress(unit, 0)
+            case None =>
+          }
           var completed: Long = 0
-          for(file <- files) {
-            val label = unit.label
-            val destination = settings.Unit.destination / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
-            copyFile(file, destination)
-            completed += file.size.get
+          breakable {
+            for(file <- files) {
+              val label = unit.label
+              val destination = settings.unit.destination / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
 
-            val percentageDone = ((completed.toDouble / total) * 100).toInt
-
-            sender ! UnitStatus(unit, Option(UnitAction(percentageDone))) //TODO inject sender?
-            trace(s"[{$percentageDone}%] Copied file: ${file.path}")
+              copyFile(file, destination) match {
+                case Left(ioe) =>
+                  error(s"Unable to copy data for unit: ${unit.uid}", ioe)
+                  unitManager match {
+                    case Some(sender) =>
+                      sender ! UnitError(unit, "Unable to copy data for unit: " + ioe.getMessage)
+                      break // break on first error
+                    case None => break // break on error
+                  }
+                case Right(path) =>
+                  completed += file.size.getOrElse(0L)
+                  val percentageDone = ((completed.toDouble / total) * 100).toInt
+                  trace(s"[{$percentageDone}%] Copied file: ${file.path}")
+                  unitManager match {
+                    case Some(sender) => sender ! UnitProgress(unit, percentageDone)
+                    case None =>
+                  }
+              }
+            }
+          }
+          info(s"Finished Copying Unit: ${parts.head.part.unitId}")
+          unitManager match {
+            case Some(sender) => sender ! UnitProgress(unit, 100)
+            case None =>
           }
 
-          sender ! UnitStatus(unit, Option(UnitAction(100))) //TODO inject sender?
-          info(s"Finished Copying Unit: ${parts.head.part.unitId}")
         }
     }
   }
@@ -145,6 +177,6 @@ case class NonEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskP
 
 //TODO not yet implemented
 class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extends PhysicalMediaUnitActor[NonEncryptedPartitionUnit] {
-  def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String]) = ???
+  def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef]) = ???
 }
 

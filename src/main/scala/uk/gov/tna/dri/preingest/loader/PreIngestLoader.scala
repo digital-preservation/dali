@@ -148,7 +148,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
 
             case Some(l: Load) =>
               val parts = l.unit.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
-              preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid))
+              preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid), Option(preIngestLoaderActor))
 
             case None =>
               error("Unknown Client Action!")
@@ -168,6 +168,12 @@ class PreIngestLoaderActor extends Actor with Logging {
     //send unit status (i.e. add of update)
     case UnitStatus(unit, action, clientId) =>
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("update", unit)), allOrOne(clientId))
+
+    case UnitProgress(unit, progressPercentage) =>
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("progress", unit.uid, progressPercentage)))
+
+    case UnitError(unit, errorMessage) =>
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("error", unit.uid, errorMessage)))
 
     //remove unit detail
     case DeRegisterUnit(unitUid) =>
@@ -195,21 +201,28 @@ class PreIngestLoaderActor extends Actor with Logging {
 
   def toJson(action: String, unit: DRIUnit) : JObject = toJson(action, List(unit))
 
-  def toJson(action: String, units: List[DRIUnit]) : JObject = {
-    (action ->
+  def toJson(action: String, units: List[DRIUnit]) : JObject = (action ->
       ("unit" ->
         units.map(_.toJson())
       )
     )
-  }
 
-  def toJson(action: String, unitUid: DRIUnit.UnitUID) = {
-    (action ->
+  def toJson(action: String, unitUid: DRIUnit.UnitUID) = (action ->
       ("unit" ->
         ("uid" -> unitUid)
       )
     )
-  }
+
+  def toJson(action:String, unitUid: DRIUnit.UnitUID, progressPercentage: Integer) = (action ->
+    ("uid" -> unitUid) ~
+      ("percentage" -> progressPercentage.toString)
+    )
+
+  def toJson(action: String, unitUid: DRIUnit.UnitUID, errorMessage: String) = (action ->
+      ("uid" -> unitUid) ~
+      ("message" -> errorMessage)
+    )
+
 
 
 //  def toJson(uls: UnitLoadStatus) : JValue = {
