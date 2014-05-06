@@ -4,7 +4,8 @@ import org.scalatra.ScalatraBase
 import org.scalatra.auth.{ScentrySupport, ScentryStrategy}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
-trait UserPasswordAuthSupport[UserType <: AnyRef] { self: (ScalatraBase with ScentrySupport[UserType])  =>
+trait UserPasswordAuthSupport[UserType <: AnyRef] {
+  self: (ScalatraBase with ScentrySupport[UserType]) =>
 
   protected def userPasswordAuth()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     if(!self.isAuthenticated) {

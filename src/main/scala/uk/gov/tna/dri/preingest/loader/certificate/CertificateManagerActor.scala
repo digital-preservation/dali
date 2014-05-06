@@ -6,7 +6,7 @@ import scalax.file.{NotFileException, FileOps, Path}
 import java.net.NetworkInterface
 import java.io.FileNotFoundException
 import uk.gov.tna.dri.preingest.loader.store.DataStore
-import uk.gov.tna.dri.preingest.loader.Crypto
+import uk.gov.tna.dri.preingest.loader.{Settings, Crypto}
 import uk.gov.tna.dri.preingest.loader.Crypto.{SymetricAlgorithm, DigestAlgorithm}
 
 
@@ -21,13 +21,13 @@ case class CertificateManagerError(error: String)
 
 class CertificateManagerActor extends Actor with Logging {
 
-  private val ENCRYPTED_FILE_EXT = "gpg"
+  private val settings = Settings(context.system)
 
   def receive = {
 
     case StoreCertificates(username: String, certificates: Seq[CertificateDetail]) =>
       for(certificate <- certificates) {
-        DataStore.userStore(username) match {
+        DataStore.userStore(settings, username) match {
           case Left(ioe) =>
             error(s"Could not list certificates for user: $username", ioe)
             sender ! CertificateManagerError("Could not access certificates store")
@@ -44,25 +44,25 @@ class CertificateManagerActor extends Actor with Logging {
       }
 
     case ListCertificates(username: String) =>
-      DataStore.userStore(username) match {
+      DataStore.userStore(settings, username) match {
         case Left(ioe) =>
           error(s"Could not list certificates for user: $username", ioe)
           sender ! CertificateManagerError("Could not access certificates store")
 
         case Right(ks) =>
-          val certificates = ks * s"*.$ENCRYPTED_FILE_EXT"
-          val certNames = certificates.seq.map(_.name.replace(s".$ENCRYPTED_FILE_EXT", "")).toSeq
+          val certificates = ks * s"*.${settings.CertificateManager.encryptedFileExtension}"
+          val certNames = certificates.seq.map(_.name.replace(s".${settings.CertificateManager.encryptedFileExtension}", "")).toSeq
           sender ! CertificateList(certNames)
       }
 
     case GetCertificate(username, name, reply) =>
-      DataStore.userStore(username) match {
+      DataStore.userStore(settings, username) match {
         case Left(ioe) =>
           error(s"Could not list certificates for user: $username", ioe)
           sender ! CertificateManagerError("Could not access certificates store")
 
         case Right(ks) =>
-          val cert = ks / s"$name.$ENCRYPTED_FILE_EXT"
+          val cert = ks / s"$name.${settings.CertificateManager.encryptedFileExtension}"
 
           getCertificate(cert, passphrase(username)) match {
             case Left(t) =>
@@ -83,7 +83,7 @@ class CertificateManagerActor extends Actor with Logging {
   /**
    * Generates a passphrase for a user
    *
-   * The passphrase is a base64 encoded sha256 hash of the username
+   * The passphrase is a base64 encoded digest of the username
    * which uses the MAC addresses of the machine as salt
    *
    * @param username
@@ -92,12 +92,12 @@ class CertificateManagerActor extends Actor with Logging {
     import scala.collection.JavaConverters._
 
     val network = NetworkInterface.getNetworkInterfaces.asScala.filter(_.getName().startsWith("eth")).map(_.getHardwareAddress).reduceLeft(_ ++ _)
-    Crypto.base64Unsafe(Crypto.digest(username, Option(network), DigestAlgorithm.SHA256))
+    Crypto.base64Unsafe(Crypto.digest(username, Option(network), settings.CertificateManager.digestAlgorithm))
   }
 
   private def storeCertificate(store: Path, certificate: CertificateDetail, passphrase: String): Either[Throwable, Path] = {
     val encryptedCert = Crypto.encrypt(certificate._2, passphrase, Crypto.SymetricAlgorithm.TWOFISH)
-    val certificateFile = store / (certificate._1 + "." + ENCRYPTED_FILE_EXT)
+    val certificateFile = store / (certificate._1 + "." + settings.CertificateManager.encryptedFileExtension)
 
     import scala.util.control.Exception._
     val result:Either[Throwable,Unit] = catching(classOf[NotFileException],

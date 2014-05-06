@@ -2,16 +2,17 @@ package uk.gov.tna.dri.preingest.loader.unit.disk
 
 import grizzled.slf4j.Logging
 import akka.actor.{Props, Actor}
-import uk.gov.tna.dri.preingest.loader.unit.{PhysicalMediaUnit, DeRegisterUnit, RegisterUnit}
+import uk.gov.tna.dri.preingest.loader.Settings
+import uk.gov.tna.dri.preingest.loader.unit.{DeRegisterUnit, RegisterUnit}
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.{DeviceAdded, DeviceRemoved}
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DeviceFile, PartitionProperties, DiskProperties}
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
 
-
 class UDisksUnitMonitor extends Actor with Logging {
 
-  lazy val udisks = new UDisksMonitor(this.self)
+  private val settings = Settings(context.system)
+  lazy val udisks = new UDisksMonitor(settings, self)
 
   var knownDisks = Map.empty[DeviceFile, DiskProperties]
   var knownPartitions = Map.empty[DeviceFile, UnitUID]

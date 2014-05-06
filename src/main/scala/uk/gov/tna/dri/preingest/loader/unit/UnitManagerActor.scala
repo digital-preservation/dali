@@ -5,6 +5,7 @@ import akka.actor.{Props, ActorRef, Actor}
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
 import uk.gov.tna.dri.preingest.loader.unit.disk.UDisksUnitMonitor
 import uk.gov.tna.dri.preingest.loader.UserErrorMessages._
+import uk.gov.tna.dri.preingest.loader.Settings
 import uk.gov.tna.dri.preingest.loader.PreIngestLoaderActor
 
 case class UnitAction(progress: Int)
@@ -25,10 +26,13 @@ case class UserProblemNotification(errorMsg: UserErrorMessage, clientId: Option[
 
 class UnitManagerActor extends Actor with Logging {
 
+  private val settings = Settings(context.system)
+
   private val uploadedUnitMonitor = context.actorOf(Props[UploadedUnitMonitor], name="UploadedUnitMonitor")
+
   import context.dispatcher
   import scala.concurrent.duration._
-  context.system.scheduler.schedule(5 seconds, 30 seconds, uploadedUnitMonitor, ScheduledExecution) //TODO make configurable
+  context.system.scheduler.schedule(settings.Unit.uploadedScheduleDelay, settings.Unit.uploadedScheduleFrequency, uploadedUnitMonitor, ScheduledExecution)
   info("Scheduled: " + uploadedUnitMonitor.path)
 
   private val udisksUnitMonitor = context.actorOf(Props[UDisksUnitMonitor], name="UDisksUnitMonitor")

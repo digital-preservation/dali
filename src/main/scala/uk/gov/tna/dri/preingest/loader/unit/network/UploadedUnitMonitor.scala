@@ -4,7 +4,7 @@ import akka.actor.{Props, Actor}
 import scalax.file.Path
 import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
-import uk.gov.tna.dri.preingest.loader.Crypto
+import uk.gov.tna.dri.preingest.loader.{Settings, Crypto}
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
 
 //received events
@@ -13,15 +13,12 @@ case object ScheduledExecution
 //sent events
 case class PendingUploadedUnits(pending: List[PendingUnit])
 
-object UploadedUnitMonitor {
-  val NETWORK_INTERFACE = "Network"
-  val UPLOAD_LOCATION = "/dri-upload" //TODO replace with config
-}
-
 /**
- * UnitUID for an Uploaded file is a SHA-1 checksum of the file
+ * UnitUID for an Uploaded file is a digest of the file
  */
 class UploadedUnitMonitor extends Actor with Logging {
+
+  private val settings = Settings(context.system)
 
   //state
   var known = Map[Path, UnitUID]()
@@ -29,7 +26,7 @@ class UploadedUnitMonitor extends Actor with Logging {
   def receive = {
 
     case ScheduledExecution =>
-      val foundUnits = findUnits(Path.fromString(UploadedUnitMonitor.UPLOAD_LOCATION))
+      val foundUnits = findUnits(settings.Unit.uploadedSource)
 
       //additions
       for(foundUnit <- foundUnits) {
@@ -56,14 +53,14 @@ class UploadedUnitMonitor extends Actor with Logging {
     //create checksum of unit
     unitPath.inputStream().acquireAndGet {
      is =>
-       Crypto.hexUnsafe(Crypto.digest(is, DigestAlgorithm.SHA256))
+       Crypto.hexUnsafe(Crypto.digest(is, settings.Unit.uploadedUidGenDigestAlgorithm))
     }
   }
 
   private def findUnits(path: Path): List[Path] = {
     if(path.isDirectory) {
-      val uploadedUnits = path * ("*.gpgz") //TODO make configurable
-      val processingUploadedUnits = path * ("*.gpgz.processing")
+      val uploadedUnits = path * (s"*.${settings.Unit.uploadedGpgZipFileExtension}")
+      val processingUploadedUnits = path * (s"*.${settings.Unit.uploadedGpgZipFileExtension}.processing")
 
       //filter out the ones we are already processing
       uploadedUnits.filter(uu => processingUploadedUnits.find(_.startsWith(uu)).isEmpty).toList

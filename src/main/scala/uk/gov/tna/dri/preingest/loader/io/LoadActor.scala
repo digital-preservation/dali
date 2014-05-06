@@ -28,8 +28,6 @@ case class UnitLoadStatus(src: String, complete: Int, status: LoadStatus.LoadSta
 
   import LoadStatus._
 
-//  val DESTINATION = Path.fromString("/unsafe_in")  //TODO make configurable
-
 //  def receive = {
 //
 //    case LoadUnit(username, loadingUnit, certificate, passphrase) =>
