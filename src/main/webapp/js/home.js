@@ -402,7 +402,8 @@ $(document).ready(function() {
           }
           // is this an error?
           else if(json.error) {
-            $window.alert(json.error.message)
+            window.alert(json.error.message);
+            
             /* e.g.
             {"error": [{
                 "uid": "123",
