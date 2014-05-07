@@ -11,7 +11,10 @@ var mLoadModal = {
     ],
     passphrase: null,
     decrypting: false,
+    loading: false,
     nextDisabled: false,
+    nextText: "Next&#160;&gt;&gt;",
+    percentageLoaded: 0,
     destinations: [
         "Holding",
         "Pre-Ingest",
@@ -58,14 +61,37 @@ function LoadModalCtrl($scope, $http) {
         mLoadModal.nextDisabled = true;
       }
 
-      if(selected == 2) {
-        mLoadModal.nextDisabled = false;
+      //$('#LoadWizard').wizard('selectItem', { step: selectedIdx + 1 });
+
+      else if (selected == 2) {
+        mLoadModal.decrypting = false;
+        doStartLoad(mLoadModal.pendingUnit, mLoadModal.cert, mLoadModal.passphrase);
+        //hide the load button and show the progress bar for the load
+        mLoadModal.loading = true;
+        mLoadModal.nextDisabled = true;
+      }
+/*
+        updatePending(function(model) {
+          $.each(model, function(i, v) {
+            if(v.src == mLoadModal.pendingUnit.src) {
+                v.showComplete = true;
+            }
+          }
+        }
+
+*/
+        //reset dialog
+      else if (selected == 3) {
+        mLoadModal.nextDisabled = false; // re-enable for next time
+        mLoadModal.nextText =  "Next&#160;&gt;&gt;";
+        //close modal dialog
+        $('#loadModal').modal('hide');
       }
 
-      //$('#LoadWizard').wizard('selectItem', { step: selectedIdx + 1 });
+
       $('#LoadWizard').wizard('next');
     };
-
+/*
     $scope.startLoad = function () {
     
         //disable the load button on the main dialog for the unit
@@ -89,7 +115,7 @@ function LoadModalCtrl($scope, $http) {
         //reset dialog
         mLoadModal.nextDisabled = false; // re-enable for next time
     };
-    
+*/
     // Taken from https://coderwall.com/p/ngisma - but disabled as seems to cause other problems!
     /*$scope.safeApply = function(fn) {
         var phase = this.$root.$$phase;
@@ -263,7 +289,7 @@ function UploadCertModalCtrl($scope, $http) {
             reader.readAsArrayBuffer($scope.selectedFiles[0]);
         };
 
-        subSocket = socket.subscribe(request);*/
+        subSocket = socket.subscribe(request); */
     };
 }
 
@@ -403,7 +429,6 @@ $(document).ready(function() {
           // is this an error?
           else if(json.error) {
             window.alert(json.error.message);
-            
             /* e.g.
             {"error": [{
                 "uid": "123",
@@ -412,12 +437,14 @@ $(document).ready(function() {
             */
           }
           else if(json.progress) {
-            /* e.g.
-            {"progress": [{
-                "uid": "123",
-                "percentage": "100"
-            }]}
-            */
+
+                updateLoadModal(function(model) {
+                  model.pendingUnit.percentageLoaded = json.progress.percentage;
+                  if (model.pendingUnit.percentageLoaded == 100) {
+                    model.pendingUnit.nextDisabled = false;
+                    model.pendingUnit.nextText =  "Done&#160;&gt;&gt;";
+                  }
+                });
           }
           // is this a removal from the pending units?
           else if(json.remove) {
