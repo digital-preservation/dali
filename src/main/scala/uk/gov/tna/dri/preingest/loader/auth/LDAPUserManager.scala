@@ -5,10 +5,38 @@ import grizzled.slf4j.Logging
 import resource._
 import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
-
+/**
+ * @author Adam Retter <adam.retter@googlemail.com>
+ */
 trait LDAPUserManager extends AuthManager[String, User] with Logging {
 
   protected val settings: SettingsImpl
+
+  /**
+   * Simple Encapsulation of
+   * round-robin use of a list
+   * of LDAP servers
+   */
+  private object RoundRobinLdap {
+    private var next = settings.Auth.ldapServer
+
+    /**
+     * Get the next server
+     * from the round-robin
+     *
+     * @return The next server
+     */
+    def nextServer() = synchronized {
+      next match {
+        case head :: tail =>
+          next = tail
+          head
+        case Nil =>
+          next = settings.Auth.ldapServer.tail
+          settings.Auth.ldapServer.head
+      }
+    }
+  }
 
   /**
    * Attempts to find a user by DN from LDAP
@@ -104,7 +132,7 @@ trait LDAPUserManager extends AuthManager[String, User] with Logging {
     opts.setConnectTimeoutMillis(settings.Auth.ldapTimeoutConnection)
     opts.setResponseTimeoutMillis(settings.Auth.ldapTimeoutRequest)
 
-    managed(new LDAPConnection(opts, settings.Auth.ldapServer, settings.Auth.ldapPort, bindUser, bindPassword)).map(op).either
+    managed(new LDAPConnection(opts, RoundRobinLdap.nextServer(), settings.Auth.ldapPort, bindUser, bindPassword)).map(op).either
   }
 
   /**
