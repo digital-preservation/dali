@@ -10,13 +10,6 @@ trait LDAPUserManager extends AuthManager[String, User] with Logging {
 
   protected val settings: SettingsImpl
 
-  private val LDAP_OPTS = {
-    val opts = new LDAPConnectionOptions()
-    opts.setConnectTimeoutMillis(settings.Auth.ldapTimeoutConnection)
-    opts.setResponseTimeoutMillis(settings.Auth.ldapTimeoutRequest)
-    opts
-  }
-
   /**
    * Attempts to find a user by DN from LDAP
    */
@@ -107,7 +100,11 @@ trait LDAPUserManager extends AuthManager[String, User] with Logging {
    * @return Either a sequence of exceptions or the result of $op
    */
   private def ldapOperation[T](bindUser: String, bindPassword: String, op: (LDAPConnection) => T): Either[Seq[Throwable], T] = {
-    managed(new LDAPConnection(LDAP_OPTS, settings.Auth.ldapServer, settings.Auth.ldapPort, bindUser, bindPassword)).map(op).either
+    val opts = new LDAPConnectionOptions()
+    opts.setConnectTimeoutMillis(settings.Auth.ldapTimeoutConnection)
+    opts.setResponseTimeoutMillis(settings.Auth.ldapTimeoutRequest)
+
+    managed(new LDAPConnection(opts, settings.Auth.ldapServer, settings.Auth.ldapPort, bindUser, bindPassword)).map(op).either
   }
 
   /**
