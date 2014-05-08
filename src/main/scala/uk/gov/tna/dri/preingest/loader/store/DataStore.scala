@@ -14,7 +14,7 @@ object DataStore {
    */
   def userStore(settings: SettingsImpl, username: String) : Either[IOException, Path] = {
     val dUsername = Crypto.base64Unsafe(Crypto.digest(username, None, settings.DataStore.digestAlgorithm))
-    val store = settings.DataStore.userData / dUsername
+    val store = settings.DataStore.userData / dUsername.filter(_ != '/')
 
     if(!store.exists) {
       try {
