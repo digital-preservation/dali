@@ -2,6 +2,13 @@ var subSocket = null;
 
 var mPendingUnits = [];
 
+var mError = {
+    uid: null,
+    message: null,
+    show: false,
+    label: null
+};
+
 var mLoadModal = {
     pendingUnit: {},
     cert: null,
@@ -31,6 +38,11 @@ function PendingUnitsCtrl($scope) {
         //show the load modal
         $('#loadModal').modal('show');
     };
+}
+
+//Controller for displaying Error messages
+function ErrorCtrl($scope) {
+    $scope.error = mError;
 }
 
 //Controller for the Load modal dialog
@@ -275,6 +287,10 @@ function updatePending(fnUpdateModel) {
     updateModel("#pendingUnits", fnUpdateModel, mPendingUnits)
 }
 
+function updateError(fnUpdateModel) {
+    updateModel("#error", fnUpdateModel, mError)
+}
+
 function updateModel(ctrlElemId, fnUpdateModel, m) {
     var ctrlElem = $(ctrlElemId);
     var scope = angular.element(ctrlElem).scope();
@@ -402,14 +418,22 @@ $(document).ready(function() {
           }
           // is this an error?
           else if(json.error) {
-            window.alert(json.error.message);
-            
-            /* e.g.
-            {"error": [{
-                "uid": "123",
-                "message": "error message"
-            }]}
-            */
+            //window.alert(json.error.message);
+            updateError(function(error) {
+                error.show = true;
+                error.message = json.error.message;
+                error.uid = json.error.uid;
+                error.label = json.error.label;
+            });
+            updatePending(function(pendingUnits) {
+                $.each(pendingUnits, function(i,v) {
+                    if(v.uid == json.error.uid) {
+                        //window.alert("here we are");
+                        v.showComplete = false;
+                        v.loadDisabled = true;
+                    }
+                });
+            });  
           }
           else if(json.progress) {
             /* e.g.
