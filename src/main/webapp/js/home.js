@@ -457,17 +457,17 @@ $(document).ready(function() {
                         v.loadDisabled = true;
                     }
                 });
-            });  
+            });
+            $('#loadModal').modal('hide');
           }
           else if(json.progress) {
-
-                updateLoadModal(function(model) {
-                  model.pendingUnit.percentageLoaded = json.progress.percentage;
-                  if (json.progress.percentage == 100) {
+            updateLoadModal(function(model) {
+                model.pendingUnit.percentageLoaded = json.progress.percentage;
+                if (json.progress.percentage == 100) {
                     model.nextDisabled = false;
                     model.nextText =  "Done >>";
-                  }
-                });
+                }
+            });
           }
           // is this a removal from the pending units?
           else if(json.remove) {
