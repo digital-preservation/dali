@@ -153,23 +153,18 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
                   }
                 case Right(path) =>
                   completed += file.size.getOrElse(0L)
-                  val percentageDone = ((completed.toDouble / total) * 100).toInt
+                  val percentageDone = ((Math.ceil(completed.toDouble / total)) * 100).toInt
                   trace(s"[{$percentageDone}%] Copied file: ${file.path}")
-                  if (percentageDone < 100) {
-                    unitManager match {
+                  if (percentageDone >= 100) {
+                    info(s"Finished Copying Unit: ${parts.head.part.unitId}")
+                  }
+                  unitManager match {
                       case Some(sender) => sender ! UnitProgress(unit, percentageDone)
                       case None =>
-                    }
                   }
               }
             }
           }
-          info(s"Finished Copying Unit: ${parts.head.part.unitId}")
-          unitManager match {
-            case Some(sender) => sender ! UnitProgress(unit, 100)
-            case None =>
-          }
-
         }
     }
   }
