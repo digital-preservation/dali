@@ -13,7 +13,7 @@ var mLoadModal = {
     decrypting: false,
     loading: false,
     nextDisabled: false,
-    nextText: "Next&#160;&gt;&gt;",
+    nextText: "Next >>",
     percentageLoaded: 0,
     destinations: [
         "Holding",
@@ -83,7 +83,7 @@ function LoadModalCtrl($scope, $http) {
         //reset dialog
       else if (selected == 3) {
         mLoadModal.nextDisabled = false; // re-enable for next time
-        mLoadModal.nextText =  "Next&#160;&gt;&gt;";
+        mLoadModal.nextText =  "Next >>";
         //close modal dialog
         $('#loadModal').modal('hide');
       }
@@ -440,9 +440,9 @@ $(document).ready(function() {
 
                 updateLoadModal(function(model) {
                   model.pendingUnit.percentageLoaded = json.progress.percentage;
-                  if (model.pendingUnit.percentageLoaded == 100) {
-                    model.pendingUnit.nextDisabled = false;
-                    model.pendingUnit.nextText =  "Done&#160;&gt;&gt;";
+                  if (json.progress.percentage == 100) {
+                    model.nextDisabled = false;
+                    model.nextText =  "Done >>";
                   }
                 });
           }
