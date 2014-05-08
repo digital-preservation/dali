@@ -17,7 +17,7 @@ class SettingsImpl(config: Config) extends Extension {
 
   object Auth {
 
-    val ldapServer = config.getString("unit-loader.auth.ldap.server")
+    val ldapServer = config.getStringList("unit-loader.auth.ldap.server").asScala.toList
     val ldapPort = config.getInt("unit-loader.auth.ldap.port")
     val ldapBindUser = config.getString("unit-loader.auth.ldap.bind.user")
     val ldapBindPassword = config.getString("unit-loader.auth.ldap.bind.password")

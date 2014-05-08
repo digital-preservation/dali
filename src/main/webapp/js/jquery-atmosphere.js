@@ -337,7 +337,6 @@ jQuery.atmosphere = function() {
                     // Wasn't local or an error occurred
                     _localStorageService = null;
                 }
-
                 // Protocol
                 _request.firstMessage = true;
                 _request.isOpen = false;

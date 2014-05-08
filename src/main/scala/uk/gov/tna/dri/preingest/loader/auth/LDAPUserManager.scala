@@ -1,20 +1,52 @@
 package uk.gov.tna.dri.preingest.loader.auth
 
-import com.unboundid.ldap.sdk.{LDAPConnectionOptions, Attribute, SearchScope, LDAPConnection}
+import com.unboundid.ldap.sdk._
 import grizzled.slf4j.Logging
 import resource._
 import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
-
+/**
+ * @author Adam Retter <adam.retter@googlemail.com>
+ */
 trait LDAPUserManager extends AuthManager[String, User] with Logging {
 
   protected val settings: SettingsImpl
 
   /**
+   * Simple Encapsulation of
+   * round-robin use of a list
+   * of LDAP servers
+   */
+  private object RoundRobinLdap {
+    private var next = settings.Auth.ldapServer
+
+    /**
+     * Get the next server
+     * from the round-robin
+     *
+     * @return The next server
+     */
+    def nextServer() = synchronized {
+      next match {
+        case head :: tail =>
+          next = tail
+          head
+        case Nil =>
+          next = settings.Auth.ldapServer.tail
+          settings.Auth.ldapServer.head
+      }
+    }
+  }
+
+  /**
    * Attempts to find a user by DN from LDAP
+   *
+   * @param key The key used by Scalatra for a user (i.e. their DN)
+   *
+   * @return Either Some(user) or None if the user could not be found by DN
    */
   def find(key: String): Option[User] = {
-    ldapOperation(settings.Auth.ldapBindUser, settings.Auth.ldapBindPassword, findUserByDn(_, key)) match {
+    ldapOperation(settings.Auth.ldapBindUser, settings.Auth.ldapBindPassword)(_.flatMap(findUserByDn(_, key))) match {
 
       case Left(ts) =>
         ts.map(error("Could not find user by DN in LDAP", _))
@@ -34,11 +66,12 @@ trait LDAPUserManager extends AuthManager[String, User] with Logging {
    * @param userName The username to validate
    * @param password The password to validate
    *
-   * @return A User object representing the user
+   * @return Either Some(user) or None if the user could
+   *         not be authenticated
    */
   def validate(userName: String, password: String): Option[User] = {
 
-    ldapOperation(settings.Auth.ldapBindUser, settings.Auth.ldapBindPassword, findUserDN(_, userName)) match {
+    ldapOperation(settings.Auth.ldapBindUser, settings.Auth.ldapBindPassword)(_.flatMap(findUserDN(_, userName))) match {
       case Left(ts) =>
         ts.map(error("Could not find user in LDAP", _))
         None
@@ -46,7 +79,7 @@ trait LDAPUserManager extends AuthManager[String, User] with Logging {
       case Right(maybeUserDn) =>
         maybeUserDn.flatMap {
           userDn =>
-            ldapOperation(userDn, password, getUser(_, userName)) match {
+            ldapOperation(userDn, password)(_.flatMap(getUser(_, userName))) match {
 
               case Left(ts) =>
                 ts.map(error("Could not retrieve user properties from LDAP", _))
@@ -59,7 +92,16 @@ trait LDAPUserManager extends AuthManager[String, User] with Logging {
     }
   }
 
-  private def findUserByDn(ldap: LDAPConnection, dn: String) = ldapSearch(ldap, ldapUserByDnFilter(dn), Seq(settings.Auth.ldapUserAttributeUid, settings.Auth.ldapUserAttributeEmail)).map(attrs => (dn, attrs(settings.Auth.ldapUserAttributeUid).getValue, attrs.get(settings.Auth.ldapUserAttributeEmail).map(_.getValue)))
+  /**
+   * Find a user by distinguished name
+   *
+   * @param ldap A connection to the LDAP
+   * @param dn The distinguished name of the user
+   *
+   * @return Either Some((dn, uid, Option(mail))) or None if
+   *         no user could be found for the DN
+   */
+  private def findUserByDn(ldap: LDAPConnection, dn: String): Option[(String, String, Option[String])] = ldapSearch(ldap, ldapUserByDnFilter(dn), Seq(settings.Auth.ldapUserAttributeUid, settings.Auth.ldapUserAttributeEmail)).map(attrs => (dn, attrs(settings.Auth.ldapUserAttributeUid).getValue, attrs.get(settings.Auth.ldapUserAttributeEmail).map(_.getValue)))
 
   /**
    * Finds a User in LDAP
@@ -93,18 +135,29 @@ trait LDAPUserManager extends AuthManager[String, User] with Logging {
   /**
    * Perform a managed LDAP operation
    *
-   * @param bindUser The username binding for connecting to the LDAP
-   * @param bindPassword The password for the user binding when connecting to the LDAP
+   * @param bindDN The distinguished name for binding to the LDAP
+   * @param bindPassword The password for the binding
    * @param op A function which operates on an LDAP connection
    *
    * @return Either a sequence of exceptions or the result of $op
    */
-  private def ldapOperation[T](bindUser: String, bindPassword: String, op: (LDAPConnection) => T): Either[Seq[Throwable], T] = {
+  private def ldapOperation[T](bindDN: String, bindPassword: String)(op: (Option[LDAPConnection]) => T): Either[Seq[Throwable], T] = {
     val opts = new LDAPConnectionOptions()
     opts.setConnectTimeoutMillis(settings.Auth.ldapTimeoutConnection)
     opts.setResponseTimeoutMillis(settings.Auth.ldapTimeoutRequest)
 
-    managed(new LDAPConnection(opts, settings.Auth.ldapServer, settings.Auth.ldapPort, bindUser, bindPassword)).map(op).either
+    managed(new LDAPConnection(opts, RoundRobinLdap.nextServer(), settings.Auth.ldapPort)).map {
+      ldap =>
+        val bindResult = ldap.bind(bindDN, bindPassword)
+        bindResult.getResultCode match {
+          case ResultCode.SUCCESS =>
+            op(Some(ldap))
+
+          case other : ResultCode =>
+            error(other.toString)
+            op(None)
+        }
+    }.either
   }
 
   /**
