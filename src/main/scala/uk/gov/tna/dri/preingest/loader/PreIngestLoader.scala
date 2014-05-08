@@ -173,7 +173,7 @@ class PreIngestLoaderActor extends Actor with Logging {
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("progress", unit.uid, progressPercentage)))
 
     case UnitError(unit, errorMessage) =>
-      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("error", unit.uid, errorMessage)))
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("error", unit.uid, unit.label, errorMessage)))
 
     //remove unit detail
     case DeRegisterUnit(unitUid) =>
@@ -218,8 +218,9 @@ class PreIngestLoaderActor extends Actor with Logging {
       ("percentage" -> progressPercentage.toString)
     )
 
-  def toJson(action: String, unitUid: DRIUnit.UnitUID, errorMessage: String) = (action ->
+  def toJson(action: String, unitUid: DRIUnit.UnitUID, label: DRIUnit.Label, errorMessage: String) = (action ->
       ("uid" -> unitUid) ~
+      ("label" -> label) ~
       ("message" -> errorMessage)
     )
 
