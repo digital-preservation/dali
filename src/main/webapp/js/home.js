@@ -355,7 +355,7 @@ function toHumanTime(timestamp) {
 function copyUnitProperties(srcUnit, destUnit) {
    destUnit.label = srcUnit.label;
    destUnit.size = srcUnit.size;
-   destUnit.timestamp = srcUnit.size;
+   destUnit.timestamp = srcUnit.timestamp;
    if (srcUnit.parts) {
      destUnit.parts = expandPendingUnitParts(srcUnit);
    }
@@ -451,7 +451,7 @@ $(document).ready(function() {
                 error.label = json.error.label;
             });
             updatePending(function(pendingUnits) {
-                $.each(pendingUnits, function(i,v) {
+                $.each(pendingUnits, function(i,v) {l
                     if(v.uid == json.error.uid) {
                         v.showComplete = false;
                         v.loadDisabled = true;

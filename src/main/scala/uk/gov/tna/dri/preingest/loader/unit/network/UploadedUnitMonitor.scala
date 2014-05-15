@@ -6,6 +6,11 @@ import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
 import uk.gov.tna.dri.preingest.loader.{Settings, Crypto}
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
+import uk.gov.tna.dri.preingest.loader.unit.network.RemoteStore
+import uk.gov.tna.dri.preingest.loader.util.RemotePath
+import scalax.file.defaultfs.DefaultPath
+import java.io.ByteArrayInputStream
+import java.nio.charset.Charset
 
 //received events
 case object ScheduledExecution
@@ -20,19 +25,24 @@ class UploadedUnitMonitor extends Actor with Logging {
 
   private val settings = Settings(context.system)
 
+  private val opts  = RemoteStore.createOpt(settings.Unit.sftpServer, settings.Unit.username, settings.Unit.certificateFile, settings.Unit.timeout)
+
   //state
-  var known = Map[Path, UnitUID]()
+  var known = Map[RemotePath, UnitUID]()
 
   def receive = {
 
     case ScheduledExecution =>
-      val foundUnits = findUnits(settings.Unit.uploadedSource)
+      //val foundUnits = findUnits(settings.Unit.uploadedSource)
+      val foundUnits = findRemoteUnits(settings.Unit.uploadedSource.path)
 
       //additions
       for(foundUnit <- foundUnits) {
         if(!known.contains(foundUnit)) {
 
-          val uid = unitUid(foundUnit)
+
+          //val uid = unitUid(foundUnit)
+          val uid = unitnameUid(foundUnit.name)
           this.known = known + (foundUnit -> uid)
 
           val unitActor = context.actorOf(Props(new UploadedUnitActor(uid, foundUnit)))
@@ -43,8 +53,9 @@ class UploadedUnitMonitor extends Actor with Logging {
       //subtractions
       for(knownUnit <- this.known.keys) {
         if(!foundUnits.contains(knownUnit)) {
-            this.known = known.filterNot(kv => kv._1 == knownUnit)
             context.parent ! DeRegisterUnit(this.known(knownUnit))
+            this.known = known.filterNot(kv => kv._1 == knownUnit)
+
         }
       }
   }
@@ -55,6 +66,12 @@ class UploadedUnitMonitor extends Actor with Logging {
      is =>
        Crypto.hexUnsafe(Crypto.digest(is, settings.Unit.uploadedUidGenDigestAlgorithm))
     }
+  }
+
+  private def unitnameUid(unitName: String) = {
+    //create checksum of unit
+    val is = new ByteArrayInputStream(unitName.getBytes(Charset.forName("UTF-8")))
+    Crypto.hexUnsafe(Crypto.digest(is, settings.Unit.uploadedUidGenDigestAlgorithm))
   }
 
   private def findUnits(path: Path): List[Path] = {
@@ -69,5 +86,16 @@ class UploadedUnitMonitor extends Actor with Logging {
       warn(s"Uploaded Unit Monitor directory: ${path.path} does not exist. No uploaded units will be found!")
       List.empty[Path]
     }
+  }
+
+  private def findRemoteUnits(path: String): List[RemotePath] = {
+    //TODO laura- error handling, remove "loading" hardcoding
+    val uploadedUnits = RemoteStore.listFiles(opts, path, (s"*.${settings.Unit.uploadedGpgZipFileExtension}"))
+    val processingUploadedUnits = RemoteStore.listFiles(opts, path, (s"*.${settings.Unit.uploadedGpgZipFileExtension}.loading"))
+
+    //filter out the ones we are already processing
+    val filteredUnits = uploadedUnits.filterNot(uu => processingUploadedUnits.exists(_.name.equals(uu.name+".loading"))).toList
+
+    return filteredUnits
   }
 }
