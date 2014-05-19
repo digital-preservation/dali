@@ -55,9 +55,18 @@ object DataStore {
       f(None)
   }
 
+  /**
+   *
+   * Gets the top folder of a file, omitting the mount path
+   * @param file the complete path of the file, e.g. /tmp/Recycle Bin/file
+   * @param mount   the mount path e.g. /tmp
+   * @return the top folder e.g Recycle Bin
+   *
+   */
   def getTopParent(file:Path, mount:Path) : String = {
     val relFile = file relativize mount
     val root = relFile.segments.head
     return root
   }
+
 }

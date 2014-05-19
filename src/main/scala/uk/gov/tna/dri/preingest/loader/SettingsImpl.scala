@@ -50,7 +50,15 @@ class SettingsImpl(config: Config) extends Extension {
     val uploadedScheduleFrequency = Duration(config.getMilliseconds("unit-loader.unit.manager.uploaded-check-schedule.frequency"), TimeUnit.MILLISECONDS)
 
     val uploadedInterface = config.getString("unit-loader.unit.uploaded.interface")
-    val uploadedSource = Path.fromString(config.getString("unit-loader.unit.uploaded.source"))
+    val uploadedSource = Path.fromString(config.getString("unit-loader.unit.uploaded.sftp.source"))
+    //val uploadedSource = config.getString("unit-loader.unit.uploaded.sftp.source")
+
+    val sftpServer = config.getString("unit-loader.unit.uploaded.sftp.server")
+    val port = config.getString("unit-loader.unit.uploaded.sftp.port")
+    val certificateFile = config.getString("unit-loader.unit.uploaded.sftp.certificate-file")
+    val certificateKey = config.getString("unit-loader.unit.uploaded.sftp.certificate-key")
+    val username = config.getString("unit-loader.unit.uploaded.sftp.username")
+    val timeout = config.getString("unit-loader.unit.uploaded.sftp.timeout").toLong
 
     val uploadedUidGenDigestAlgorithm = DigestAlgorithm.withName(config.getString("unit-loader.unit.uploaded.uid-gen-digest-algorithm"))
 
