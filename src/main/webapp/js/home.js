@@ -444,6 +444,7 @@ $(document).ready(function() {
           }
           // is this an error?
           else if(json.error) {
+            console.log("Error processing unit [" + json.error.label + "] : " + json.error.message);
             updateError(function(error) {
                 error.show = true;
                 error.message = json.error.message;
