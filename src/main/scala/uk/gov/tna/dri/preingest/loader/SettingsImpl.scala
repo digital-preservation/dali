@@ -83,6 +83,14 @@ class SettingsImpl(config: Config) extends Extension {
     val labelBin = Path.fromString(config.getString("unit-loader.ntfs.label-bin"))
   }
 
+  object JmsConfig {
+    val brokerName = config.getString("unit-loader.jms.broker-name")
+    val username = config.getString("unit-loader.jms.username")
+    val password = config.getString("unit-loader.jms.password")
+    val queueName = config.getString("unit-loader.jms.queue-name")
+    val timeout = config.getString("unit-loader.jms.timeout").toLong
+  }
+
 }
 
 object Settings extends ExtensionId[SettingsImpl] with ExtensionIdProvider {
