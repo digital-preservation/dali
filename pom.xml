@@ -126,6 +126,11 @@
             <version>3.1.0</version>
 			<scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.tna.dri.catalogue</groupId>
+            <artifactId>dri-catalogue-jms-client</artifactId>
+            <version>1.33-SNAPSHOT</version>
+        </dependency>
 
         <!-- Dependency for PGP and GPG Encryption-Decryption -->
         <dependency>
@@ -203,16 +208,16 @@
             <name>FuseSource Snapshot Repository</name>
             <url>http://repo.fusesource.com/nexus/content/repositories/snapshots/</url>
         </repository>
-        <repository>
-            <id>ScalaToolsMaven2Repository</id>
-            <name>Scala-Tools Maven2 Repository</name>
-            <url>http://scala-tools.org/repo-releases/</url>
-        </repository>
-        <repository>
-            <id>scala-tools.org</id>
-            <name>Scala-Tools Maven2 Repository</name>
-            <url>http://scala-tools.org/repo-releases</url>
-        </repository>
+        <!--<repository>-->
+            <!--<id>ScalaToolsMaven2Repository</id>-->
+            <!--<name>Scala-Tools Maven2 Repository</name>-->
+            <!--<url>http://scala-tools.org/repo-releases/</url>-->
+        <!--</repository>-->
+        <!--<repository>-->
+            <!--<id>scala-tools.org</id>-->
+            <!--<name>Scala-Tools Maven2 Repository</name>-->
+            <!--<url>http://scala-tools.org/repo-releases</url>-->
+        <!--</repository>-->
         <repository>
             <id>janalyse</id>
             <name>Janalyse Repository</name>
@@ -221,11 +226,11 @@
     </repositories>
 
     <pluginRepositories>
-        <pluginRepository>
-            <id>scala-tools.org</id>
-            <name>Scala-Tools Maven2 Repository</name>
-            <url>http://scala-tools.org/repo-releases</url>
-        </pluginRepository>
+        <!--<pluginRepository>-->
+            <!--<id>scala-tools.org</id>-->
+            <!--<name>Scala-Tools Maven2 Repository</name>-->
+            <!--<url>http://scala-tools.org/repo-releases</url>-->
+        <!--</pluginRepository>-->
     </pluginRepositories>
 
 </project>
