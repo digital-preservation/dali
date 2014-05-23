@@ -24,6 +24,8 @@ import scala.Some
 import uk.gov.tna.dri.preingest.loader.certificate.ListCertificates
 import org.scalatra.atmosphere.Error
 import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
+import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
+import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
 
 
 class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certificateManagerActor: ActorRef) extends ScalatraServlet
@@ -163,15 +165,27 @@ class PreIngestLoaderActor extends Actor with Logging {
   val unitManagerActor = context.actorOf(Props[UnitManagerActor], name="unitManagerActor")
   unitManagerActor ! Listen
 
+  val settings = Settings(context.system).JmsConfig
+  val jmsConfig = new JmsConfig(settings.brokerName, settings.username, settings.password, settings.queueName, settings.timeout.toLong)
+  lazy val jmsClient = new LoaderCatalogueJmsClient(jmsConfig)
+
+  val of = new uk.gov.nationalarchives.dri.ingest.ObjectFactory
+
   def receive = {
 
     //send unit status (i.e. add of update)
     case UnitStatus(unit, action, clientId) =>
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("update", unit)), allOrOne(clientId))
 
-    case UnitProgress(unit, progressPercentage) =>
+    case UnitProgress(unit, progressPercentage) => {
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("progress", unit.uid, progressPercentage)))
-
+      if (progressPercentage >= 100) {
+        // update catalogue unit status
+        val unitIdType = of.createUnitIdType
+        unitIdType.setUnitId(unit.uid)
+        jmsClient.updateCatalogueUnitStatus("unitLoaded", unitIdType, "")
+      }
+    }
     case UnitError(unit, errorMessage) =>
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("error", unit.uid, unit.label, errorMessage)))
 
