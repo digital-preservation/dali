@@ -154,6 +154,8 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
 
             case None =>
               error("Unknown Client Action!")
+
+            case _ => ???  // throw exception (should never be reached, but needed to keep compiler warning quiet
           }
        }
     }
