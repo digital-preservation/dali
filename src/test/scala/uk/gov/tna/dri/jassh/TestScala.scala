@@ -117,6 +117,24 @@ class TestScala extends Specification {
       }
     }
 
+
+    //scp a file
+    "scp  file" in {
+
+      val scpOb = new SSH(opts)
+
+      scpOb.scp {
+        scp=>
+          val remoteFile = "/home/dev/test/loading"
+          val localFile = "/tmp/loading/" + remoteFile.substring(remoteFile.lastIndexOf("/")+1)
+          scp.receive(remoteFile, localFile)
+          val file = new java.io.File(localFile)
+          file.exists mustEqual true
+      }
+
+
+    }
+
     //delete file
     "delete files" in {
       SSH.shell(opts) {

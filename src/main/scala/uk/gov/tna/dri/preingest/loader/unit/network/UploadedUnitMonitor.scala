@@ -33,39 +33,29 @@ class UploadedUnitMonitor extends Actor with Logging {
   def receive = {
 
     case ScheduledExecution =>
-      //val foundUnits = findUnits(settings.Unit.uploadedSource)
+      val foundUnits1 = findUnits(settings.Unit.uploadedSource)
       val foundUnits = findRemoteUnits(settings.Unit.uploadedSource.path)
 
       //additions
       for(foundUnit <- foundUnits) {
-        if(!known.contains(foundUnit)) {
-
-
-          //val uid = unitUid(foundUnit)
-          val uid = unitnameUid(foundUnit.name)
+        val uid = unitnameUid(foundUnit.name)
+        if (!known.keySet.exists(p => unitnameUid(p.name)==uid)) {
           this.known = known + (foundUnit -> uid)
-
           val unitActor = context.actorOf(Props(new UploadedUnitActor(uid, foundUnit)))
           context.parent ! RegisterUnit(uid, unitActor)
+          println("ld uploaded unit monitor registered a new uploaded unit actor ")
         }
       }
     
       //subtractions
       for(knownUnit <- this.known.keys) {
-        if(!foundUnits.contains(knownUnit)) {
-            context.parent ! DeRegisterUnit(this.known(knownUnit))
-            this.known = known.filterNot(kv => kv._1 == knownUnit)
-
+        //if(!foundUnits.contains(knownUnit)) {
+        val uid = unitnameUid(knownUnit.name)
+        if (!foundUnits.exists(p => unitnameUid(p.name)==uid)) {
+          context.parent ! DeRegisterUnit(this.known(knownUnit))
+          this.known = known.filterNot(kv => kv._1 == knownUnit)
         }
       }
-  }
-
-  private def unitUid(unitPath: Path) = {
-    //create checksum of unit
-    unitPath.inputStream().acquireAndGet {
-     is =>
-       Crypto.hexUnsafe(Crypto.digest(is, settings.Unit.uploadedUidGenDigestAlgorithm))
-    }
   }
 
   private def unitnameUid(unitName: String) = {

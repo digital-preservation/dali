@@ -8,6 +8,8 @@ import fr.janalyse.ssh.SSHOptions
 import uk.gov.tna.dri.preingest.loader.util.RemotePath
 import java.text.SimpleDateFormat
 import scala.collection.mutable.ListBuffer
+import grizzled.slf4j.Logging
+import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
 
 object RemoteStore {
@@ -52,10 +54,41 @@ object RemoteStore {
     catch {
       case e: Exception =>
         //      warn(s"Uploaded Unit Monitor directory: ${path.path} does not exist. No uploaded units will be found!")
-      println("SOMETHING WENT WRONG " + e)
+        //TODO laura - better error handling
+        println("ls got an error " + e)
     }
 
     return pathListBuffer toList
+  }
+
+
+  def createFile(opt:SSHOptions, fileName:String)  {
+    val scpOb = new SSH(opt)
+    val content = ""
+
+    scpOb.scp {
+      scp=>
+        scp.put(content, fileName)
+    }
+  }
+
+
+  def fileExists(opt:SSHOptions, fileName:String) : Boolean = {
+    val fileExists = SSH.shell(opt) {
+    sh =>
+      sh.exists(fileName)
+    }
+    return fileExists
+  }
+
+  def receiveFile(opt:SSHOptions, remoteFile: String, localFile: String) {
+    val scpOb = new SSH(opt)
+
+    scpOb.scp {
+      scp=>
+        scp.receive(remoteFile, localFile)
+    }
+
   }
 
 
