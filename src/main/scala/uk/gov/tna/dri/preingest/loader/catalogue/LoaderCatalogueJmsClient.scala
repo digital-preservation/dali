@@ -3,6 +3,7 @@ package uk.gov.tna.dri.preingest.loader.catalogue
 import uk.gov.tna.dri.catalogue.jms.client.{JmsConfig, CatalogueJmsClient}
 import javax.xml.bind.JAXBElement
 import uk.gov.nationalarchives.dri.ingest.DriUnitsType
+import akka.actor.Actor
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,6 +26,17 @@ class LoaderCatalogueJmsClient(jmsConfig: JmsConfig) extends CatalogueJmsClient(
         None
       }
     }
+  }
+}
+
+class CatalogueActor extends Actor {
+
+  def receive = {
+
+    // what's the message? i.e. case
+    // do something
+    // send message back (or somewhere)
+    ???
   }
 
 }

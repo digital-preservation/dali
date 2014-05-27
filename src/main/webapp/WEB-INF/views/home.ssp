@@ -99,12 +99,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr ng-repeat="loadedUnit in loadedUnits">
                     <tr>
-                        <td>{{pendingUnit.destination}}</td>
-                        <td>xyz.gpgz</td>
-                        <td>2.1GB</td>
-                        <td>Thu, 3rd October 2013</td>
-                        <td>dri-upload1</td>
+                        <td>{{loadedUnit.location}}</td>
+                        <td>{{loadedUnit.label}}</td>
+                        <td>{{loadedUnit.size}}</td>
+                        <td>{{loadedUnit.loaded}}</td>
+                        <td>{{loadedUnit.source}}</td>
                     </tr>
                 </tbody>
             </table>

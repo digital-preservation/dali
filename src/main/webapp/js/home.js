@@ -1,6 +1,7 @@
 var subSocket = null;
 
 var mPendingUnits = [];
+var mLoadedUnits = [];
 
 var mError = {
     uid: null,
@@ -41,6 +42,10 @@ function PendingUnitsCtrl($scope) {
         //show the load modal
         $('#loadModal').modal('show');
     };
+}
+
+function LoadedUnitsCtrl($scope) {
+    $scope.loadedUnits = mLoadedUnits;
 }
 
 //Controller for displaying Error messages
@@ -558,5 +563,7 @@ $(document).ready(function() {
   };
 
   subSocket = socket.subscribe(request);
+  
+  subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
 
 });

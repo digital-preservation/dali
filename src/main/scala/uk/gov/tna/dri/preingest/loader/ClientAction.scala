@@ -8,6 +8,8 @@ object ClientAction {
 
   case class Pending(action: String) extends Action(action)
 
+  case class Loaded(action: String, limit: Int) extends Action(action)
+
   case class Decrypt(action: String, unit: UnitRef, certificate: Option[String], passphrase: String) extends Action(action)
   case class UnitRef(uid: UnitUID)
 

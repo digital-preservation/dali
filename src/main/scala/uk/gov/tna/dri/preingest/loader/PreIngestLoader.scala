@@ -24,6 +24,7 @@ import scala.Some
 import uk.gov.tna.dri.preingest.loader.certificate.ListCertificates
 import org.scalatra.atmosphere.Error
 import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
+import uk.gov.tna.dri.preingest.loader.ClientAction.Loaded
 
 
 class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certificateManagerActor: ActorRef) extends ScalatraServlet
@@ -137,7 +138,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
           val username = x.username //TODO fix above, this is a temp solution
 
           import uk.gov.tna.dri.preingest.loader.ClientAction.{Decrypt, Pending, UnitRef, Load}
-          val clientAction = json.extractOpt[Load].orElse(json.extractOpt[Decrypt].orElse(json.extractOpt[Pending]))
+          val clientAction = json.extractOpt[Load].orElse(json.extractOpt[Decrypt].orElse(json.extractOpt[Pending]).orElse(json.extractOpt[Loaded]))
           clientAction match {
 
             case Some(p: Pending) =>
@@ -149,6 +150,9 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
             case Some(l: Load) =>
               val parts = l.unit.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
               preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid), Option(preIngestLoaderActor))
+
+            case Some(Loaded(_, limit)) =>
+              preIngestLoaderActor ! GetLoaded(limit)
 
             case None =>
               error("Unknown Client Action!")
@@ -188,6 +192,8 @@ class PreIngestLoaderActor extends Actor with Logging {
 
     case lu: LoadUnit =>
       unitManagerActor ! lu
+
+    case gl: GetLoaded => ???
   }
 
   def allOrOne(maybeClientId: Option[String])(client: AtmosphereClient) : Boolean = {
