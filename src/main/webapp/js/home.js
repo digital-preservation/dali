@@ -392,6 +392,8 @@ $(document).ready(function() {
 
     //request initial unit status
     subSocket.push(JSON.stringify({action: 'pending'}));
+    // request previously loaded units
+    subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
   };
 
   request.onReconnect = function(request, response) {
@@ -472,6 +474,9 @@ $(document).ready(function() {
                 if (json.progress.percentage == 100) {
                     model.nextDisabled = false;
                     model.nextText =  "Done >>";
+                    // update pending and loaded units
+                    subSocket.push(JSON.stringify({action: 'pending'}));
+                    subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
                 }
             });
           }
@@ -563,7 +568,8 @@ $(document).ready(function() {
   };
 
   subSocket = socket.subscribe(request);
-  
-  subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
+
+ // if done here, Atmosphere may not yet have opened connection
+ // subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
 
 });

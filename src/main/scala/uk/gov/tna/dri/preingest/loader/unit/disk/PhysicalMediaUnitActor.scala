@@ -133,7 +133,7 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
           val files = mountPoint ** IsFile  filter {f => parts.exists(  p => p.part.series == DataStore.getTopParent(f, mountPoint)) }
           val total = totalSize(files)
           unitManager match {
-            case Some(sender) => sender  ! UnitProgress(unit, 0)
+            case Some(sender) => sender  ! UnitProgress(unit, parts, 0)
             case None =>
           }
           var completed: Long = 0
@@ -159,7 +159,7 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
                     info(s"Finished Copying Unit: ${parts.head.part.unitId}")
                   }
                   unitManager match {
-                      case Some(sender) => sender ! UnitProgress(unit, percentageDone)
+                      case Some(sender) => sender ! UnitProgress(unit, parts, percentageDone)
                       case None =>
                   }
               }
