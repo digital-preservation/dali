@@ -33,9 +33,7 @@ trait DRIUnitActor[T <: DRIUnit] extends ComposableActor with Logging {
     //below case statement is for non certificate-encrypted units, certificate encrypted units
     //are handled in EncryptedDRIUnitActor
     case Load(username, parts, None, passphrase, clientId, unitManager) => //TODO specific client!
-      println("ld loading in DRIUnitActor")
       copyData(username, parts, passphrase, unitManager)
-      println("ld loaded in DRIUnitActor")
   }
 
   //TODO copying should be moved into a different actor, otherwise this actor cannot respond to GetStatus requests whilst a copy is happening!

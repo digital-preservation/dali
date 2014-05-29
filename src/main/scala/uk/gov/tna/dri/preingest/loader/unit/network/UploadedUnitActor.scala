@@ -51,8 +51,31 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
     //def decrypt(filePathName: String, certificate: Option[Path], passphrase: String, extraCmdOptions: Seq[String]) {
     DataStore.withTemporaryFile(Option(certificate)) {
       cert =>
-        GPGCrypt.decrypt(localFileName, cert, passphrase )
+        GPGCrypt.decryptAndUnzip(localFileName, cert, passphrase )
     }
+
+    val tempLocation = Path.fromString(localFileName.substring(0, localFileName.lastIndexOf("/")))
+
+    info("tempLocation " + tempLocation)
+
+    val filesAndDirs = tempLocation  * ((p: Path) => !isJunkFile(settings, p.name))
+
+    val (dirs, files) = filesAndDirs.toSet.toSeq.partition(_.isDirectory)
+
+
+    println("**********************************Dirs " + dirs)
+    info("Files " + files)
+
+//    val files = mount * ((p: Path) => !isJunkFile(settings, p.name))
+//    f(files.toSet.toSeq)
+//
+//    val (dirs, files) = TrueCryptedPartition.listTopLevel(settings, unit.src, tempMountPoint, certificate, passphrase)(_.partition(_.isDirectory))
+//    //update the unit
+
+   // case class UploadedUnit(uid: UnitUID, interface: Interface, src: Source, label: Label, size: Bytes, timestamp: Milliseconds, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends ElectronicAssemblyUnit with EncryptedDRIUnit {
+
+
+      unit = this.unit.copy(  parts = Option(dirs.map(_.name)), orphanedFiles = Option(files.map(_.name)))
 
 
   }

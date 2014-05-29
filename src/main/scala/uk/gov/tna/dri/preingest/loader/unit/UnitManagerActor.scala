@@ -74,6 +74,9 @@ class UnitManagerActor extends Actor with Logging {
       }
       info("UnitManagerActor RegisterUnit unitId " + unitId + " unit " + (unitId -> unit) )
 
+
+
+
      //TODO  above will probably cope with update too!
      //case UnitUpdated(unitId) =>
      // listeners.map {
