@@ -12,25 +12,23 @@ import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
 
-object RemoteStore {
+object RemoteStore extends Logging {
 
   def createOpt(host:String, user:String, sshPrivateFile:String, sshTimeout:Long) :SSHOptions =  {
     return SSHOptions(host, username = user, sshKeyFile = Some(sshPrivateFile), timeout = sshTimeout)
   }
 
   def listFiles(opt:SSHOptions, path:String, extension:String): List[RemotePath] =  {
-
     val ls = SSH.shell(opt) {
       sh=>
+        //todo ld: move to ftp ls command
         val lsCommand = "ls --time-style='+%d-%m-%Y,%H:%M:%S' " + path + "/" + extension + " -l | awk ' { print $5, $6, $7  } '"
-        println("Executing " + lsCommand)
         sh.execute(lsCommand).trim()
     }
     parselsResult(ls)
   }
 
   private def parselsResult(ls:String): List[RemotePath] = {
-
     val tokens =  ls split ("""\s+""") toList
     val f = new SimpleDateFormat("dd-MM-yyyy,kk:mm:ss")
     var pathListBuffer = new ListBuffer[RemotePath]()
@@ -53,9 +51,7 @@ object RemoteStore {
     }
     catch {
       case e: Exception =>
-        //      warn(s"Uploaded Unit Monitor directory: ${path.path} does not exist. No uploaded units will be found!")
-        //TODO laura - better error handling
-        println("ls got an error " + e)
+        warn ("Error parsing " + e.toString)
     }
 
     return pathListBuffer toList
@@ -72,7 +68,6 @@ object RemoteStore {
     }
   }
 
-
   def fileExists(opt:SSHOptions, fileName:String) : Boolean = {
     val fileExists = SSH.shell(opt) {
     sh =>
@@ -88,8 +83,6 @@ object RemoteStore {
       scp=>
         scp.receive(remoteFile, localFile)
     }
-
   }
-
 
 }

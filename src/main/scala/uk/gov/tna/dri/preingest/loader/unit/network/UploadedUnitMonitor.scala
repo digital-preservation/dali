@@ -33,7 +33,6 @@ class UploadedUnitMonitor extends Actor with Logging {
   def receive = {
 
     case ScheduledExecution =>
-      val foundUnits1 = findUnits(settings.Unit.uploadedSource)
       val foundUnits = findRemoteUnits(settings.Unit.uploadedSource.path)
 
       //additions
@@ -43,7 +42,7 @@ class UploadedUnitMonitor extends Actor with Logging {
           this.known = known + (foundUnit -> uid)
           val unitActor = context.actorOf(Props(new UploadedUnitActor(uid, foundUnit)))
           context.parent ! RegisterUnit(uid, unitActor)
-          println("ld uploaded unit monitor registered a new uploaded unit actor ")
+          info("uploaded unit monitor registered a new uploaded unit " + foundUnit.name)
         }
       }
     
@@ -64,28 +63,19 @@ class UploadedUnitMonitor extends Actor with Logging {
     Crypto.hexUnsafe(Crypto.digest(is, settings.Unit.uploadedUidGenDigestAlgorithm))
   }
 
-  private def findUnits(path: Path): List[Path] = {
-    if(path.isDirectory) {
-      val uploadedUnits = path * (s"*.${settings.Unit.uploadedGpgZipFileExtension}")
-      val processingUploadedUnits = path * (s"*.${settings.Unit.uploadedGpgZipFileExtension}.processing")
-
-      //filter out the ones we are already processing
-      uploadedUnits.filter(uu => processingUploadedUnits.find(_.startsWith(uu)).isEmpty).toList
-
-    } else {
-      warn(s"Uploaded Unit Monitor directory: ${path.path} does not exist. No uploaded units will be found!")
-      List.empty[Path]
-    }
-  }
-
+  //lists files with a configured extension on a configured remote host
   private def findRemoteUnits(path: String): List[RemotePath] = {
-    //TODO laura- error handling, remove "loading" hardcoding
+    if (! RemoteStore.fileExists(opts, path)) {
+      warn(s"Uploaded Unit Monitor directory: ${path} does not exist. No uploaded units will be found!")
+      return List.empty[RemotePath]
+    }
+
     val uploadedUnits = RemoteStore.listFiles(opts, path, (s"*.${settings.Unit.uploadedGpgZipFileExtension}"))
     val processingUploadedUnits = RemoteStore.listFiles(opts, path, (s"*.${settings.Unit.uploadedGpgZipFileExtension}.loading"))
 
     //filter out the ones we are already processing
     val filteredUnits = uploadedUnits.filterNot(uu => processingUploadedUnits.exists(_.name.equals(uu.name+".loading"))).toList
 
-    return filteredUnits
+    filteredUnits
   }
 }

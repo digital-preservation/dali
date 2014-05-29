@@ -9,7 +9,9 @@ object GPGCrypt extends Logging{
   def decryptAndUnzip(filePathName: String, certificate: Option[Path], passphrase: String) {
     import scala.sys.process._
 
+    val fileFolder = filePathName.substring(0, filePathName.lastIndexOf("/"))
     val fileNameNoGPGExtension = filePathName.substring(0, filePathName.lastIndexOf("gpg")-1)
+
     val decryptCmd = Seq(
       "gpg",
       "--batch",
@@ -29,18 +31,26 @@ object GPGCrypt extends Logging{
         Nil
     })
 
-    //todo laura unify
     val unzipCmd = Seq(
       "unzip",
       "-u",
-      s"$fileNameNoGPGExtension")
+      s"-d$fileFolder",
+      s"$fileNameNoGPGExtension"
+      )
 
 
-    println("******************About to execute "+ decryptCmd )
-    val gpgCode = decryptCmd #&& unzipCmd !
+    val gpgCode = decryptCmd.!
 
     if(gpgCode != 0) {
       error(s"Error code '$gpgCode' when executing: $decryptCmd")
     }
+
+    val unzipCode = unzipCmd.!
+
+    if(unzipCode != 0) {
+      error(s"Error code '$unzipCode' when executing: $unzipCmd")
+    }
+
+
   }
 }

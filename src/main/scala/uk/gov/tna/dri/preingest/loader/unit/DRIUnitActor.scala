@@ -27,7 +27,6 @@ trait DRIUnitActor[T <: DRIUnit] extends ComposableActor with Logging {
   receiveBuilder += {
 
     case SendUnitStatus(listener: ActorRef, clientId: Option[String]) =>
-      println("ld send unit status in DRIUnitActor")
       listener ! UnitStatus(unit, None, clientId)
 
     //below case statement is for non certificate-encrypted units, certificate encrypted units

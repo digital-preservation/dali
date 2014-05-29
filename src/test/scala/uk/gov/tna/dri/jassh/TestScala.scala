@@ -86,7 +86,7 @@ class TestScala extends Specification {
 
             val name = tokens(j+2)
 
-            println("ok name " + name + " size " + filesize + "date " + longMillis)
+            //info("file name " + name + " size " + filesize + "date " + longMillis)
 
             val rp = new RemotePath(name, filesize, longMillis)
             pathListBuffer +=  rp

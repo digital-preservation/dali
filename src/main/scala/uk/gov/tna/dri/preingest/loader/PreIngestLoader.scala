@@ -147,7 +147,6 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
               preIngestLoaderActor ! ListUnits(uuid)
 
             case Some(Decrypt(_, UnitRef(uid), certificate, passphrase)) =>
-              println("ld PreIngestLoader decrypt " + uid)
               preIngestLoaderActor ! UpdateUnitDecryptDetail(username, uid, certificate, passphrase, Option(uuid))
 
             case Some(l: Load) =>
@@ -205,7 +204,6 @@ class PreIngestLoaderActor extends Actor with Logging {
       unitManagerActor ! lu
 
     case uudd: UpdateUnitDecryptDetail =>
-      println("ld PreIngestLoaderActor " + uudd)
       unitManagerActor ! uudd
 
     case lu: LoadUnit =>

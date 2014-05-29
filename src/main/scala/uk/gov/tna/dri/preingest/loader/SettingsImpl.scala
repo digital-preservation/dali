@@ -64,6 +64,7 @@ class SettingsImpl(config: Config) extends Extension {
     val uploadedUidGenDigestAlgorithm = DigestAlgorithm.withName(config.getString("unit-loader.unit.uploaded.uid-gen-digest-algorithm"))
 
     val uploadedGpgZipFileExtension = config.getString("unit-loader.unit.uploaded.gpg-zip-file-extension")
+    val loadingExtension = config.getString("unit-loader.unit.uploaded.loading-extension")
 
     val junkFiles = config.getStringList("unit-loader.unit.junk-files").asScala.map(_.r)
 
