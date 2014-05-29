@@ -86,7 +86,7 @@ class TestScala extends Specification {
 
             val name = tokens(j+2)
 
-            println("ok name " + name + " size " + filesize + "date " + longMillis)
+            //info("file name " + name + " size " + filesize + "date " + longMillis)
 
             val rp = new RemotePath(name, filesize, longMillis)
             pathListBuffer +=  rp
@@ -115,6 +115,24 @@ class TestScala extends Specification {
           val file = new java.io.File(localFile)
           file.exists mustEqual true
       }
+    }
+
+
+    //scp a file
+    "scp  file" in {
+
+      val scpOb = new SSH(opts)
+
+      scpOb.scp {
+        scp=>
+          val remoteFile = "/home/dev/test/loading"
+          val localFile = "/tmp/loading/" + remoteFile.substring(remoteFile.lastIndexOf("/")+1)
+          scp.receive(remoteFile, localFile)
+          val file = new java.io.File(localFile)
+          file.exists mustEqual true
+      }
+
+
     }
 
     //delete file
