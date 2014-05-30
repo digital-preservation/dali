@@ -4,6 +4,7 @@ import uk.gov.tna.dri.catalogue.jms.client.{JmsConfig, CatalogueJmsClient}
 import javax.xml.bind.JAXBElement
 import uk.gov.nationalarchives.dri.ingest.DriUnitsType
 import akka.actor.Actor
+import uk.gov.tna.dri.preingest.loader.unit.GetLoaded
 
 /**
  * Created with IntelliJ IDEA.
@@ -29,14 +30,17 @@ class LoaderCatalogueJmsClient(jmsConfig: JmsConfig) extends CatalogueJmsClient(
   }
 }
 
-class CatalogueActor extends Actor {
-
-  def receive = {
-
-    // what's the message? i.e. case
-    // do something
-    // send message back (or somewhere)
-    ???
-  }
-
-}
+//class CatalogueActor extends Actor {
+//
+//  def receive = {
+//
+//    case GetLoaded(limit) =>
+//     val jmsClient = new LoaderCatalogueJmsClient()
+//     jmsClient.getUnitsLoaded(limit)
+//     // what's the message? i.e. case
+//    // do something
+//    // send message back (or somewhere)
+//    ???
+//  }
+//
+//}

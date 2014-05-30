@@ -392,7 +392,8 @@ $(document).ready(function() {
 
     //request initial unit status
     subSocket.push(JSON.stringify({action: 'pending'}));
-  };
+    subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
+};
 
   request.onReconnect = function(request, response) {
     socket.info("Reconnecting");
@@ -563,7 +564,5 @@ $(document).ready(function() {
   };
 
   subSocket = socket.subscribe(request);
-  
-  subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
 
 });

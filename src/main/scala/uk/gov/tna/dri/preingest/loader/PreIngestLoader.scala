@@ -27,6 +27,9 @@ import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
 import uk.gov.tna.dri.preingest.loader.ClientAction.Loaded
 import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
 import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
+import javax.xml.bind.JAXBElement
+import uk.gov.nationalarchives.dri.ingest.{DriUnitType, DriUnitsType}
+import scala.collection.mutable
 
 
 class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certificateManagerActor: ActorRef) extends ScalatraServlet
@@ -168,6 +171,8 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
 
 class PreIngestLoaderActor extends Actor with Logging {
 
+  import scala.collection.JavaConverters._
+
   val unitManagerActor = context.actorOf(Props[UnitManagerActor], name="unitManagerActor")
   unitManagerActor ! Listen
 
@@ -209,7 +214,12 @@ class PreIngestLoaderActor extends Actor with Logging {
     case lu: LoadUnit =>
       unitManagerActor ! lu
 
-    case gl: GetLoaded => ???
+    case GetLoaded(limit) =>
+      jmsClient.getUnitsLoaded(limit) match {
+        case Some(units) =>
+          AtmosphereClient.broadcast("/unit", JsonMessage(toJson("loaded", units.getValue.getUnits.asScala)))
+        case None =>
+      }
   }
 
   def allOrOne(maybeClientId: Option[String])(client: AtmosphereClient) : Boolean = {
@@ -244,6 +254,15 @@ class PreIngestLoaderActor extends Actor with Logging {
       ("uid" -> unitUid) ~
       ("label" -> label) ~
       ("message" -> errorMessage)
+    )
+
+  def toJson(action: String, units: mutable.Buffer[DriUnitType]) = (action ->
+    ("unit" ->
+       units.map {
+         unit =>
+           ("label" -> unit.getLabel)
+       }
+      )
     )
 
 

@@ -50,7 +50,7 @@ class UDisksUnitMonitor extends Actor with Logging {
             (unit, () => new NonEncryptedPartitionUnitActor(unit))
           }
 
-          val unitActorRef = context.actorOf(Props(unitActor))
+          val unitActorRef = context.actorOf(Props(unitActor.getClass))
           this.knownPartitions += (partitionProperties.deviceFile -> unit.uid)
           context.parent ! RegisterUnit(unit.uid, unitActorRef)
 
