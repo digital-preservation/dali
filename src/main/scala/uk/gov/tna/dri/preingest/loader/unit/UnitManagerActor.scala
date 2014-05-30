@@ -15,7 +15,7 @@ case class RegisterUnit(unitUid: UnitUID, unit: ActorRef)
 case class DeRegisterUnit(unitUid: UnitUID)
 case class SendUnitStatus(listener: ActorRef, clientId: Option[String] = None)
 case class UnitStatus(unit: DRIUnit, action: Option[UnitAction] = None, clientId: Option[String] = None)
-case class UnitProgress(unit: DRIUnit, progressPercentage: Integer)
+case class UnitProgress(unit: DRIUnit, parts: Seq[TargetedPart], progressPercentage: Integer)
 //case class UnitError(unit: DRIUnit, errorMessage: String)
 case class RemoveUnit(unitUid: UnitUID)
 case class ListUnits(clientId: String)
@@ -46,9 +46,11 @@ class UnitManagerActor extends Actor with Logging {
 
     case Listen =>
       this.listeners = sender :: listeners
+      info("UnitManagerActor listen " + listeners)
 
     case ListUnits(clientId) => //TODO specific client!
       this.units.values.map(_ ! SendUnitStatus(sender, Option(clientId)))
+      info("UnitManagerActor listUnits clientId" + clientId)
 
 
     case UpdateUnitDecryptDetail(username, unitUid, certificate, passphrase, clientId) =>
@@ -59,7 +61,9 @@ class UnitManagerActor extends Actor with Logging {
 //        //cannot decrypt a non-encrypted unit, send error message to client
 //        sender ! UserProblemNotification(DECRYPT_NON_ENCRYPTED, clientId)
 //      }
+
         val unitActor = this.units(unitUid)
+        info("UnitManagerActor UpdateUnitDecryptDetail clientId " + clientId + " unitUid " + unitUid + "unitActor " + unitActor )
         unitActor ! UpdateDecryptDetail(username, sender, certificate, passphrase, clientId)
 
 
@@ -68,6 +72,10 @@ class UnitManagerActor extends Actor with Logging {
       listeners.map {
         unit ! SendUnitStatus(_)
       }
+      info("UnitManagerActor RegisterUnit unitId " + unitId + " unit " + (unitId -> unit) )
+
+
+
 
      //TODO  above will probably cope with update too!
      //case UnitUpdated(unitId) =>
@@ -85,6 +93,8 @@ class UnitManagerActor extends Actor with Logging {
       listeners.map {
         _ ! RemoveUnit(unitId)
       }
+      info("UnitManagerActor DeRegisterUnit unitId " + unitId )
+
 
     case LoadUnit(username, unitUid, parts, certificate, passphrase, clientId, unitManager) =>
       val unitActor = this.units(unitUid)

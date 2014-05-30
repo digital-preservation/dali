@@ -50,6 +50,7 @@ class SettingsImpl(config: Config) extends Extension {
     val uploadedScheduleFrequency = Duration(config.getMilliseconds("unit-loader.unit.manager.uploaded-check-schedule.frequency"), TimeUnit.MILLISECONDS)
 
     val uploadedInterface = config.getString("unit-loader.unit.uploaded.interface")
+    //TODO laura send a string
     val uploadedSource = Path.fromString(config.getString("unit-loader.unit.uploaded.sftp.source"))
     //val uploadedSource = config.getString("unit-loader.unit.uploaded.sftp.source")
 
@@ -63,9 +64,11 @@ class SettingsImpl(config: Config) extends Extension {
     val uploadedUidGenDigestAlgorithm = DigestAlgorithm.withName(config.getString("unit-loader.unit.uploaded.uid-gen-digest-algorithm"))
 
     val uploadedGpgZipFileExtension = config.getString("unit-loader.unit.uploaded.gpg-zip-file-extension")
+    val loadingExtension = config.getString("unit-loader.unit.uploaded.loading-extension")
 
     val junkFiles = config.getStringList("unit-loader.unit.junk-files").asScala.map(_.r)
 
+    val tempDestination = Path.fromString(config.getString("unit-loader.unit.temp_destination")).path
     val destination = Path.fromString(config.getString("unit-loader.unit.destination"))
   }
 

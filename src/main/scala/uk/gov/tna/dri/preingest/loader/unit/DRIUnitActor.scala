@@ -48,9 +48,11 @@ trait EncryptedDRIUnitActor[T <: EncryptedDRIUnit] extends DRIUnitActor[T] {
 
   receiveBuilder += {
     case Load(username, parts, Some(certificate), passphrase, clientId, unitManager) => //TODO specific client!
+      info("ld EncryptedDRIUnitActor load")
       certificateManagerActor ! GetCertificate(username, certificate, Option(WithCert(Load(username, parts, Option(certificate), passphrase, clientId, unitManager), _)))
 
     case WithCert(Load(username, parts, _, passphrase, clientId, unitManager), certificate) =>
+      info("ld EncryptedDRIUnitActor WithCert load")
       copyData(username, parts, certificate, passphrase, unitManager)
 
     case NoCertificate(cert, Load(username, _, _, _, _, _)) =>
@@ -58,6 +60,7 @@ trait EncryptedDRIUnitActor[T <: EncryptedDRIUnit] extends DRIUnitActor[T] {
       //TODO let user know of problem
 
     case udd: UpdateDecryptDetail =>
+      info("ld EncryptedDRIUnitActor UpdateDecryptDetail " + udd)
       udd.certificate match {
         case Some(cert) =>
           certificateManagerActor ! GetCertificate(udd.username, cert, Option(WithCert(udd, _)))
@@ -68,8 +71,11 @@ trait EncryptedDRIUnitActor[T <: EncryptedDRIUnit] extends DRIUnitActor[T] {
       }
 
     case WithCert(UpdateDecryptDetail(username, listener, _, passphrase, clientId), certificate) =>
+      info("ld EncryptedDRIUnitActor withCert ")
       updateDecryptDetail(username, certificate, passphrase)
+      info("sending status to self " + self + "status " + SendUnitStatus(listener, clientId))
       self ! SendUnitStatus(listener, clientId)
+
 
     case NoCertificate(cert, UpdateDecryptDetail(_, listener, _, _, clientId)) =>
       //let client know that certificate could not be found!

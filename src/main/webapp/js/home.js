@@ -395,6 +395,7 @@ $(document).ready(function() {
     subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
 };
 
+
   request.onReconnect = function(request, response) {
     socket.info("Reconnecting");
     console.log("Reconnecting...");
@@ -473,6 +474,9 @@ $(document).ready(function() {
                 if (json.progress.percentage == 100) {
                     model.nextDisabled = false;
                     model.nextText =  "Done >>";
+                    // update pending and loaded units
+                    subSocket.push(JSON.stringify({action: 'pending'}));
+                    subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
                 }
             });
           }
@@ -564,5 +568,8 @@ $(document).ready(function() {
   };
 
   subSocket = socket.subscribe(request);
+  
+  // if done here, Atmosphere may not yet have opened connection
+  // subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
 
 });
