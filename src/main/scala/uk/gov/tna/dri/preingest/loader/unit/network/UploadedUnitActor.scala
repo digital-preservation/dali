@@ -6,20 +6,18 @@ import akka.actor.ActorRef
 import uk.gov.tna.dri.preingest.loader.PreIngestLoaderActor
 import uk.gov.tna.dri.preingest.loader.util.RemotePath
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DiskProperties, PartitionProperties}
-import uk.gov.tna.dri.preingest.loader.unit.disk.{PhysicalMediaUnitActor, TrueCryptedPartition}
 import uk.gov.tna.dri.preingest.loader.certificate._
-import uk.gov.tna.dri.preingest.loader.Settings
 import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.unit.network.{GPGCrypt, RemoteStore}
 import uk.gov.tna.dri.preingest.loader.store.DataStore
+import uk.gov.tna.dri.preingest.loader.unit.common.PhysicalMediaUnitActor
+import uk.gov.tna.dri.preingest.loader.unit.common.unit.isJunkFile
 
 case class UploadedUnit(uid: UnitUID, interface: Interface, src: Source, label: Label, size: Bytes, timestamp: Milliseconds, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None)
-      extends ElectronicAssemblyUnit with EncryptedDRIUnit with PhysicalMediaUnit {
+      extends EncryptedDRIUnit with PhysicalMediaUnit {
   def unitType = "Uploaded"
   override def humanId = label
 }
-
-//case class GPGEnryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends EncryptedPartitionUnit
 
 class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) extends EncryptedDRIUnitActor[UploadedUnit] with PhysicalMediaUnitActor[UploadedUnit] with Logging{
 
@@ -43,9 +41,9 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
 
     val remoteFileName = unitPath.name
     //create load file
-    val loadFile = s"$remoteFileName.$settings.Unit.loadingExtension"
+    val loadingExtension = settings.Unit.loadingExtension
+    val loadFile = s"$remoteFileName.$loadingExtension"
     RemoteStore.createFile(opts, loadFile)
-
 
     //extract parts and orphaned files
     tempMountPoint(username, unit.src) match {
