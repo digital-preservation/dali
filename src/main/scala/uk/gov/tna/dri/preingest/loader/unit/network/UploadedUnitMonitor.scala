@@ -33,26 +33,30 @@ class UploadedUnitMonitor extends Actor with Logging {
   def receive = {
 
     case ScheduledExecution =>
-      val foundUnits = findRemoteUnits(settings.Unit.uploadedSource.path)
+      if (!RemoteStore.processing) {
 
-      //additions
-      for(foundUnit <- foundUnits) {
-        val uid = unitnameUid(foundUnit.name)
-        if (!known.keySet.exists(p => unitnameUid(p.name)==uid)) {
-          this.known = known + (foundUnit -> uid)
-          val unitActor = context.actorOf(Props(new UploadedUnitActor(uid, foundUnit)))
-          context.parent ! RegisterUnit(uid, unitActor)
-          info("uploaded unit monitor registered a new uploaded unit " + foundUnit.name)
+        println("Looking for units ")
+        val foundUnits = findRemoteUnits(settings.Unit.uploadedSource.path)
+
+        //additions
+        for (foundUnit <- foundUnits) {
+          val uid = unitnameUid(foundUnit.name)
+          if (!known.keySet.exists(p => unitnameUid(p.name) == uid)) {
+            this.known = known + (foundUnit -> uid)
+            val unitActor = context.actorOf(Props(new UploadedUnitActor(uid, foundUnit)))
+            context.parent ! RegisterUnit(uid, unitActor)
+            info("uploaded unit monitor registered a new uploaded unit " + foundUnit.name)
+          }
         }
-      }
-    
-      //subtractions
-      for(knownUnit <- this.known.keys) {
-        //if(!foundUnits.contains(knownUnit)) {
-        val uid = unitnameUid(knownUnit.name)
-        if (!foundUnits.exists(p => unitnameUid(p.name)==uid)) {
-          context.parent ! DeRegisterUnit(this.known(knownUnit))
-          this.known = known.filterNot(kv => kv._1 == knownUnit)
+
+        //subtractions
+        for (knownUnit <- this.known.keys) {
+          //if(!foundUnits.contains(knownUnit)) {
+          val uid = unitnameUid(knownUnit.name)
+          if (!foundUnits.exists(p => unitnameUid(p.name) == uid)) {
+            context.parent ! DeRegisterUnit(this.known(knownUnit))
+            this.known = known.filterNot(kv => kv._1 == knownUnit)
+          }
         }
       }
   }

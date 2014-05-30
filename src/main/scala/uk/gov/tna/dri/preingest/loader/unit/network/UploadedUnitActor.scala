@@ -29,8 +29,11 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
     println("ld it should first copy the data in order to decrypt it ")
   }
 
-  def copyData(username: String,parts: Seq[uk.gov.tna.dri.preingest.loader.unit.TargetedPart],certificate: (uk.gov.tna.dri.preingest.loader.certificate.CertificateName,
-    uk.gov.tna.dri.preingest.loader.certificate.CertificateData),passphrase: Option[String],unitManager: Option[akka.actor.ActorRef]): Unit = ???
+  def copyData(username: String, parts: Seq[uk.gov.tna.dri.preingest.loader.unit.TargetedPart],certificate: (uk.gov.tna.dri.preingest.loader.certificate.CertificateName,
+    uk.gov.tna.dri.preingest.loader.certificate.CertificateData),passphrase: Option[String],unitManager: Option[akka.actor.ActorRef]): Unit = {
+      copyData(username, parts, unitManager)
+      RemoteStore.processing = false
+  }
 
   private def getFileNameFromStringPath(absolutePath: String): String = {
     absolutePath.substring(absolutePath.lastIndexOf("/")+1)
@@ -39,6 +42,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
   //creates a file "loading" to mark progress, copies the file locally, decrypts it and send the unit.parts to review
   def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String) {
 
+    RemoteStore.processing = true
     val remoteFileName = unitPath.name
     //create load file
     val loadingExtension = settings.Unit.loadingExtension
@@ -46,7 +50,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
     RemoteStore.createFile(opts, loadFile)
 
     //extract parts and orphaned files
-    tempMountPoint(username, unit.src) match {
+    tempMountPoint(username, unit.label) match {
       case Left(ioe) =>
         error(s"Unable to update decrypted detail for unit: ${unit.uid}", ioe)
 
@@ -74,4 +78,21 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
 
   def updateDecryptDetail(username: String,passphrase: String): Unit = ???
 
+
+
+  private def copyData(username: String, parts: Seq[TargetedPart], unitManager: Option[ActorRef]) {
+      //unit.src instead of unit.partition.deviceFile ???
+    tempMountPoint(username, unit.label) match {
+      case Left(ioe) =>
+        error(s"Unable to copy data for unit: ${unit.uid}", ioe)
+        unitManager match {
+          case Some(sender) =>  sender ! UnitError(unit, "Unable to copy data for unit:" + ioe.getMessage)
+          case None =>
+        }
+
+      case Right(mountPoint) =>
+          copyFiles( parts, mountPoint,  unitManager)
+    }
+  }
 }
+

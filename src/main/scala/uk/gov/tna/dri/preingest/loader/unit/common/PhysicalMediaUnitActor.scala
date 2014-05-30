@@ -46,4 +46,64 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
   }
 
   protected def totalSize(paths: PathSet[Path]) = paths.toList.map(_.size).map(_.getOrElse(0l)).reduceLeft(_ + _)
+
+  protected def copyFiles(parts: Seq[TargetedPart], mountPoint: Path, unitManager: Option[ActorRef]) {
+    val all = mountPoint ** IsFile filter { f => true}
+    val files = mountPoint ** IsFile filter { f => parts.exists(p => p.part.series == DataStore.getTopParent(f, mountPoint))}
+
+    if (files.isEmpty) {
+      unitManager match {
+        case Some(sender) =>
+          sender ! UnitError(unit, "No files found ")
+          break // break on first error
+        case None => break // break on error
+      }
+    }
+    else {
+      val total = totalSize(files)
+      println("lddddd total " + total)
+      unitManager match {
+        case Some(sender) => sender ! UnitProgress(unit, parts, 0)
+        case None =>
+      }
+      var completed: Long = 0
+
+      breakable {
+        for (file <- files) {
+
+          //match destination
+          val root  = DataStore.getTopParent(file, mountPoint)
+          val pInd = parts.indexWhere{p => p.part.series == root }
+          val destLocation = Destination.invert(parts(pInd).destination)
+
+          //add the label - e.g archive name
+          val labelDestination = unit.label.substring(unit.label.lastIndexOf("/") + 1)
+
+           val destination =  settings.Unit.destination / Path.fromString(destLocation) / Path.fromString(labelDestination) / Path.fromString(file.relativize(mountPoint).path)
+
+          copyFile(file, destination) match {
+            case Left(ioe) =>
+              error(s"Unable to copy data for unit: ${unit.uid}", ioe)
+              unitManager match {
+                case Some(sender) =>
+                  sender ! UnitError(unit, "Unable to copy data for unit: " + ioe.getMessage)
+                  break // break on first error
+                case None => break // break on error
+              }
+            case Right(path) =>
+              completed += file.size.getOrElse(0L)
+              val percentageDone = ((Math.ceil(completed.toDouble / total)) * 100).toInt
+              trace(s"[{$percentageDone}%] Copied file: ${file.path}")
+              if (percentageDone >= 100) {
+                info(s"Finished Copying Unit: ${parts.head.part.unitId}")
+              }
+              unitManager match {
+                case Some(sender) => sender ! UnitProgress(unit, parts, percentageDone)
+                case None =>
+              }
+          }
+        }
+      }
+    }
+  }
 }

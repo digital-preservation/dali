@@ -98,45 +98,11 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
 
       case Right(mountPoint) =>
         TrueCrypt.withVolume(settings, unit.partition.deviceFile, certificate, passphrase.get, mountPoint) {
-          val files = mountPoint ** IsFile  filter {f => parts.exists(  p => p.part.series == DataStore.getTopParent(f, mountPoint)) }
-          val total = totalSize(files)
-          unitManager match {
-            case Some(sender) => sender  ! UnitProgress(unit, parts, 0)
-            case None =>
-          }
-          var completed: Long = 0
-          breakable {
-            for(file <- files) {
-              val label = unit.label
-              val destination = settings.Unit.destination / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
-
-              copyFile(file, destination) match {
-                case Left(ioe) =>
-                  error(s"Unable to copy data for unit: ${unit.uid}", ioe)
-                  unitManager match {
-                    case Some(sender) =>
-                      sender ! UnitError(unit, "Unable to copy data for unit: " + ioe.getMessage)
-                      break // break on first error
-                    case None => break // break on error
-                  }
-                case Right(path) =>
-                  completed += file.size.getOrElse(0L)
-                  val percentageDone = ((Math.ceil(completed.toDouble / total)) * 100).toInt
-                  trace(s"[{$percentageDone}%] Copied file: ${file.path}")
-                  if (percentageDone >= 100) {
-                    info(s"Finished Copying Unit: ${parts.head.part.unitId}")
-                  }
-                  unitManager match {
-                      case Some(sender) => sender ! UnitProgress(unit, parts, percentageDone)
-                      case None =>
-                  }
-              }
-            }
-          }
+            copyFiles( parts, mountPoint,  unitManager)
         }
+      }
     }
   }
-}
 
 case class NonEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends PartitionUnit with NonEncryptedDRIUnit
 
