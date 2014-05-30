@@ -132,7 +132,7 @@ object TrueCryptedPartition {
 
   def listTopLevel[T](settings: SettingsImpl, volume: String, mount: Path, certificate: Option[Path], passphrase: String)(f: Seq[Path] => T): T = {
     TrueCrypt.withVolume(settings: SettingsImpl, volume: String, certificate, passphrase, mount) {
-      import uk.gov.tna.dri.preingest.loader.unit.isJunkFile
+      import uk.gov.tna.dri.preingest.loader.unit.common.unit.isJunkFile
       val files = mount * ((p: Path) => !isJunkFile(settings, p.name))
       f(files.toSet.toSeq)
     }

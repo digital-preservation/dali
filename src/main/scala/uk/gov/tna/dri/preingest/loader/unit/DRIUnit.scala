@@ -83,5 +83,3 @@ trait EncryptedDRIUnit extends DRIUnit {
 trait PhysicalMediaUnit extends DRIUnit {
   def humanId = src
 }
-
-trait ElectronicAssemblyUnit extends DRIUnit
