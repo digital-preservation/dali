@@ -220,19 +220,22 @@ class PreIngestLoaderActor extends Actor with Logging {
     case UnitProgress(unit, parts, progressPercentage) => {
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("progress", unit.uid, progressPercentage)))
       if (progressPercentage >= 100) {
-        // update catalogue unit status
-        val unitIdType = of.createUnitIdType
-        unitIdType.setUnitId(unit.uid)
-        jmsClient.updateCatalogueUnitStatus("unitLoaded", unitIdType, "")
-        // if the unit is loaded, all the parts must be too
+        // update catalogue status of all parts
         val partIdType = of.createPartIdType
         parts.map(p => {
           partIdType.setSeries(p.part.series)
           partIdType.setUnitId(p.part.unitId)
           jmsClient.updateCataloguePartStatus("partLoadedTo"+Destination.invert(p.destination), partIdType, "")
         })
+        // update catalogue unit status
+        val unitIdType = of.createUnitIdType
+        // temporary hack: unit.uid is UUID, not a UnitId, need to add UnitId to units
+        // in the meantime, retrieve it from the first part
+        unitIdType.setUnitId(parts(0).part.unitId)
+        jmsClient.updateCatalogueUnitStatus("unitLoaded", unitIdType, "")
       }
     }
+
     case UnitError(unit, errorMessage) =>
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("error", unit.uid, unit.label, errorMessage)))
 

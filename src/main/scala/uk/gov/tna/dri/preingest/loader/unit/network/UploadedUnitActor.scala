@@ -6,20 +6,18 @@ import akka.actor.ActorRef
 import uk.gov.tna.dri.preingest.loader.PreIngestLoaderActor
 import uk.gov.tna.dri.preingest.loader.util.RemotePath
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DiskProperties, PartitionProperties}
-import uk.gov.tna.dri.preingest.loader.unit.disk.{PhysicalMediaUnitActor, TrueCryptedPartition}
 import uk.gov.tna.dri.preingest.loader.certificate._
-import uk.gov.tna.dri.preingest.loader.Settings
 import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.unit.network.{GPGCrypt, RemoteStore}
 import uk.gov.tna.dri.preingest.loader.store.DataStore
+import uk.gov.tna.dri.preingest.loader.unit.common.PhysicalMediaUnitActor
+import uk.gov.tna.dri.preingest.loader.unit.common.unit.isJunkFile
 
 case class UploadedUnit(uid: UnitUID, interface: Interface, src: Source, label: Label, size: Bytes, timestamp: Milliseconds, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None)
-      extends ElectronicAssemblyUnit with EncryptedDRIUnit with PhysicalMediaUnit {
+      extends EncryptedDRIUnit with PhysicalMediaUnit {
   def unitType = "Uploaded"
   override def humanId = label
 }
-
-//case class GPGEnryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends EncryptedPartitionUnit
 
 class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) extends EncryptedDRIUnitActor[UploadedUnit] with PhysicalMediaUnitActor[UploadedUnit] with Logging{
 
@@ -31,8 +29,11 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
     println("ld it should first copy the data in order to decrypt it ")
   }
 
-  def copyData(username: String,parts: Seq[uk.gov.tna.dri.preingest.loader.unit.TargetedPart],certificate: (uk.gov.tna.dri.preingest.loader.certificate.CertificateName,
-    uk.gov.tna.dri.preingest.loader.certificate.CertificateData),passphrase: Option[String],unitManager: Option[akka.actor.ActorRef]): Unit = ???
+  def copyData(username: String, parts: Seq[uk.gov.tna.dri.preingest.loader.unit.TargetedPart],certificate: (uk.gov.tna.dri.preingest.loader.certificate.CertificateName,
+    uk.gov.tna.dri.preingest.loader.certificate.CertificateData),passphrase: Option[String],unitManager: Option[akka.actor.ActorRef]): Unit = {
+      copyData(username, parts, unitManager)
+      RemoteStore.processing = false
+  }
 
   private def getFileNameFromStringPath(absolutePath: String): String = {
     absolutePath.substring(absolutePath.lastIndexOf("/")+1)
@@ -41,14 +42,15 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
   //creates a file "loading" to mark progress, copies the file locally, decrypts it and send the unit.parts to review
   def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String) {
 
+    RemoteStore.processing = true
     val remoteFileName = unitPath.name
     //create load file
-    val loadFile = s"$remoteFileName.$settings.Unit.loadingExtension"
+    val loadingExtension = settings.Unit.loadingExtension
+    val loadFile = s"$remoteFileName.$loadingExtension"
     RemoteStore.createFile(opts, loadFile)
 
-
     //extract parts and orphaned files
-    tempMountPoint(username, unit.src) match {
+    tempMountPoint(username, unit.label) match {
       case Left(ioe) =>
         error(s"Unable to update decrypted detail for unit: ${unit.uid}", ioe)
 
@@ -76,4 +78,21 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
 
   def updateDecryptDetail(username: String,passphrase: String): Unit = ???
 
+
+
+  private def copyData(username: String, parts: Seq[TargetedPart], unitManager: Option[ActorRef]) {
+      //unit.src instead of unit.partition.deviceFile ???
+    tempMountPoint(username, unit.label) match {
+      case Left(ioe) =>
+        error(s"Unable to copy data for unit: ${unit.uid}", ioe)
+        unitManager match {
+          case Some(sender) =>  sender ! UnitError(unit, "Unable to copy data for unit:" + ioe.getMessage)
+          case None =>
+        }
+
+      case Right(mountPoint) =>
+          copyFiles( parts, mountPoint,  unitManager)
+    }
+  }
 }
+

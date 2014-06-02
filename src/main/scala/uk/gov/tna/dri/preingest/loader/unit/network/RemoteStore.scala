@@ -14,6 +14,16 @@ import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
 object RemoteStore extends Logging {
 
+  var processing = false
+
+  def initProcessing(){
+    var processing = true
+  }
+
+  def cleanupProcessing(){
+    var processing = false
+  }
+
   def createOpt(host:String, user:String, sshPrivateFile:String, sshTimeout:Long) :SSHOptions =  {
     return SSHOptions(host, username = user, sshKeyFile = Some(sshPrivateFile), timeout = sshTimeout)
   }

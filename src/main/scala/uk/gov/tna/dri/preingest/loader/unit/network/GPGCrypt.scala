@@ -51,6 +51,19 @@ object GPGCrypt extends Logging{
       error(s"Error code '$unzipCode' when executing: $unzipCmd")
     }
 
+    val cleanupCmd = Seq(
+      "rm",
+      "-f",
+      filePathName,
+      fileNameNoGPGExtension
+    )
+
+    val rmCode = cleanupCmd.!
+
+    if(unzipCode != 0) {
+      error(s"Error code '$rmCode' when executing: $cleanupCmd")
+    }
+
 
   }
 }

@@ -14,39 +14,7 @@ import java.io.IOException
 import akka.actor.ActorRef
 import scala.util.control.Breaks._
 import grizzled.slf4j.Logger
-
-trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
-
-  protected def tempMountPoint(username: String, volume: String) : Either[IOException , Path] = {
-    DataStore.userStore(settings, username) match {
-      case l@ Left(ioe) =>
-        l
-      case Right(userStore) =>
-        val mountPoint = userStore / s"${volume.split('/').last}"
-        if (!mountPoint.exists) {
-          try {
-            Right(mountPoint.createDirectory(createParents = true, failIfExists = true))
-          } catch {
-            case ioe: IOException =>
-              Left(ioe)
-          }
-        } else {
-          Right(mountPoint)
-        }
-    }
-  }
-
-  protected def copyFile(file: Path, dest: Path) : Either[IOException, Path] = {
-    try{
-      Right(file.copyTo(dest, createParents = true, copyAttributes = true))
-    } catch {
-      case ioe: IOException =>
-        Left(ioe)
-    }
-  }
-
-  protected def totalSize(paths: PathSet[Path]) = paths.toList.map(_.size).map(_.getOrElse(0l)).reduceLeft(_ + _)
-}
+import uk.gov.tna.dri.preingest.loader.unit.common.PhysicalMediaUnitActor
 
 trait PartitionUnit extends PhysicalMediaUnit {
   protected val partition: PartitionProperties
@@ -130,45 +98,11 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
 
       case Right(mountPoint) =>
         TrueCrypt.withVolume(settings, unit.partition.deviceFile, certificate, passphrase.get, mountPoint) {
-          val files = mountPoint ** IsFile  filter {f => parts.exists(  p => p.part.series == DataStore.getTopParent(f, mountPoint)) }
-          val total = totalSize(files)
-          unitManager match {
-            case Some(sender) => sender  ! UnitProgress(unit, parts, 0)
-            case None =>
-          }
-          var completed: Long = 0
-          breakable {
-            for(file <- files) {
-              val label = unit.label
-              val destination = settings.Unit.destination / label / Path.fromString(file.path.replace(mountPoint.path + "/", ""))
-
-              copyFile(file, destination) match {
-                case Left(ioe) =>
-                  error(s"Unable to copy data for unit: ${unit.uid}", ioe)
-                  unitManager match {
-                    case Some(sender) =>
-                      sender ! UnitError(unit, "Unable to copy data for unit: " + ioe.getMessage)
-                      break // break on first error
-                    case None => break // break on error
-                  }
-                case Right(path) =>
-                  completed += file.size.getOrElse(0L)
-                  val percentageDone = ((Math.ceil(completed.toDouble / total)) * 100).toInt
-                  trace(s"[{$percentageDone}%] Copied file: ${file.path}")
-                  if (percentageDone >= 100) {
-                    info(s"Finished Copying Unit: ${parts.head.part.unitId}")
-                  }
-                  unitManager match {
-                      case Some(sender) => sender ! UnitProgress(unit, parts, percentageDone)
-                      case None =>
-                  }
-              }
-            }
-          }
+            copyFiles( parts, mountPoint,  unitManager)
         }
+      }
     }
   }
-}
 
 case class NonEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends PartitionUnit with NonEncryptedDRIUnit
 
