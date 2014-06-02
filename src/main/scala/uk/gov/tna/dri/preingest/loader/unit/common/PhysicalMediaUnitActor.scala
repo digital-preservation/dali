@@ -61,7 +61,6 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
     }
     else {
       val total = totalSize(files)
-      println("lddddd total " + total)
       unitManager match {
         case Some(sender) => sender ! UnitProgress(unit, parts, 0)
         case None =>

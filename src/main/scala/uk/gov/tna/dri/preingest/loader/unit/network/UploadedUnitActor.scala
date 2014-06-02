@@ -4,11 +4,10 @@ import scalax.file.Path
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit._
 import akka.actor.ActorRef
 import uk.gov.tna.dri.preingest.loader.PreIngestLoaderActor
-import uk.gov.tna.dri.preingest.loader.util.RemotePath
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DiskProperties, PartitionProperties}
 import uk.gov.tna.dri.preingest.loader.certificate._
 import grizzled.slf4j.Logging
-import uk.gov.tna.dri.preingest.loader.unit.network.{GPGCrypt, RemoteStore}
+import uk.gov.tna.dri.preingest.loader.unit.network.{GlobalUtil, RemotePath, GPGCrypt, RemoteStore}
 import uk.gov.tna.dri.preingest.loader.store.DataStore
 import uk.gov.tna.dri.preingest.loader.unit.common.PhysicalMediaUnitActor
 import uk.gov.tna.dri.preingest.loader.unit.common.unit.isJunkFile
@@ -32,7 +31,8 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
   def copyData(username: String, parts: Seq[uk.gov.tna.dri.preingest.loader.unit.TargetedPart],certificate: (uk.gov.tna.dri.preingest.loader.certificate.CertificateName,
     uk.gov.tna.dri.preingest.loader.certificate.CertificateData),passphrase: Option[String],unitManager: Option[akka.actor.ActorRef]): Unit = {
       copyData(username, parts, unitManager)
-      RemoteStore.processing = false
+      GlobalUtil.cleanupProcessing()
+    //todo laura - delete remote files
   }
 
   private def getFileNameFromStringPath(absolutePath: String): String = {
@@ -42,12 +42,9 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
   //creates a file "loading" to mark progress, copies the file locally, decrypts it and send the unit.parts to review
   def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String) {
 
-    RemoteStore.processing = true
-    val remoteFileName = unitPath.name
-    //create load file
-    val loadingExtension = settings.Unit.loadingExtension
-    val loadFile = s"$remoteFileName.$loadingExtension"
-    RemoteStore.createFile(opts, loadFile)
+   val remoteFileName = unitPath.name
+    //create load file, mark processing = true
+    initLoading(remoteFileName)
 
     //extract parts and orphaned files
     tempMountPoint(username, unit.label) match {
@@ -56,12 +53,17 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
 
       case Right(tempMountPointPath) =>
         val localFileName = tempMountPointPath.path +  "/" + getFileNameFromStringPath(remoteFileName)
-        //copy the file
+        //copy the file locally
         info("ld receiving file " + remoteFileName + " and copying to " + localFileName)
-        //todo ld add errror handling for receive
-        RemoteStore.receiveFile(opts, remoteFileName, localFileName)
+        //todo ld test errror handling for receive
+        try {
+          RemoteStore.receiveFile(opts, remoteFileName, localFileName)
+        } catch {
+          case e: Exception =>
+            sender ! UnitError(unit, "Unable to copy data for unit: " + remoteFileName + " to " + localFileName + "error "+ e.getMessage)
+        }
 
-        //descrypt the file
+        //decrypt the file
         DataStore.withTemporaryFile(Option(certificate)) {
           cert =>
             GPGCrypt.decryptAndUnzip(localFileName, cert, passphrase )
@@ -78,8 +80,6 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
 
   def updateDecryptDetail(username: String,passphrase: String): Unit = ???
 
-
-
   private def copyData(username: String, parts: Seq[TargetedPart], unitManager: Option[ActorRef]) {
       //unit.src instead of unit.partition.deviceFile ???
     tempMountPoint(username, unit.label) match {
@@ -94,5 +94,12 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
           copyFiles( parts, mountPoint,  unitManager)
     }
   }
-}
 
+  //creates a remote file to show the file is being loaded and a global variable to let the monitor know that it's loading
+  private def initLoading(remoteFileName: String) {
+    GlobalUtil.initProcessing()
+    val loadingExtension = settings.Unit.loadingExtension
+    val loadFile = s"$remoteFileName.$loadingExtension"
+    RemoteStore.createFile(opts, loadFile)
+  }
+}
