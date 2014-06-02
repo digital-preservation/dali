@@ -28,7 +28,6 @@ import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
 import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
 import uk.gov.nationalarchives.dri.ingest.DriUnitType
 import scala.collection.mutable
-import uk.gov.tna.dri.preingest.loader.ClientAction.Action
 
 
 class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certificateManagerActor: ActorRef) extends ScalatraServlet
@@ -140,7 +139,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
           //val username = user.username //TODO causes NPE at the moment
           val username = x.username //TODO fix above, this is a temp solution
 
-          import uk.gov.tna.dri.preingest.loader.ClientAction.{UnitRef, Actions}
+          import uk.gov.tna.dri.preingest.loader.ClientAction.Actions
           try{
             val clientActions = json.extract[Actions]
             clientActions.actions map {
@@ -161,31 +160,6 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
           } catch {
             case (t: Throwable) => logger.error("there was a problem ", t)
           }
-
-
-
-
-//          val clientAction = json.extractOpt[Load].orElse(json.extractOpt[Decrypt].orElse(json.extractOpt[Pending]).orElse(json.extractOpt[Loaded]))
-//          clientAction match {
-//
-//            case Some(p: Pending) =>
-//              preIngestLoaderActor ! ListUnits(uuid)
-//
-//            case Some(Decrypt(_, UnitRef(uid), certificate, passphrase)) =>
-//              preIngestLoaderActor ! UpdateUnitDecryptDetail(username, uid, certificate, passphrase, Option(uuid))
-//
-//            case Some(l: Load) =>
-//              val parts = l.unit.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
-//              preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid), Option(preIngestLoaderActor))
-//
-//            case Some(Loaded(_, limit)) =>
-//              preIngestLoaderActor ! GetLoaded(limit)
-//
-//            case None =>
-//              error("Unknown Client Action!")
-//
-//            case _ => ???  // throw exception (should never be reached, but needed to keep compiler warning quiet
-//          }
        }
     }
   }
@@ -297,41 +271,4 @@ class PreIngestLoaderActor extends Actor with Logging {
       )
     )
 
-
-
-//  def toJson(uls: UnitLoadStatus) : JValue = {
-//    ("loadStatus" ->
-//      ("unit" ->
-//        ("src" -> uls.src)
-//      ) ~
-//      ("status" -> uls.status.toString) ~
-//      ("complete" -> uls.complete)
-//    )
-//  }
-//
-//  def toJson(action: String, pendingUnit: PendingUnit) : JValue = toJson(action, List(pendingUnit))
-//
-//  def toJson(action: String, pendingUnits: List[PendingUnit]) : JValue = {
-//    (action ->
-//      ("unit" ->
-//        pendingUnits.map {
-//          pendingUnit =>
-//            ("interface" -> pendingUnit.interface) ~
-//            ("src" -> pendingUnit.src) ~
-//            ("label" -> pendingUnit.label) ~
-//            ("size" -> pendingUnit.size) ~
-//            ("timestamp" -> pendingUnit.timestamp) ~
-//            ("part" ->
-//              pendingUnit.parts.map {
-//                _.map {
-//                  part =>
-//                    ("unit" -> part.unitId) ~
-//                    ("series" -> part.series)
-//                }
-//              }
-//            )
-//        }
-//      )
-//    )
-//  }
 }

@@ -98,7 +98,7 @@
                         <th>Source</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="loadedUnits" ng-controller="LoadedUnitsCtrl">
                     <tr ng-repeat="loadedUnit in loadedUnits">
                     <tr>
                         <td>{{loadedUnit.location}}</td>

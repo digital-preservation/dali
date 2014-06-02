@@ -322,6 +322,10 @@ function updateError(fnUpdateModel) {
     updateModel("#error", fnUpdateModel, mError)
 }
 
+function updateLoaded(fnUpdateModel) {
+    updateModel("#loadedUnits", fnUpdateModel, mLoadedUnits)
+}
+
 function updateModel(ctrlElemId, fnUpdateModel, m) {
     var ctrlElem = $(ctrlElemId);
     var scope = angular.element(ctrlElem).scope();
@@ -450,6 +454,16 @@ $(document).ready(function() {
                  });
              });
           }
+          
+          // id this the loaded units?
+          else if(json.loaded) {
+            updateLoaded(function(model) {
+                $.each(json.loaded.unit, function(i, v) {
+                    model.push(v)
+                });
+            });
+          }
+          
           // is this an error?
           else if(json.error) {
             console.log("Error processing unit [" + json.error.label + "] : " + json.error.message);
