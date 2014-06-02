@@ -24,7 +24,6 @@ import scala.Some
 import uk.gov.tna.dri.preingest.loader.certificate.ListCertificates
 import org.scalatra.atmosphere.Error
 import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
-import uk.gov.tna.dri.preingest.loader.ClientAction.Loaded
 import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
 import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
 import javax.xml.bind.JAXBElement
@@ -142,28 +141,58 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
           //val username = user.username //TODO causes NPE at the moment
           val username = x.username //TODO fix above, this is a temp solution
 
-          import uk.gov.tna.dri.preingest.loader.ClientAction.{Decrypt, Pending, UnitRef, Load}
-          val clientAction = json.extractOpt[Load].orElse(json.extractOpt[Decrypt].orElse(json.extractOpt[Pending]).orElse(json.extractOpt[Loaded]))
-          clientAction match {
+          import uk.gov.tna.dri.preingest.loader.ClientAction.{Decrypt, Pending, UnitRef, Load, Loaded, Actions}
+          try{
+            val clientActions = json.extract[Actions]
+            clientActions.actions.map(_ match {
 
-            case Some(p: Pending) =>
-              preIngestLoaderActor ! ListUnits(uuid)
+              case Pending(_) =>
+                preIngestLoaderActor ! ListUnits(uuid)
 
-            case Some(Decrypt(_, UnitRef(uid), certificate, passphrase)) =>
-              preIngestLoaderActor ! UpdateUnitDecryptDetail(username, uid, certificate, passphrase, Option(uuid))
+              case Decrypt(_, UnitRef(uid), certificate, passphrase) =>
+                preIngestLoaderActor ! UpdateUnitDecryptDetail(username, uid, certificate, passphrase, Option(uuid))
 
-            case Some(l: Load) =>
-              val parts = l.unit.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
-              preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid), Option(preIngestLoaderActor))
+              case l: Load =>
+                val parts = l.unit.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
+                preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid), Option(preIngestLoaderActor))
 
-            case Some(Loaded(_, limit)) =>
-              preIngestLoaderActor ! GetLoaded(limit)
+              case Loaded(_, limit) =>
+                preIngestLoaderActor ! GetLoaded(limit)
 
-            case None =>
-              error("Unknown Client Action!")
+              // case None =>
+              //   error("Unknown Client Action!")
 
-            case _ => ???  // throw exception (should never be reached, but needed to keep compiler warning quiet
+              case _ => ???  // throw exception (should never be reached, but needed to keep compiler warning quiet
+
+            })
+          } catch {
+            case (t: Throwable) => logger.error("there was a problem ", t)
           }
+
+
+
+
+//          val clientAction = json.extractOpt[Load].orElse(json.extractOpt[Decrypt].orElse(json.extractOpt[Pending]).orElse(json.extractOpt[Loaded]))
+//          clientAction match {
+//
+//            case Some(p: Pending) =>
+//              preIngestLoaderActor ! ListUnits(uuid)
+//
+//            case Some(Decrypt(_, UnitRef(uid), certificate, passphrase)) =>
+//              preIngestLoaderActor ! UpdateUnitDecryptDetail(username, uid, certificate, passphrase, Option(uuid))
+//
+//            case Some(l: Load) =>
+//              val parts = l.unit.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
+//              preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid), Option(preIngestLoaderActor))
+//
+//            case Some(Loaded(_, limit)) =>
+//              preIngestLoaderActor ! GetLoaded(limit)
+//
+//            case None =>
+//              error("Unknown Client Action!")
+//
+//            case _ => ???  // throw exception (should never be reached, but needed to keep compiler warning quiet
+//          }
        }
     }
   }

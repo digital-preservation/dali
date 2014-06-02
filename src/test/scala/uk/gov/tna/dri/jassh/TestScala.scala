@@ -1,5 +1,8 @@
 package uk.gov.tna.dri.jassh
 
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+
 import org.specs2.mutable.Specification
 import fr.janalyse.ssh._
 import scalax.file._
@@ -17,6 +20,40 @@ import uk.gov.tna.dri.preingest.loader.unit.network.RemoteStore
 class TestScala extends Specification {
 
   //private val settings = Settings(context.system)
+  "parse" should {
+    implicit val formats = DefaultFormats
+    case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
+    case class Address(street: String, city: String)
+    case class Person(name: String, address: Address, children: List[Child])
+    val json = parse("""
+         { "name": "joe",
+           "address": {
+             "street": "Bulevard",
+             "city": "Helsinki"
+           },
+           "children": [
+             {
+               "name": "Mary",
+               "age": 5,
+               "birthdate": "2004-09-04T18:06:22Z"
+             },
+             {
+               "name": "Mazy",
+               "age": 3
+             }
+           ]
+         }
+                            """)
+
+    val Person2 = json.extract[Person]
+    println(Person2)
+    "add two numbers" in {
+      1 + 1 mustEqual 2
+    }
+
+  }
+
+
 
   "simpleTest" should {
     "add two numbers" in {

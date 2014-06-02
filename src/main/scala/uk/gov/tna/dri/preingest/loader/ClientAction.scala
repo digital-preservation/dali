@@ -1,15 +1,14 @@
 package uk.gov.tna.dri.preingest.loader
 
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
+import uk.gov.tna.dri.preingest.loader.ClientAction.{Pending, Action}
 
 object ClientAction {
 
   abstract class Action(action: String)
 
   case class Pending(action: String) extends Action(action)
-
   case class Loaded(action: String, limit: Int) extends Action(action)
-
   case class Decrypt(action: String, unit: UnitRef, certificate: Option[String], passphrase: String) extends Action(action)
   case class UnitRef(uid: UnitUID)
 
@@ -18,4 +17,6 @@ object ClientAction {
   //case class LoadUnit(interface: String, src:String, label:String,  parts: Seq[TargetUnitPart])
   case class LoadUnit(uid: UnitUID, parts: Seq[TargetUnitPart])
   case class TargetUnitPart(unit: UnitUID, series: String, destination: String )
+
+  case class Actions(actions: Seq[Action])
 }

@@ -391,8 +391,9 @@ $(document).ready(function() {
     }
 
     //request initial unit status
-    subSocket.push(JSON.stringify({action: 'pending'}));
-    subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
+    //subSocket.push(JSON.stringify({action: 'pending'}));
+    //subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
+    subSocket.push(JSON.stringify({actions:[{ action: 'pending' },{ action: 'loaded', limit: 10 }]}));
 };
 
 
