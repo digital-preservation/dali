@@ -26,9 +26,9 @@ import org.scalatra.atmosphere.Error
 import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
 import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
 import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
-import javax.xml.bind.JAXBElement
-import uk.gov.nationalarchives.dri.ingest.{DriUnitType, DriUnitsType}
+import uk.gov.nationalarchives.dri.ingest.DriUnitType
 import scala.collection.mutable
+import uk.gov.tna.dri.preingest.loader.ClientAction.Action
 
 
 class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certificateManagerActor: ActorRef) extends ScalatraServlet
@@ -55,7 +55,6 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
     )
   }
 
-  import org.scalatra.ActionResult._
 
   get("/") {
     userPasswordAuth
@@ -141,30 +140,24 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
           //val username = user.username //TODO causes NPE at the moment
           val username = x.username //TODO fix above, this is a temp solution
 
-          import uk.gov.tna.dri.preingest.loader.ClientAction.{Decrypt, Pending, UnitRef, Load, Loaded, Actions}
+          import uk.gov.tna.dri.preingest.loader.ClientAction.{UnitRef, Actions}
           try{
             val clientActions = json.extract[Actions]
-            clientActions.actions.map(_ match {
-
-              case Pending(_) =>
-                preIngestLoaderActor ! ListUnits(uuid)
-
-              case Decrypt(_, UnitRef(uid), certificate, passphrase) =>
-                preIngestLoaderActor ! UpdateUnitDecryptDetail(username, uid, certificate, passphrase, Option(uuid))
-
-              case l: Load =>
-                val parts = l.unit.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
-                preIngestLoaderActor ! LoadUnit(username, l.unit.uid, parts, l.certificate, l.passphrase, Option(uuid), Option(preIngestLoaderActor))
-
-              case Loaded(_, limit) =>
-                preIngestLoaderActor ! GetLoaded(limit)
-
-              // case None =>
-              //   error("Unknown Client Action!")
-
-              case _ => ???  // throw exception (should never be reached, but needed to keep compiler warning quiet
-
-            })
+            clientActions.actions map {
+              a =>
+                a.action match {
+                  case("pending") =>
+                    preIngestLoaderActor ! ListUnits(uuid)
+                  case("decrypt") =>
+                    preIngestLoaderActor ! UpdateUnitDecryptDetail(username, a.unitRef.get.uid, a.certificate, a.passphrase.get, Option(uuid))
+                  case("load") =>
+                    val parts = a.loadUnit.get.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
+                    preIngestLoaderActor ! LoadUnit(username, a.loadUnit.get.uid, parts, a.certificate, a.passphrase, Option(uuid), Option(preIngestLoaderActor))
+                  case("loaded") =>
+                    preIngestLoaderActor ! GetLoaded(a.limit.get)
+                  //case(_) => ??? // throws exception (should never be reached, but needed to keep compiler warning quiet)
+              }
+            }
           } catch {
             case (t: Throwable) => logger.error("there was a problem ", t)
           }
