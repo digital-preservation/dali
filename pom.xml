@@ -131,10 +131,12 @@
             <artifactId>dri-catalogue-jms-client</artifactId>
             <version>1.33-SNAPSHOT</version>
         </dependency>
+
+        <!-- todo: migrate to a newer version of akka-->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor_2.10</artifactId>
-            <version>2.3.3</version>
+            <version>2.1.2</version>
         </dependency>
 
         <!-- Dependency for PGP and GPG Encryption-Decryption -->
