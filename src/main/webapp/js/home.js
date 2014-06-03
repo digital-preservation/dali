@@ -1,6 +1,7 @@
 var subSocket = null;
 
 var mPendingUnits = [];
+
 var mLoadedUnits = [];
 
 var mError = {
@@ -455,7 +456,7 @@ $(document).ready(function() {
              });
           }
           
-          // id this the loaded units?
+          // is this the loaded units?
           else if(json.loaded) {
             updateLoaded(function(model) {
                 $.each(json.loaded.unit, function(i, v) {

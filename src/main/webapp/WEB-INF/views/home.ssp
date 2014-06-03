@@ -100,7 +100,6 @@
                 </thead>
                 <tbody id="loadedUnits" ng-controller="LoadedUnitsCtrl">
                     <tr ng-repeat="loadedUnit in loadedUnits">
-                    <tr>
                         <td>{{loadedUnit.location}}</td>
                         <td>{{loadedUnit.label}}</td>
                         <td>{{loadedUnit.size}}</td>
