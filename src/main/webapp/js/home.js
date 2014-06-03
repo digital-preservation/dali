@@ -168,26 +168,28 @@ function doStartLoad(pendingUnit, cert, pass) {
   });
 
   subSocket.push(JSON.stringify({
-    action: 'load',
-    isHacky: true, //needed to disambiguate between decrypt and load messages on the server side
-    unit: {
-        uid: pendingUnit.uid,
-        parts: partsCpy
-    },
-    certificate: cert.name,
-    passphrase: pass
+    actions: [{
+        action: 'load',
+        unit: {
+            uid: pendingUnit.uid,
+            parts: partsCpy
+        },
+        certificate: cert.name,
+        passphrase: pass
+    }]
   }));
 };
 
 function decrypt(pendingUnit, cert, pass) {
-  subSocket.push(JSON.stringify({actions:[{
-
-    action: 'decrypt',
-    unitRef: {
-        uid: pendingUnit.uid
-    },
-    certificate: cert.name,
-    passphrase: pass }]
+  subSocket.push(JSON.stringify(
+    {actions:[{
+        action: 'decrypt',
+        unitRef: {
+            uid: pendingUnit.uid
+        },
+        certificate: cert.name,
+        passphrase: pass
+    }]
   })) ;
 };
 
@@ -397,8 +399,6 @@ $(document).ready(function() {
     }
 
     //request initial unit status
-    //subSocket.push(JSON.stringify({action: 'pending'}));
-    //subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
     subSocket.push(JSON.stringify({actions:[{ action: 'pending' },{ action: 'loaded', limit: 10 }]}));
 };
 
@@ -491,9 +491,8 @@ $(document).ready(function() {
                 if (json.progress.percentage == 100) {
                     model.nextDisabled = false;
                     model.nextText =  "Done >>";
-                    // update pending and loaded units
-                    subSocket.push(JSON.stringify({action: 'pending'}));
-                    subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
+                    // update pending and loaded units for display
+                    subSocket.push(JSON.stringify({actions:[{ action: 'pending' },{ action: 'loaded', limit: 10 }]}));
                 }
             });
           }
@@ -585,8 +584,5 @@ $(document).ready(function() {
   };
 
   subSocket = socket.subscribe(request);
-  
-  // if done here, Atmosphere may not yet have opened connection
-  // subSocket.push(JSON.stringify({action: 'loaded', limit: 10}));
 
 });
