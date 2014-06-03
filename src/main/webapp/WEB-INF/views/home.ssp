@@ -91,7 +91,6 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Location</th>
                         <th>Label</th>
                         <th>Size</th>
                         <th>Loaded</th>
@@ -100,7 +99,6 @@
                 </thead>
                 <tbody id="loadedUnits" ng-controller="LoadedUnitsCtrl">
                     <tr ng-repeat="loadedUnit in loadedUnits">
-                        <td>{{loadedUnit.location}}</td>
                         <td>{{loadedUnit.label}}</td>
                         <td>{{loadedUnit.size}}</td>
                         <td>{{loadedUnit.loaded}}</td>

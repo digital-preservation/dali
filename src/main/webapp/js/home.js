@@ -460,6 +460,7 @@ $(document).ready(function() {
           else if(json.loaded) {
             updateLoaded(function(model) {
                 $.each(json.loaded.unit, function(i, v) {
+                    v.loaded = toHumanTime(v.loaded);
                     model.push(v)
                 });
             });

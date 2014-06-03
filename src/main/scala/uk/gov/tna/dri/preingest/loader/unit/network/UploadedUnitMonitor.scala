@@ -15,7 +15,7 @@ import java.nio.charset.Charset
 case object ScheduledExecution
 
 //sent events
-case class PendingUploadedUnits(pending: List[PendingUnit])
+//case class PendingUploadedUnits(pending: List[PendingUnit])
 
 /**
  * UnitUID for an Uploaded file is a digest of the file
