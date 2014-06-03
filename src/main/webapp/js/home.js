@@ -170,7 +170,7 @@ function doStartLoad(pendingUnit, cert, pass) {
   subSocket.push(JSON.stringify({
     actions: [{
         action: 'load',
-        unit: {
+        loadUnit: {
             uid: pendingUnit.uid,
             parts: partsCpy
         },
