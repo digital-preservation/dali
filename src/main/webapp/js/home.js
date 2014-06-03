@@ -180,14 +180,15 @@ function doStartLoad(pendingUnit, cert, pass) {
 };
 
 function decrypt(pendingUnit, cert, pass) {
-  subSocket.push(JSON.stringify({
+  subSocket.push(JSON.stringify({actions:[{
+
     action: 'decrypt',
-    unit: {
+    unitRef: {
         uid: pendingUnit.uid
     },
     certificate: cert.name,
-    passphrase: pass
-  }));
+    passphrase: pass }]
+  })) ;
 };
 
 function updateCertsModel(http) {
