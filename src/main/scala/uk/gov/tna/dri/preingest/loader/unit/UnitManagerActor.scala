@@ -31,6 +31,7 @@ class UnitManagerActor extends Actor with Logging {
 
   private val uploadedUnitMonitor = context.actorOf(Props[UploadedUnitMonitor], name="UploadedUnitMonitor")
 
+
   import context.dispatcher
   import scala.concurrent.duration._
   context.system.scheduler.schedule(settings.Unit.uploadedScheduleDelay, settings.Unit.uploadedScheduleFrequency, uploadedUnitMonitor, ScheduledExecution)
@@ -54,17 +55,9 @@ class UnitManagerActor extends Actor with Logging {
 
 
     case UpdateUnitDecryptDetail(username, unitUid, certificate, passphrase, clientId) =>
-//      val unitActor = this.units(unitUid)
-//      if(unitActor.isInstanceOf[EncryptedDRIUnitActor[_ <: EncryptedDRIUnit]]) {
-//        unitActor ! UpdateDecryptDetail(username, sender, certificate, passphrase, clientId)
-//      } else {
-//        //cannot decrypt a non-encrypted unit, send error message to client
-//        sender ! UserProblemNotification(DECRYPT_NON_ENCRYPTED, clientId)
-//      }
-
-        val unitActor = this.units(unitUid)
-        info("UnitManagerActor UpdateUnitDecryptDetail clientId " + clientId + " unitUid " + unitUid + "unitActor " + unitActor )
-        unitActor ! UpdateDecryptDetail(username, sender, certificate, passphrase, clientId)
+      val unitActor = this.units(unitUid)
+      info("UnitManagerActor UpdateUnitDecryptDetail clientId " + clientId + " unitUid " + unitUid + "unitActor " + unitActor )
+      unitActor ! UpdateDecryptDetail(username, sender, certificate, passphrase, clientId)
 
 
     case RegisterUnit(unitId, unit) =>
@@ -74,14 +67,6 @@ class UnitManagerActor extends Actor with Logging {
       }
       info("UnitManagerActor RegisterUnit unitId " + unitId + " unit " + (unitId -> unit) )
 
-
-
-
-     //TODO  above will probably cope with update too!
-     //case UnitUpdated(unitId) =>
-     // listeners.map {
-     //   listeners(unitId) ! SendStatus(_)
-     // }
 
     case DeRegisterUnit(unitId) =>
       context.stop(units(unitId)) //shutdown the unit actor

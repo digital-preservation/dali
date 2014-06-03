@@ -82,6 +82,7 @@ object TrueCrypt extends Logging {
 
     //extracts mounted volumes from the list produced by the truecrypt list command
     val listLogger = new ProcessLogger {
+      //e.g. 1: /dev/sdb1 /dev/mapper/truecrypt1 -
       val TCListItemExtractor = """([0-9]+):\s([a-z0-9_\-/]+)\s([a-z0-9_\-/]+)\s([A-Za-z0-9_\-/]+)\s""".r
 
       val mountedVolumes = new mutable.ListBuffer[MountedVolume]

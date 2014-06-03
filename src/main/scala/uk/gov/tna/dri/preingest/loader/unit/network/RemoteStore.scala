@@ -1,28 +1,14 @@
 package uk.gov.tna.dri.preingest.loader.unit.network
 
 import fr.janalyse.ssh.{SSH, SSHOptions}
-import scalax.file.Path
-import scala.util.Properties._
 import scala.Some
 import fr.janalyse.ssh.SSHOptions
-import uk.gov.tna.dri.preingest.loader.util.RemotePath
 import java.text.SimpleDateFormat
 import scala.collection.mutable.ListBuffer
 import grizzled.slf4j.Logging
-import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
 
 object RemoteStore extends Logging {
-
-  var processing = false
-
-  def initProcessing(){
-    var processing = true
-  }
-
-  def cleanupProcessing(){
-    var processing = false
-  }
 
   def createOpt(host:String, user:String, sshPrivateFile:String, sshTimeout:Long) :SSHOptions =  {
     return SSHOptions(host, username = user, sshKeyFile = Some(sshPrivateFile), timeout = sshTimeout)
@@ -33,37 +19,38 @@ object RemoteStore extends Logging {
       sh=>
         //todo ld: move to ftp ls command
         val lsCommand = "ls --time-style='+%d-%m-%Y,%H:%M:%S' " + path + "/" + extension + " -l | awk ' { print $5, $6, $7  } '"
-        sh.execute(lsCommand).trim()
+
+        sh.executeAndTrimSplit(lsCommand)
     }
     parselsResult(ls)
   }
 
-  private def parselsResult(ls:String): List[RemotePath] = {
-    val tokens =  ls split ("""\s+""") toList
-    val f = new SimpleDateFormat("dd-MM-yyyy,kk:mm:ss")
-    var pathListBuffer = new ListBuffer[RemotePath]()
+  //extracts the list command results
+  private def parselsResult(files: Iterable[String]): List[RemotePath] = {
 
+    var pathListBuffer = new ListBuffer[RemotePath]()
+    //e.g. 1348 30-05-2014,14:12:31 /dri-upload/parts.zip.gpg
+    val TCListItemExtractor = """([0-9]+)\s([0-9]{2}-[0-9]{2}-[0-9]{4},[0-9]{2}:[0-9]{2}:[0-9]{2})\s(.+)""".r
+    val dateFormat = new SimpleDateFormat("dd-MM-yyyy,kk:mm:ss")
     var i = 0
     try {
-      for (i <- 0 until tokens.size / 3) {
-        val j = i * 3
-        val fileSize = tokens(j) toLong
-
-        val dateString = tokens(j + 1)
-        val d = f.parse(dateString)
-        val longMillis = d.getTime
-
-        val name = tokens(j + 2)
-
-        val rp = new RemotePath(name, fileSize, longMillis)
-        pathListBuffer += rp
+      files.foreach(lfile => {
+        val o: String = lfile
+        o match {
+          case TCListItemExtractor(fileSize, dateString, name) =>
+            val d = dateFormat.parse(dateString)
+            val longMillis = d.getTime
+            val rp = new RemotePath(name, fileSize.toLong, longMillis)
+            pathListBuffer += rp
+         case _ =>
+        }
       }
+    )
     }
     catch {
       case e: Exception =>
         warn ("Error parsing " + e.toString)
     }
-
     return pathListBuffer toList
   }
 

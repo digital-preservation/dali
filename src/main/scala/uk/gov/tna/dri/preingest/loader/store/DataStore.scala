@@ -64,10 +64,8 @@ object DataStore {
    *
    */
   def getTopParent(file:Path, mount:Path) : String = {
-    println("lddddddddddddddddddddddddddddddddd top parent file " + file.path + " mount " + mount.path)
     val relFile = file relativize mount
     val root = relFile.segments.head
-    println("lddd root " + root)
     return root
   }
 

@@ -6,11 +6,10 @@ import org.json4s.jackson.JsonMethods._
 import org.specs2.mutable.Specification
 import fr.janalyse.ssh._
 import scalax.file._
-import uk.gov.tna.dri.preingest.loader.util.RemotePath
 import java.text.SimpleDateFormat
 import scala.collection.mutable.ListBuffer
 import uk.gov.tna.dri.preingest.loader.Settings
-import uk.gov.tna.dri.preingest.loader.unit.network.RemoteStore
+import uk.gov.tna.dri.preingest.loader.unit.network.{RemotePath, RemoteStore}
 
 /**
  * Created by dev on 5/8/14.
@@ -141,6 +140,52 @@ class TestScala extends Specification {
 
        }
     }
+
+
+//    //list files
+//    "list files" in {
+//      SSH.shell(opts) {
+//        sh =>
+//          val dir = "/home/dev/test"
+//          val ls = sh.ls
+//            execute("ls --time-style='+%d-%m-%Y,%H:%M:%S'  -l "+ dir + " | awk ' { print $5, $6, $7  } '" ).trim()
+//          // I must convet this structure
+//          //0 May 13 14:05 loading
+//          //11 May 12 17:09 test2'
+//          //to a list of RemotePath
+//          val tokens =  ls split ("""\s+""") toList
+//          val f = new SimpleDateFormat("dd-MM-yyyy,kk:mm:ss")
+//          var pathListBuffer = new ListBuffer[RemotePath]()
+//
+//          var i = 0
+//          for (i <- 0 until tokens.size/3) {
+//            val j = i*3
+//            val filesize = tokens(j) toLong
+//            val dateString = tokens(j+1)
+//
+//            val d = f.parse(dateString)
+//            val longMillis = d.getTime
+//
+//            val name = tokens(j+2)
+//
+//            //info("file name " + name + " size " + filesize + "date " + longMillis)
+//
+//            val rp = new RemotePath(name, filesize, longMillis)
+//            pathListBuffer +=  rp
+//          }
+//
+//
+//
+//          val pathList = List( new RemotePath("/dri-upload/dummmy.gpgz", 0, 1399999489000L), new RemotePath("/dri-upload/a.gpgz", 11, 1399910957000L))
+//          val pathListLoading = List( new RemotePath("/dri-upload/a.gpgz", 0, 1399999489000L))
+//
+//          val plf =  pathList.filterNot(uu => pathListLoading.exists(_.name.equals(uu.name))).toList
+//
+//
+//          "loading" mustEqual "loading"
+//
+//      }
+//    }
 
     //get a file
     "get file" in {

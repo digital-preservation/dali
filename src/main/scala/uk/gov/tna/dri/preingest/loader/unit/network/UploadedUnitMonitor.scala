@@ -6,8 +6,7 @@ import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
 import uk.gov.tna.dri.preingest.loader.{Settings, Crypto}
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
-import uk.gov.tna.dri.preingest.loader.unit.network.RemoteStore
-import uk.gov.tna.dri.preingest.loader.util.RemotePath
+import uk.gov.tna.dri.preingest.loader.unit.network.{GlobalUtil, RemotePath, RemoteStore}
 import scalax.file.defaultfs.DefaultPath
 import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
@@ -33,7 +32,7 @@ class UploadedUnitMonitor extends Actor with Logging {
   def receive = {
 
     case ScheduledExecution =>
-      if (!RemoteStore.processing) {
+      if (!GlobalUtil.processing) {
 
         println("Looking for units ")
         val foundUnits = findRemoteUnits(settings.Unit.uploadedSource.path)
