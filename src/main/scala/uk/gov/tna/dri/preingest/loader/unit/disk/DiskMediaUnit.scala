@@ -60,16 +60,17 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
     }
   }
 
-  def updateDecryptDetail(username: String, passphrase: String) = updateDecryptDetail(username, None, passphrase)
+  //todo laura - no certificate
+  def updateDecryptDetail(username: String, passphrase: String) = ??? //updateDecryptDetail(username, , None, passphrase)
 
-  def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String) {
+  def updateDecryptDetail(username: String, listener: ActorRef, certificate: CertificateDetail, passphrase: String) {
     DataStore.withTemporaryFile(Option(certificate)) {
       cert =>
-        updateDecryptDetail(username, cert, passphrase)
+        updateDecryptDetail(username, listener, cert, passphrase)
     }
   }
 
-  private def updateDecryptDetail(username: String, certificate: Option[Path], passphrase: String) : Boolean = {
+  private def updateDecryptDetail(username: String, listener: ActorRef, certificate: Option[Path], passphrase: String) : Boolean = {
     TrueCryptedPartition.getVolumeLabel(settings, unit.src, certificate, passphrase).map {
       volumeLabel =>
 

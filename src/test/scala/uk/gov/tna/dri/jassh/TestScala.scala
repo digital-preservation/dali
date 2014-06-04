@@ -18,7 +18,7 @@ import uk.gov.tna.dri.preingest.loader.unit.network.{RemotePath, RemoteStore}
 
 class TestScala extends Specification {
 
-  //private val settings = Settings(context.system)
+ /* //private val settings = Settings(context.system)
   "parse" should {
     implicit val formats = DefaultFormats
     case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
@@ -51,7 +51,7 @@ class TestScala extends Specification {
     }
 
   }
-
+*/
 
 
   "simpleTest" should {
@@ -142,51 +142,6 @@ class TestScala extends Specification {
     }
 
 
-//    //list files
-//    "list files" in {
-//      SSH.shell(opts) {
-//        sh =>
-//          val dir = "/home/dev/test"
-//          val ls = sh.ls
-//            execute("ls --time-style='+%d-%m-%Y,%H:%M:%S'  -l "+ dir + " | awk ' { print $5, $6, $7  } '" ).trim()
-//          // I must convet this structure
-//          //0 May 13 14:05 loading
-//          //11 May 12 17:09 test2'
-//          //to a list of RemotePath
-//          val tokens =  ls split ("""\s+""") toList
-//          val f = new SimpleDateFormat("dd-MM-yyyy,kk:mm:ss")
-//          var pathListBuffer = new ListBuffer[RemotePath]()
-//
-//          var i = 0
-//          for (i <- 0 until tokens.size/3) {
-//            val j = i*3
-//            val filesize = tokens(j) toLong
-//            val dateString = tokens(j+1)
-//
-//            val d = f.parse(dateString)
-//            val longMillis = d.getTime
-//
-//            val name = tokens(j+2)
-//
-//            //info("file name " + name + " size " + filesize + "date " + longMillis)
-//
-//            val rp = new RemotePath(name, filesize, longMillis)
-//            pathListBuffer +=  rp
-//          }
-//
-//
-//
-//          val pathList = List( new RemotePath("/dri-upload/dummmy.gpgz", 0, 1399999489000L), new RemotePath("/dri-upload/a.gpgz", 11, 1399910957000L))
-//          val pathListLoading = List( new RemotePath("/dri-upload/a.gpgz", 0, 1399999489000L))
-//
-//          val plf =  pathList.filterNot(uu => pathListLoading.exists(_.name.equals(uu.name))).toList
-//
-//
-//          "loading" mustEqual "loading"
-//
-//      }
-//    }
-
     //get a file
     "get file" in {
       SSH.ftp(opts) {
@@ -200,29 +155,30 @@ class TestScala extends Specification {
     }
 
 
-    //scp a file
-    "scp  file" in {
-
-      val scpOb = new SSH(opts)
-
-      scpOb.scp {
-        scp=>
-          val remoteFile = "/home/dev/test/loading"
-          val localFile = "/tmp/loading/" + remoteFile.substring(remoteFile.lastIndexOf("/")+1)
-          scp.receive(remoteFile, localFile)
-          val file = new java.io.File(localFile)
-          file.exists mustEqual true
-      }
-
-
-    }
+//    //scp a file
+//    "scp  file" in {
+//
+//      val scpOb = new SSH(opts)
+//
+//      scpOb.scp {
+//        scp=>
+//          val remoteFile = "/home/dev/test/loading2"
+//          val localFile = "/tmp/" + remoteFile.substring(remoteFile.lastIndexOf("/")+1)
+//          scp.receive(remoteFile, localFile)
+//          val file = new java.io.File(localFile)
+//          file.exists mustEqual true
+//      }
+//
+//
+//    }
 
     //delete file
     "delete files" in {
       SSH.shell(opts) {
         sh =>
           val testedfile = "/home/dev/test/loading2"
-          Path.fromString(testedfile).delete()
+          val filesToDel = List(testedfile)
+          sh.rm(filesToDel)
           val fileExists = sh.exists(testedfile)
           fileExists mustEqual false
       }
