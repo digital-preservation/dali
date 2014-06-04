@@ -92,17 +92,15 @@
                 <thead>
                     <tr>
                         <th>Label</th>
-                        <th>Size</th>
+                        <th>Medium</th>
                         <th>Loaded</th>
-                        <th>Source</th>
                     </tr>
                 </thead>
                 <tbody id="loadedUnits" ng-controller="LoadedUnitsCtrl">
                     <tr ng-repeat="loadedUnit in loadedUnits">
                         <td>{{loadedUnit.label}}</td>
-                        <td>{{loadedUnit.size}}</td>
+                        <td>{{loadedUnit.medium}}</td>
                         <td>{{loadedUnit.loaded}}</td>
-                        <td>{{loadedUnit.source}}</td>
                     </tr>
                 </tbody>
             </table>

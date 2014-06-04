@@ -26,7 +26,7 @@ import org.scalatra.atmosphere.Error
 import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
 import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
 import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
-import uk.gov.nationalarchives.dri.ingest.DriUnitType
+import uk.gov.nationalarchives.dri.ingest.{MediaType, DriUnitType}
 import scala.collection.mutable
 
 
@@ -267,10 +267,25 @@ class PreIngestLoaderActor extends Actor with Logging {
        units.map {
          unit =>
            ("label" -> unit.getLabel) ~
-           ("loaded" -> unit.getLoaded.toGregorianCalendar.getTimeInMillis) ~
-           ("source" -> unit.getMedium)
+           ("medium" -> getMediaLabel(unit.getMedium)) ~
+           ("loaded" -> unit.getLoaded.toGregorianCalendar.getTimeInMillis)
        }
       )
     )
+
+  def getMediaLabel(media: MediaType): String = {
+    media match {
+      case MediaType.FILE_SYSTEM_FOLDER => "File system folder"
+      case MediaType.FLOPPY_DISK => "Floppy disk"
+      case MediaType.HARD_DRIVE => "Hard drive"
+      case MediaType.PGPZ_FILE => "PGPZ file"
+      case MediaType.PORTABLE_NVRAM => "Portable NVRAM"
+      case MediaType.TAPE => "Tape"
+      case MediaType.TAR_FILE => "TAR file"
+      case MediaType.TRUE_CRYPT_VOLUME_FILE => "TrueCrypt volume file"
+      case _ => media.value
+    }
+  }
+
 
 }
