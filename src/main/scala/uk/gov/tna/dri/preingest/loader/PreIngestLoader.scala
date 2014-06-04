@@ -266,7 +266,9 @@ class PreIngestLoaderActor extends Actor with Logging {
     ("unit" ->
        units.map {
          unit =>
-           ("label" -> unit.getLabel)
+           ("label" -> unit.getLabel) ~
+           ("loaded" -> unit.getLoaded.toGregorianCalendar.getTimeInMillis) ~
+           ("source" -> unit.getMedium)
        }
       )
     )

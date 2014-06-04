@@ -6,7 +6,7 @@ import scalax.file.Path
 
 
 object GPGCrypt extends Logging{
-  def decryptAndUnzip(filePathName: String, certificate: Option[Path], passphrase: String) {
+  def decryptAndUnzip(filePathName: String, certificate: Option[Path], passphrase: String): Int = {
     import scala.sys.process._
 
     val fileFolder = filePathName.substring(0, filePathName.lastIndexOf("/"))
@@ -39,7 +39,9 @@ object GPGCrypt extends Logging{
       )
 
 
+
     val gpgCode = decryptCmd.!
+
 
     if(gpgCode != 0) {
       error(s"Error code '$gpgCode' when executing: $decryptCmd")
@@ -60,10 +62,11 @@ object GPGCrypt extends Logging{
 
     val rmCode = cleanupCmd.!
 
-    if(unzipCode != 0) {
+    if(rmCode != 0) {
       error(s"Error code '$rmCode' when executing: $cleanupCmd")
     }
 
+    return gpgCode + unzipCode + rmCode
 
   }
 }

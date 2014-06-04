@@ -82,4 +82,13 @@ object RemoteStore extends Logging {
     }
   }
 
+
+  def deleteFile(opt:SSHOptions, delFile: String) {
+    SSH.shell(opt) {
+      sh =>
+          val filesToDel = List(delFile)
+          sh.rm(filesToDel)
+      }
+  }
+
 }

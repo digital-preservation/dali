@@ -72,7 +72,7 @@ trait EncryptedDRIUnitActor[T <: EncryptedDRIUnit] extends DRIUnitActor[T] {
 
     case WithCert(UpdateDecryptDetail(username, listener, _, passphrase, clientId), certificate) =>
       info("ld EncryptedDRIUnitActor withCert ")
-      updateDecryptDetail(username, certificate, passphrase)
+      updateDecryptDetail(username, listener, certificate, passphrase)
       info("sending status to self " + self + "status " + SendUnitStatus(listener, clientId))
       self ! SendUnitStatus(listener, clientId)
 
@@ -84,6 +84,6 @@ trait EncryptedDRIUnitActor[T <: EncryptedDRIUnit] extends DRIUnitActor[T] {
 
   //TODO copying should be moved into a different actor, otherwise this actor cannot respond to GetStatus requests whilst a copy is happening!
   def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String], unitManager: Option[ActorRef])
-  def updateDecryptDetail(username: String, passphrase: String)
-  def updateDecryptDetail(username: String, certificate: CertificateDetail, passphrase: String)
+  def updateDecryptDetail(username: String, passphrase: String )
+  def updateDecryptDetail(username: String, listener: ActorRef, certificate: CertificateDetail, passphrase: String)
 }
