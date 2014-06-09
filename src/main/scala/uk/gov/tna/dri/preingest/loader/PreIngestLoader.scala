@@ -150,8 +150,8 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
                   case("decrypt") =>
                     preIngestLoaderActor ! UpdateUnitDecryptDetail(username, a.unitRef.get.uid, a.certificate, a.passphrase.get, Option(uuid))
                   case("load") =>
-                    val parts = a.loadUnit.get.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
-                    preIngestLoaderActor ! LoadUnit(username, a.loadUnit.get.uid, parts, a.certificate, a.passphrase, Option(uuid), Option(preIngestLoaderActor))
+                    val parts = a.unit.get.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
+                    preIngestLoaderActor ! LoadUnit(username, a.unit.get.uid, parts, a.certificate, a.passphrase, Option(uuid), Option(preIngestLoaderActor))
                   case("loaded") =>
                     preIngestLoaderActor ! GetLoaded(a.limit.get)
                   //case(_) => ??? // throws exception (should never be reached, but needed to keep compiler warning quiet)
