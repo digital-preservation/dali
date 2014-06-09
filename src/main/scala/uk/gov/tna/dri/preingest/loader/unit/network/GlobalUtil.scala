@@ -17,7 +17,6 @@ object GlobalUtil {
 
   def cleanupProcessing(opts:SSHOptions, cleanupFile: String){
     var processing = false
-    //todo laura remove loading file
     RemoteStore.deleteFile(opts, cleanupFile)
 
   }

@@ -3,6 +3,7 @@ package uk.gov.tna.dri.preingest.loader.unit.network
 import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.SettingsImpl
 import scalax.file.Path
+import scala.sys.process.Process
 
 
 object GPGCrypt extends Logging{
@@ -12,46 +13,42 @@ object GPGCrypt extends Logging{
     val fileFolder = filePathName.substring(0, filePathName.lastIndexOf("/"))
     val fileNameNoGPGExtension = filePathName.substring(0, filePathName.lastIndexOf("gpg")-1)
 
+    certificate match {
+      case Some(certificate) => {
+        //gpg --allow-secret-key-import --import private.key
+
+        val importCertCmd = Seq(
+          "gpg",
+          "--allow-secret-key-import",
+          "--import",
+          certificate.path
+        )
+        executeCommand(importCertCmd)
+      }
+      case _ =>
+    }
+
+
+
     val decryptCmd = Seq(
       "gpg",
       "--batch",
       s"--output=$fileNameNoGPGExtension",
       s"--passphrase=$passphrase",
       "--decrypt",
-      filePathName) ++ (certificate match {
-      case Some(certificate) =>
-        //todo laura certificate
-//        Seq(
-//          s"--keyfiles=${certificate.path}"
-//        )
-        Nil
-      case None =>
-        Nil
-      case _ =>
-        Nil
-    })
+      filePathName)
+    val gpgCode =  executeCommand(decryptCmd)
 
     val unzipCmd = Seq(
       "unzip",
       "-u",
       s"-d$fileFolder",
       s"$fileNameNoGPGExtension"
-      )
+    )
 
+    // val t = unzipCmd.!
+    val unzipCode = executeCommand(unzipCmd)
 
-
-    val gpgCode = decryptCmd.!
-
-
-    if(gpgCode != 0) {
-      error(s"Error code '$gpgCode' when executing: $decryptCmd")
-    }
-
-    val unzipCode = unzipCmd.!
-
-    if(unzipCode != 0) {
-      error(s"Error code '$unzipCode' when executing: $unzipCmd")
-    }
 
     val cleanupCmd = Seq(
       "rm",
@@ -59,14 +56,17 @@ object GPGCrypt extends Logging{
       filePathName,
       fileNameNoGPGExtension
     )
+    val rmCode = executeCommand(cleanupCmd)
 
-    val rmCode = cleanupCmd.!
+    return gpgCode
+  }
 
-    if(rmCode != 0) {
-      error(s"Error code '$rmCode' when executing: $cleanupCmd")
+  private def executeCommand(command: Seq[String]): Int = {
+    import scala.sys.process._
+    val returnCode  = command.!
+    if (returnCode != 0) {
+      error(s"Error code '$returnCode' when executing: $command")
     }
-
-    return gpgCode + unzipCode + rmCode
-
+    returnCode
   }
 }

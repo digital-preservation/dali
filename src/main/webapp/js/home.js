@@ -57,7 +57,7 @@ function ErrorCtrl($scope) {
 //Controller for the Load modal dialog
 function LoadModalCtrl($scope, $http) {
     $scope.loadModal = mLoadModal;
-    
+
     updateCertsModel($http);
 
     $scope.uploadCertDialog = function() {
@@ -111,7 +111,7 @@ function LoadModalCtrl($scope, $http) {
     };
 /*
     $scope.startLoad = function () {
-    
+
         //disable the load button on the main dialog for the unit
         //TODO
 
@@ -170,7 +170,7 @@ function doStartLoad(pendingUnit, cert, pass) {
   subSocket.push(JSON.stringify({
     actions: [{
         action: 'load',
-        unit: {
+        loadUnit: {
             uid: pendingUnit.uid,
             parts: partsCpy
         },
@@ -456,7 +456,7 @@ $(document).ready(function() {
                  });
              });
           }
-          
+
           // is this the loaded units?
           else if(json.loaded) {
             updateLoaded(function(model) {
@@ -476,7 +476,7 @@ $(document).ready(function() {
                 });
             });
           }
-          
+
           // is this an error?
           else if(json.error) {
             console.log("Error processing unit [" + json.error.label + "] : " + json.error.message);

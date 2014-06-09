@@ -60,7 +60,6 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
     }
   }
 
-  //todo laura - no certificate
   def updateDecryptDetail(username: String, passphrase: String) = ??? //updateDecryptDetail(username, , None, passphrase)
 
   def updateDecryptDetail(username: String, listener: ActorRef, certificate: CertificateDetail, passphrase: String) {
@@ -77,7 +76,9 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
         //extract parts and orphaned files
         tempMountPoint(username, unit.src) match {
           case Left(ioe) =>
+            listener ! UnitError(unit, "Unable to decrypt data for unit: " + unit.uid)
             error(s"Unable to update decrypted detail for unit: ${unit.uid}", ioe)
+
             false
           case Right(tempMountPoint) =>
             val (dirs, files) = TrueCryptedPartition.listTopLevel(settings, unit.src, tempMountPoint, certificate, passphrase)(_.partition(_.isDirectory))

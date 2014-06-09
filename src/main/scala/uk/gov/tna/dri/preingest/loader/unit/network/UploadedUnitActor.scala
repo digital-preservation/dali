@@ -23,6 +23,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
   val opts  = RemoteStore.createOpt(settings.Unit.sftpServer, settings.Unit.username, settings.Unit.certificateFile, settings.Unit.timeout)
   var unit = UploadedUnit(uid, settings.Unit.uploadedInterface, settings.Unit.uploadedSource.path, unitPath.name, unitPath.size, unitPath.lastModified)
 
+
   //TODO copying should be moved into a different actor, otherwise this actor cannot respond to GetStatus requests
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], clientSender: Option[ActorRef]) {
     println("ld it should first copy the data in order to decrypt it ")
@@ -31,9 +32,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
   def copyData(username: String, parts: Seq[uk.gov.tna.dri.preingest.loader.unit.TargetedPart],certificate: (uk.gov.tna.dri.preingest.loader.certificate.CertificateName,
     uk.gov.tna.dri.preingest.loader.certificate.CertificateData),passphrase: Option[String],unitManager: Option[akka.actor.ActorRef]): Unit = {
       copyData(username, parts, unitManager)
-    //todo laura - verify
-      GlobalUtil.cleanupProcessing(opts, unit.src)
-    //todo laura - delete remote files
+      GlobalUtil.cleanupProcessing(opts, getLoadFile(unit.label))
   }
 
   private def getFileNameFromStringPath(absolutePath: String): String = {
@@ -50,7 +49,10 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
     //extract parts and orphaned files
     tempMountPoint(username, unit.label) match {
       case Left(ioe) =>
-        error(s"Unable to update decrypted detail for unit: ${unit.uid}", ioe)
+
+        GlobalUtil.cleanupProcessing(opts, getLoadFile(remoteFileName))
+        listener ! UnitError(unit, "Unable to decrypt data for unit: " + remoteFileName)
+        error(s"Unable to mount unit: ${unit.uid}", ioe)
 
       case Right(tempMountPointPath) =>
         val localFileName = tempMountPointPath.path +  "/" + getFileNameFromStringPath(remoteFileName)
@@ -106,4 +108,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
     val loadingExtension = settings.Unit.loadingExtension
     s"$fileName.$loadingExtension"
   }
+
+
+
 }
