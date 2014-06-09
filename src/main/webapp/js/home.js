@@ -461,8 +461,18 @@ $(document).ready(function() {
           else if(json.loaded) {
             updateLoaded(function(model) {
                 $.each(json.loaded.unit, function(i, v) {
-                    v.loaded = toHumanTime(v.loaded);
-                    model.push(v)
+                    //does the model already contain details of this unit?
+                    var unitExists = false;
+                    for(var i = 0; i < model.length; i++) {
+                        if(model[i].label == v.label) {
+                            unitExists = true;
+                            break;
+                        }
+                    }
+                    if(!unitExists) {
+                        v.loaded = toHumanTime(v.loaded);
+                        model.push(v)
+                    }
                 });
             });
           }
