@@ -68,6 +68,7 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
       var completed: Long = 0
 
       breakable {
+        val fileCount = files.size
         for (file <- files) {
 
           //match destination
@@ -91,7 +92,7 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
               }
             case Right(path) =>
               completed += file.size.getOrElse(0L)
-              val percentageDone = ((Math.ceil(completed.toDouble / total)) * 100).toInt
+              val percentageDone = Math.ceil((completed.toDouble / total) * 100).toInt
               trace(s"[{$percentageDone}%] Copied file: ${file.path}")
               if (percentageDone >= 100) {
                 info(s"Finished Copying Unit: ${parts.head.part.unitId}")
