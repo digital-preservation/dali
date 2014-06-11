@@ -418,6 +418,11 @@ $(document).ready(function() {
              updatePending(function(model) {
                 $.each(json.update.unit, function(i, v) {
 
+                     $.each(mLoadedUnits, function(i2, v2) {
+                        if(v.label == v2.label) {
+                            v.loadDisabled = true
+                        }
+                     });
                      //format for display
                      v.size = toHumanSize(v.size);
                      v.timestamp = toHumanTime(v.timestamp);
@@ -443,18 +448,19 @@ $(document).ready(function() {
 
              //update the unit detail part of the load modal dialog
              $.each(json.update.unit, function(i, v) {
-                 updateLoadModal(function(model) {
-                     if(v.uid == model.pendingUnit.uid) {
-                         model.pendingUnit = v;
-                         //has part discovery completed? if so disable decrypting message
-                         if(v.parts) {
-                             model.pendingUnit.parts = expandPendingUnitParts(v);
-                             model.decrypting = false;    //hide decrypting message
-                             model.nextDisabled = false;
-                         }
-                     }
-                 });
+                updateLoadModal(function(model) {
+                    if(v.uid == model.pendingUnit.uid) {
+                        model.pendingUnit = v;
+                        //has part discovery completed? if so disable decrypting message
+                        if(v.parts) {
+                            model.pendingUnit.parts = expandPendingUnitParts(v);
+                            model.decrypting = false;    //hide decrypting message
+                            model.nextDisabled = false;
+                        }
+                    }
+                });
              });
+             
           }
 
           // is this the loaded units?
@@ -475,6 +481,16 @@ $(document).ready(function() {
                     }
                 });
             });
+            updatePending(function(pendingUnits) {
+                $.each(pendingUnits, function(i,v) {
+                    $.each(json.loaded.unit, function(i2, v2) {
+                        if(v.label == v2.label) {
+                            //v.showComplete = true
+                            v.loadDisabled = true
+                        }
+                    });
+                });
+            });            
           }
 
           // is this an error?
@@ -501,9 +517,10 @@ $(document).ready(function() {
                 model.pendingUnit.percentageLoaded = json.progress.percentage;
                 if (json.progress.percentage == 100) {
                     model.nextDisabled = false;
-                    model.nextText =  "Done >>";
+                    model.nextText =  "Done";
                     // update pending and loaded units for display
-                    subSocket.push(JSON.stringify({actions:[{ action: 'pending' },{ action: 'loaded', limit: 10 }]}));
+                    //subSocket.push(JSON.stringify({actions:[{ action: 'pending' },{ action: 'loaded', limit: 10 }]}));
+                    subSocket.push(JSON.stringify({actions:[{ action: 'loaded', limit: 10 }]}));
                 }
             });
           }
