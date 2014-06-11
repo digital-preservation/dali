@@ -68,7 +68,9 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
       var completed: Long = 0
 
       breakable {
-        val fileCount = files.size
+
+        val fileIndex = files.toIndexedSeq
+
         for (file <- files) {
 
           //match destination
@@ -79,7 +81,7 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
           //add the label - e.g archive name
           val labelDestination = unit.label.substring(unit.label.lastIndexOf("/") + 1)
 
-           val destination =  settings.Unit.destination / Path.fromString(destLocation) / Path.fromString(labelDestination) / Path.fromString(file.relativize(mountPoint).path)
+          val destination =  settings.Unit.destination / Path.fromString(destLocation) / Path.fromString(labelDestination) / Path.fromString(file.relativize(mountPoint).path)
 
           copyFile(file, destination) match {
             case Left(ioe) =>
@@ -94,11 +96,15 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
               completed += file.size.getOrElse(0L)
               val percentageDone = Math.ceil((completed.toDouble / total) * 100).toInt
               trace(s"[{$percentageDone}%] Copied file: ${file.path}")
-              if (percentageDone >= 100) {
-                info(s"Finished Copying Unit: ${parts.head.part.unitId}")
-              }
               unitManager match {
-                case Some(sender) => sender ! UnitProgress(unit, parts, percentageDone)
+                case Some(sender) =>
+                  if((percentageDone >= 100) && (fileIndex.indexOf(file) == (files.size -1))) {
+                    info(s"Finished Copying Unit: ${parts.head.part.unitId}")
+                    sender ! UnitProgress(unit, parts, 100) // make sure we only send 100% once and not once for each file!
+                    break // we have reached 100% copied so there is nothing more to do here
+                  } else {
+                    sender ! UnitProgress(unit, parts, percentageDone)
+                  }
                 case None =>
               }
           }
