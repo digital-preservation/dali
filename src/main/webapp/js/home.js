@@ -40,6 +40,7 @@ function PendingUnitsCtrl($scope) {
         //update the model
         //reset to step 1 every time
         $('#LoadWizard').wizard('selectedItem', { step: 1 });
+        mLoadModal.nextDisabled = false;
 
         mLoadModal.pendingUnit = pendingUnit;
 
