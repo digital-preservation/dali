@@ -38,6 +38,9 @@ function PendingUnitsCtrl($scope) {
 
     $scope.loadDialog = function(pendingUnit) {
         //update the model
+        //reset to step 1 every time
+        $('#LoadWizard').wizard('selectedItem', { step: 1 });
+
         mLoadModal.pendingUnit = pendingUnit;
 
         //show the load modal
