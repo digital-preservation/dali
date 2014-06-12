@@ -63,10 +63,12 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
   def updateDecryptDetail(username: String, passphrase: String) = ??? //updateDecryptDetail(username, , None, passphrase)
 
   def updateDecryptDetail(username: String, listener: ActorRef, certificate: CertificateDetail, passphrase: String) {
-    DataStore.withTemporaryFile(Option(certificate)) {
+    val retCode = DataStore.withTemporaryFile(Option(certificate)) {
       cert =>
         updateDecryptDetail(username, listener, cert, passphrase)
     }
+    if (!retCode)
+      listener ! UnitError(unit, "Unable to decrypt data for unit ")
   }
 
   private def updateDecryptDetail(username: String, listener: ActorRef, certificate: Option[Path], passphrase: String) : Boolean = {
