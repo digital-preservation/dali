@@ -58,7 +58,7 @@ function ErrorCtrl($scope) {
 function LoadModalCtrl($scope, $http) {
     $scope.loadModal = mLoadModal;
 
-    updateCertsModel($http);
+    updateCertsModel($http); 
 
     $scope.uploadCertDialog = function() {
         //show the uploadCert modal
@@ -485,7 +485,6 @@ $(document).ready(function() {
                 $.each(pendingUnits, function(i,v) {
                     $.each(json.loaded.unit, function(i2, v2) {
                         if(v.label == v2.label) {
-                            //v.showComplete = true
                             v.loadDisabled = true
                         }
                     });
@@ -518,8 +517,7 @@ $(document).ready(function() {
                 if (json.progress.percentage == 100) {
                     model.nextDisabled = false;
                     model.nextText =  "Done";
-                    // update pending and loaded units for display
-                    //subSocket.push(JSON.stringify({actions:[{ action: 'pending' },{ action: 'loaded', limit: 10 }]}));
+                    // update loaded units for display
                     subSocket.push(JSON.stringify({actions:[{ action: 'loaded', limit: 10 }]}));
                 }
             });
