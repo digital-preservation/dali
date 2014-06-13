@@ -192,14 +192,15 @@ class PreIngestLoaderActor extends Actor with Logging {
         parts.map(p => {
           partIdType.setSeries(p.part.series)
           partIdType.setUnitId(p.part.unitId)
-          jmsClient.updateCataloguePartStatus("partLoadedTo"+Destination.invert(p.destination), partIdType, "")
+          val dest = Destination.invert(p.destination);
+          jmsClient.updateCataloguePartStatus("partLoadedTo" + dest, partIdType, "Part loaded to " + dest)
         })
         // update catalogue unit status
         val unitIdType = of.createUnitIdType
         // temporary hack: unit.uid is UUID, not a UnitId, need to add UnitId to units
         // in the meantime, retrieve it from the first part
         unitIdType.setUnitId(parts(0).part.unitId)
-        jmsClient.updateCatalogueUnitStatus("unitLoaded", unitIdType, "")
+        jmsClient.updateCatalogueUnitStatus("unitLoaded", unitIdType, "Unit loaded")
       }
     }
 
