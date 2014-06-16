@@ -23,6 +23,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
   val opts  = RemoteStore.createOpt(settings.Unit.sftpServer, settings.Unit.username, settings.Unit.certificateFile, settings.Unit.timeout)
   var unit = UploadedUnit(uid, settings.Unit.uploadedInterface, settings.Unit.uploadedSource.path, unitPath.name, unitPath.size, unitPath.lastModified)
 
+  val remoteFileName = s"""${unit.src}/${unitPath.name}.${settings.Unit.uploadedGpgZipFileExtension}"""
 
   //TODO copying should be moved into a different actor, otherwise this actor cannot respond to GetStatus requests
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], clientSender: Option[ActorRef]) {
@@ -35,14 +36,11 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
       GlobalUtil.cleanupProcessing(opts, getLoadFile(unit.label))
   }
 
-  private def getFileNameFromStringPath(absolutePath: String): String = {
-    absolutePath.substring(absolutePath.lastIndexOf("/")+1)
-  }
-
   //creates a file "loading" to mark progress, copies the file locally, decrypts it and send the unit.parts to review
   def updateDecryptDetail(username: String, listener:ActorRef, certificate: CertificateDetail, passphrase: String) {
 
-   val remoteFileName = unitPath.name
+    //val remoteFileName = s"""${unit.src}/${unitPath.name}.${settings.Unit.uploadedGpgZipFileExtension}"""
+
     //create load file, mark processing = true
     GlobalUtil.initProcessing(opts, getLoadFile(remoteFileName))
 
@@ -55,7 +53,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
         error(s"Unable to mount unit: ${unit.uid}", ioe)
 
       case Right(tempMountPointPath) =>
-        val localFileName = tempMountPointPath.path +  "/" + getFileNameFromStringPath(remoteFileName)
+        val localFileName = tempMountPointPath.path + "/"  + unitPath.name
         //copy the file locally
         info("ld receiving file " + remoteFileName + " and copying to " + localFileName)
         try {
@@ -95,7 +93,9 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
       case Left(ioe) =>
         error(s"Unable to copy data for unit: ${unit.uid}", ioe)
         unitManager match {
-          case Some(sender) =>  sender ! UnitError(unit, "Unable to copy data for unit:" + ioe.getMessage)
+          case Some(sender) =>
+            sender ! UnitError(unit, "Unable to copy data for unit! :" + ioe.getMessage)
+            GlobalUtil.cleanupProcessing(opts, getLoadFile(remoteFileName))
           case None =>
         }
 

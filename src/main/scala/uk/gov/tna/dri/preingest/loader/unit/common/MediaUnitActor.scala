@@ -39,6 +39,8 @@ trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
   protected def copyFile(file: Path, dest: Path) : Either[IOException, Path] = {
     try{
       Right(file.copyTo(dest, createParents = true, copyAttributes = true))
+      //laura todo - remove original file + loading
+
     } catch {
       case ioe: IOException =>
         Left(ioe)

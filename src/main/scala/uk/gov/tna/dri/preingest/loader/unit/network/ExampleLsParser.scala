@@ -9,8 +9,8 @@ import scala.util.parsing.combinator.RegexParsers
 object ExampleLsParserApp extends App {
 
 
-  val text = "dr-xr-xr-x    5 root     root         1024 Sep 12 16:54 with space.gpgz"
-  val text2 ="drwxr-xr-x    2 root     root         4096 Mar 23 2011  mnt.loading"
+  val text = "dr-xr-xr-x    5 root     root         1024 Sep 12 16:54 dri_upload/with space.gpgz"
+  val text2 ="drwxr-xr-x    2 root     root         4096 Mar 23 2011  dri_upload/alex/mnt.loading"
 
   //val text = "dr-xr-xr-x    5"
 
@@ -54,9 +54,11 @@ class ExampleLsParser extends RegexParsers {
       d
   }
 
-  def filename = ".+".r ^^ {
-    case n =>
-      n
+  def filename = """[^/].+""".r ^^ {
+    case name =>
+      var shortName = name.substring(name.lastIndexOf("/")+1, name.lastIndexOf("."))
+      val fileNameNoGPGExtension = s"$shortName.zip"
+      fileNameNoGPGExtension
   }
 
 
