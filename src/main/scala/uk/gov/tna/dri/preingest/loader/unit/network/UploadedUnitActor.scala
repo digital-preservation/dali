@@ -53,7 +53,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
         error(s"Unable to mount unit: ${unit.uid}", ioe)
 
       case Right(tempMountPointPath) =>
-        val localFileName = tempMountPointPath.path + "/"  + unitPath.name
+        val localFileName = tempMountPointPath.path + "/"  + unitPath.name + settings.Unit.uploadedGpgZipFileExtension
         //copy the file locally
         info("ld receiving file " + remoteFileName + " and copying to " + localFileName)
         try {
@@ -77,12 +77,15 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
         }
 
         //extract dirs and files info
-        val filesAndDirs = tempMountPointPath  * ((p: Path) => !isJunkFile(settings, p.name))
+        //add the unit folder
+
+        val partsLocationPath = tempMountPointPath / unit.label
+        val filesAndDirs = partsLocationPath * ((p: Path) => !isJunkFile(settings, p.name))
         val (dirs, files) = filesAndDirs.toSet.toSeq.partition(_.isDirectory)
 
         //update unit
         unit = this.unit.copy(parts = Option(dirs.map(_.name)), orphanedFiles = Option(files.map(_.name)))
-    }
+      }
   }
 
   def updateDecryptDetail(username: String,passphrase: String): Unit = ???
