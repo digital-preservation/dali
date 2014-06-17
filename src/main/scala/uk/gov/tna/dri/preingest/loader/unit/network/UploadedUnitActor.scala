@@ -9,16 +9,16 @@ import uk.gov.tna.dri.preingest.loader.certificate._
 import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.unit.network.{GlobalUtil, RemotePath, GPGCrypt, RemoteStore}
 import uk.gov.tna.dri.preingest.loader.store.DataStore
-import uk.gov.tna.dri.preingest.loader.unit.common.PhysicalMediaUnitActor
+import uk.gov.tna.dri.preingest.loader.unit.common.MediaUnitActor
 import uk.gov.tna.dri.preingest.loader.unit.common.unit.isJunkFile
 
 case class UploadedUnit(uid: UnitUID, interface: Interface, src: Source, label: Label, size: Bytes, timestamp: Milliseconds, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None)
-      extends EncryptedDRIUnit with PhysicalMediaUnit {
+      extends EncryptedDRIUnit with MediaUnit {
   def unitType = "Uploaded"
   override def humanId = label
 }
 
-class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) extends EncryptedDRIUnitActor[UploadedUnit] with PhysicalMediaUnitActor[UploadedUnit] with Logging{
+class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) extends EncryptedDRIUnitActor[UploadedUnit] with MediaUnitActor[UploadedUnit] with Logging{
 
   val opts  = RemoteStore.createOpt(settings.Unit.sftpServer, settings.Unit.username, settings.Unit.certificateFile, settings.Unit.timeout)
   var unit = UploadedUnit(uid, settings.Unit.uploadedInterface, settings.Unit.uploadedSource.path, unitPath.name, unitPath.size, unitPath.lastModified)
