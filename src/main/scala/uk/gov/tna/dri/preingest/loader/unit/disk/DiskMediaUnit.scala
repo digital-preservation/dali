@@ -14,9 +14,9 @@ import java.io.IOException
 import akka.actor.ActorRef
 import scala.util.control.Breaks._
 import grizzled.slf4j.Logger
-import uk.gov.tna.dri.preingest.loader.unit.common.PhysicalMediaUnitActor
+import uk.gov.tna.dri.preingest.loader.unit.common.MediaUnitActor
 
-trait PartitionUnit extends PhysicalMediaUnit {
+trait PartitionUnit extends MediaUnit {
   protected val partition: PartitionProperties
   protected val disk: DiskProperties
 
@@ -49,7 +49,7 @@ trait EncryptedPartitionUnit extends PartitionUnit with EncryptedDRIUnit
 case class TrueCryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends EncryptedPartitionUnit
 
 
-class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends PhysicalMediaUnitActor[TrueCryptedPartitionUnit] with EncryptedDRIUnitActor[TrueCryptedPartitionUnit] { //TODO consider subclassing PhysicalUnit
+class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends MediaUnitActor[TrueCryptedPartitionUnit] with EncryptedDRIUnitActor[TrueCryptedPartitionUnit] { //TODO consider subclassing PhysicalUnit
 
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef]): Unit = copyData(username, parts, None, passphrase, unitManager)
 
@@ -111,7 +111,7 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
 case class NonEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends PartitionUnit with NonEncryptedDRIUnit
 
 //TODO not yet implemented
-class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extends PhysicalMediaUnitActor[NonEncryptedPartitionUnit] {
+class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extends MediaUnitActor[NonEncryptedPartitionUnit] {
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef]) = ???
 }
 
