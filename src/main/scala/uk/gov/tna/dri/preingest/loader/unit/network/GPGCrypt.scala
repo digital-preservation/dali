@@ -10,8 +10,8 @@ object GPGCrypt extends Logging{
   def decryptAndUnzip(filePathName: String, certificate: Option[Path], passphrase: String): Int = {
     import scala.sys.process._
 
-    val fileFolder = filePathName.substring(0, filePathName.lastIndexOf("/"))
-    val fileNameNoGPGExtension = filePathName.substring(0, filePathName.lastIndexOf("gpg")-1)
+    //val fileFolder = filePathName.substring(0, filePathName.lastIndexOf("/"))
+    //val fileNameNoGPGExtension = filePathName.substring(0, filePathName.lastIndexOf("gpg")-1)
 
     certificate match {
       case Some(certificate) => {
@@ -29,11 +29,10 @@ object GPGCrypt extends Logging{
     }
 
 
-
     val decryptCmd = Seq(
       "gpg",
       "--batch",
-      s"--output=$fileNameNoGPGExtension",
+      s"--output=$filePathName",
       s"--passphrase=$passphrase",
       "--decrypt",
       filePathName)
@@ -42,8 +41,8 @@ object GPGCrypt extends Logging{
     val unzipCmd = Seq(
       "unzip",
       "-u",
-      s"-d$fileFolder",
-      s"$fileNameNoGPGExtension"
+      //s"-d$fileFolder",
+      s"$filePathName"
     )
 
     // val t = unzipCmd.!
@@ -54,7 +53,7 @@ object GPGCrypt extends Logging{
       "rm",
       "-f",
       filePathName,
-      fileNameNoGPGExtension
+      filePathName
     )
     val rmCode = executeCommand(cleanupCmd)
 
