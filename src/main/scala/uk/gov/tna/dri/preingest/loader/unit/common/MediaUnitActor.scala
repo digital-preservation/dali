@@ -73,42 +73,42 @@ trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
 
         val fileIndex = files.toIndexedSeq
 
+        val labelDestination = unit.label.substring(unit.label.lastIndexOf("/") + 1)
+
         for (file <- files) {
 
           //match destination
-          val root  = DataStore.getTopParent(file, mountPoint)
-          val pInd = parts.indexWhere{p => p.part.series == root }
-          val destLocation = Destination.invert(parts(pInd).destination)
+          val root = DataStore.getTopParent(file, mountPoint)
+          val pInd = parts.indexWhere { p => p.part.series == root}
+          val destLocations = Destination.invert(parts(pInd).destination)
 
-          //add the label - e.g archive name
-          val labelDestination = unit.label.substring(unit.label.lastIndexOf("/") + 1)
-
-          val destination =  settings.Unit.destination / Path.fromString(destLocation) / Path.fromString(labelDestination) / Path.fromString(file.relativize(mountPoint).path)
-
-          copyFile(file, destination) match {
-            case Left(ioe) =>
-              error(s"Unable to copy data for unit: ${unit.uid}", ioe)
-              unitManager match {
-                case Some(sender) =>
-                  sender ! UnitError(unit, "Unable to copy data for unit: " + ioe.getMessage)
-                  break // break on first error
-                case None => break // break on error
-              }
-            case Right(path) =>
-              completed += file.size.getOrElse(0L)
-              val percentageDone = Math.ceil((completed.toDouble / total) * 100).toInt
-              trace(s"[{$percentageDone}%] Copied file: ${file.path}")
-              unitManager match {
-                case Some(sender) =>
-                  if((percentageDone >= 100) && (fileIndex.indexOf(file) == (files.size -1))) {
-                    info(s"Finished Copying Unit: ${parts.head.part.unitId}")
-                    sender ! UnitProgress(unit, parts, 100) // make sure we only send 100% once and not once for each file!
-                    break // we have reached 100% copied so there is nothing more to do here
-                  } else {
-                    sender ! UnitProgress(unit, parts, percentageDone)
-                  }
-                case None =>
-              }
+          for (destLocation <- destLocations) {
+            val destination = settings.Unit.destination / Path.fromString(destLocation) / Path.fromString(labelDestination) / Path.fromString(file.relativize(mountPoint).path)
+            copyFile(file, destination) match {
+              case Left(ioe) =>
+                error(s"Unable to copy data for unit: ${unit.uid}", ioe)
+                unitManager match {
+                  case Some(sender) =>
+                    sender ! UnitError(unit, "Unable to copy data for unit: " + ioe.getMessage)
+                    break // break on first error
+                  case None => break // break on error
+                }
+              case Right(path) =>
+                completed += file.size.getOrElse(0L)
+                val percentageDone = Math.ceil((completed.toDouble / total) * 100).toInt
+                trace(s"[{$percentageDone}%] Copied file: ${file.path}")
+                unitManager match {
+                  case Some(sender) =>
+                    if ((percentageDone >= 100) && (fileIndex.indexOf(file) == (files.size - 1))) {
+                      info(s"Finished Copying Unit: ${parts.head.part.unitId}")
+                      sender ! UnitProgress(unit, parts, 100) // make sure we only send 100% once and not once for each file!
+                      break // we have reached 100% copied so there is nothing more to do here
+                    } else {
+                      sender ! UnitProgress(unit, parts, percentageDone)
+                    }
+                  case None =>
+                }
+            }
           }
         }
       }

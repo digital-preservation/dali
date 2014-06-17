@@ -15,10 +15,10 @@ object Destination extends Enumeration {
   val PreIngest = Value("Pre-Ingest")
   val Holding_Sandbox = Value("Holding + Sandbox")
   // FIXME there is surely a nicer way to do this?
-  def invert(value: Value): String = value.toString match {
-    case "Holding" => "Holding"
-    case "Pre-Ingest" => "PreIngest"
-    case "Holding + Sandbox" => "Holding_Sandbox"
+  def invert(value: Value): List[String] = value.toString match {
+    case "Holding" => List("Holding")
+    case "Pre-Ingest" => List("PreIngest")
+    case "Holding + Sandbox" => List("Holding", "Sandbox")
   }
 }
 

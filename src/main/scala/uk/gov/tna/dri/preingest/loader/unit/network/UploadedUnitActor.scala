@@ -39,8 +39,6 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
   //creates a file "loading" to mark progress, copies the file locally, decrypts it and send the unit.parts to review
   def updateDecryptDetail(username: String, listener:ActorRef, certificate: CertificateDetail, passphrase: String) {
 
-    //val remoteFileName = s"""${unit.src}/${unitPath.name}.${settings.Unit.uploadedGpgZipFileExtension}"""
-
     //create load file, mark processing = true
     GlobalUtil.initProcessing(opts, getLoadFile(remoteFileName))
 
@@ -103,7 +101,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
         }
 
       case Right(mountPoint) =>
-          copyFiles( parts, mountPoint,  unitManager)
+          copyFiles( parts, mountPoint / unit.label,  unitManager)
     }
   }
 
