@@ -15,7 +15,7 @@ import akka.actor.ActorRef
 import scala.util.control.Breaks._
 import grizzled.slf4j.Logger
 
-trait PhysicalMediaUnitActor[T <: PhysicalMediaUnit] extends DRIUnitActor[T] {
+trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
 
   protected def tempMountPoint(username: String, volume: String) : Either[IOException , Path] = {
     DataStore.userStore(settings, username) match {
