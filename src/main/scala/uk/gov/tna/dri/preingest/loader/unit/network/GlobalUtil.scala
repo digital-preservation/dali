@@ -18,6 +18,5 @@ object GlobalUtil {
   def cleanupProcessing(opts:SSHOptions, cleanupFile: String){
     processing = false
     RemoteStore.deleteFile(opts, cleanupFile)
-
   }
 }

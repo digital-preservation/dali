@@ -77,7 +77,7 @@ class UploadedUnitMonitor extends Actor with Logging {
     val processingUploadedUnits = RemoteStore.listFiles(opts, path, (s"*.${settings.Unit.uploadedGpgZipFileExtension}.loading"))
 
     //filter out the ones we are already processing
-    val filteredUnits = uploadedUnits.filterNot(uu => processingUploadedUnits.exists(_.name.equals(uu.name+".loading"))).toList
+    val filteredUnits = uploadedUnits.filterNot(uu => processingUploadedUnits.exists(_.name.equals(uu.name))).toList
 
     filteredUnits
   }
