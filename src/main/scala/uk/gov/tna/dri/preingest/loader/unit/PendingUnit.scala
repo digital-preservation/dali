@@ -16,10 +16,12 @@ object Destination extends Enumeration {
   val Holding_Sandbox = Value("Holding + Sandbox")
   // FIXME there is surely a nicer way to do this?
   def invert(value: Value): List[String] = value.toString match {
+    //at the moment catalogue supports only these sets (DriCataloguePreingestListener.java must be ammended to support others)
     case "Holding" => List("Holding")
     case "Pre-Ingest" => List("PreIngest")
     case "Holding + Sandbox" => List("Holding", "Sandbox")
   }
+
 }
 
 

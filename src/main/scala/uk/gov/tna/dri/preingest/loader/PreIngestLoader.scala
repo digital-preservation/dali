@@ -192,8 +192,9 @@ class PreIngestLoaderActor extends Actor with Logging {
         parts.map(p => {
           partIdType.setSeries(p.part.series)
           partIdType.setUnitId(p.part.unitId)
-          val dest = Destination.invert(p.destination);
-          jmsClient.updateCataloguePartStatus("partLoadedTo" + dest, partIdType, "Part loaded to " + dest)
+          val destString = getDestString(p)
+          logger.info("Updating catalog  partIdType  "+  partIdType + "loaded to " + destString)
+          jmsClient.updateCataloguePartStatus("partLoadedTo" + destString, partIdType, "Part loaded to " + destString)
         })
         // update catalogue unit status
         val unitIdType = of.createUnitIdType
@@ -288,5 +289,16 @@ class PreIngestLoaderActor extends Actor with Logging {
     }
   }
 
+  private def getDestString(p:TargetedPart): String = {
+    var destString = ""
+    val dest = Destination.invert(p.destination)
+    for (destLocation <- dest) {
+      destString = destString + destLocation + "_"
+    }
+    //remove "_" from the end
+    if (destString != "")
+      destString = destString.substring(0, destString.length-1)
+    return destString
+  }
 
 }
