@@ -254,4 +254,52 @@
         <!--</pluginRepository>-->
     </pluginRepositories>
 
+   <profiles>
+        <profile>
+            <!-- used with mvn -DreleaseProfiles=live-deploy release:perform to release to live -->
+            <id>live-deploy</id>
+            <distributionManagement>
+                <repository>
+                    <id>inf-live-nexus</id>
+                    <name>inf-live-nexus-releases</name>
+                    <url>http://localhost:8089/nexus/content/repositories/releases/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+
+	 <profile>
+            <!-- used with mvn -DreleaseProfiles=UAT-deploy release:perform to release to live -->
+            <id>UAT-deploy</id>
+            <distributionManagement>
+                <repository>
+                    <id>inf-uat-nexus</id>
+                    <name>inf-uat-nexus-releases</name>
+                    <url>http://localhost:8089/nexus/content/repositories/releases_uat/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+
+    </profiles>
+
+    <!-- used for Artifactory deployment - ensure settings.xml file has these repository ids in the servers section -->
+    <distributionManagement>
+        <repository>
+            <id>libs-release</id>
+            <name>libs-release</name>
+            <url>http://wb-d-tfs2.web.local:8081/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>libs-snapshot</id>
+            <name>libs-snapshot</name>
+            <url>http://wb-d-tfs2.web.local:8081/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+   <scm>
+         <connection>scm:git:ssh://git@dri-dev-scm1.web.local/dri-software/catalogue</connection> 
+         <developerConnection>scm:git:ssh://git@dri-dev-scm1.web.local/dri-software/catalogue.git</developerConnection> 
+         <url>https://dri-dev-scm1.web.local/dri-software/catalogue</url>
+      <tag>HEAD</tag>
+  </scm>
+
 </project>
