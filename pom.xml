@@ -119,7 +119,7 @@
         <dependency>
             <groupId>org.freedesktop.dbus</groupId>
             <artifactId>dbus-java</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -130,7 +130,13 @@
         <dependency>
             <groupId>uk.gov.tna.dri.catalogue</groupId>
             <artifactId>dri-catalogue-jms-client</artifactId>
-            <version>1.33-SNAPSHOT</version>
+            <version>1.33.10</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.tna.dri.catalogue</groupId>
+            <artifactId>dri-catalogue-schema</artifactId>
+            <version>1.33.10</version>
         </dependency>
 
         <!-- todo: migrate to a newer version of akka-->
@@ -268,8 +274,8 @@
         </profile>
 
 	 <profile>
-            <!-- used with mvn -DreleaseProfiles=UAT-deploy release:perform to release to live -->
-            <id>UAT-deploy</id>
+            <!-- used with mvn -DreleaseProfiles=uat-deploy release:perform to release to live -->
+            <id>uat-deploy</id>
             <distributionManagement>
                 <repository>
                     <id>inf-uat-nexus</id>
@@ -282,22 +288,22 @@
     </profiles>
 
     <!-- used for Artifactory deployment - ensure settings.xml file has these repository ids in the servers section -->
-    <distributionManagement>
-        <repository>
-            <id>libs-release</id>
-            <name>libs-release</name>
-            <url>http://wb-d-tfs2.web.local:8081/artifactory/libs-release-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>libs-snapshot</id>
-            <name>libs-snapshot</name>
-            <url>http://wb-d-tfs2.web.local:8081/artifactory/libs-snapshot-local</url>
-        </snapshotRepository>
-    </distributionManagement>
+      <distributionManagement>
+          <repository>
+               <id>wb-d-tfs2.web.local-releases</id>
+               <name>wb-d-tfs2.web.local-releases</name>
+               <url>http://wb-d-tfs2.web.local:8081/artifactory/libs-release-local</url>
+          </repository>
+          <snapshotRepository>
+               <id>wb-d-tfs2.web.local-snapshots</id>
+               <name>wb-d-tfs2.web.local-snapshots</name>
+               <url>http://wb-d-tfs2.web.local:8081/artifactory/libs-snapshot-local</url>
+          </snapshotRepository>
+     </distributionManagement>
 
    <scm>
-         <connection>scm:git:ssh://git@dri-dev-scm1.web.local/dri-software/catalogue</connection> 
-         <developerConnection>scm:git:ssh://git@dri-dev-scm1.web.local/dri-software/catalogue.git</developerConnection> 
+         <connection>scm:git:ssh://git@dri-dev-scm1.web.local/dri-software/unit-loader</connection> 
+         <developerConnection>scm:git:ssh://git@dri-dev-scm1.web.local:dri-software/unit-loader.git</developerConnection> 
          <url>https://dri-dev-scm1.web.local/dri-software/catalogue</url>
       <tag>HEAD</tag>
   </scm>
