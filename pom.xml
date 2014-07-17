@@ -302,9 +302,9 @@
      </distributionManagement>
 
    <scm>
-         <connection>scm:git:ssh://git@dri-dev-scm1.web.local/dri-software/unit-loader</connection> 
-         <developerConnection>scm:git:ssh://git@dri-dev-scm1.web.local:dri-software/unit-loader.git</developerConnection> 
-         <url>https://dri-dev-scm1.web.local/dri-software/catalogue</url>
+         <connection>scm:git:git@dri-dev-scm1.web.local:dri-software/unit-loader.git</connection> 
+         <developerConnection>scm:git:git@dri-dev-scm1.web.local:dri-software/unit-loader.git</developerConnection> 
+         <url>https://dri-dev-scm1.web.local/dri-software/unit-loader.git</url>
       <tag>HEAD</tag>
   </scm>
 
