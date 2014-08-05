@@ -11,14 +11,12 @@ object GlobalUtil {
   var processing = false
 
   def initProcessing(opts:SSHOptions, loadFile: String){
-    var processing = true
+    processing = true
     RemoteStore.createFile(opts, loadFile)
   }
 
   def cleanupProcessing(opts:SSHOptions, cleanupFile: String){
-    var processing = false
-    //todo laura remove loading file
+    processing = false
     RemoteStore.deleteFile(opts, cleanupFile)
-
   }
 }

@@ -18,7 +18,7 @@ import uk.gov.tna.dri.preingest.loader.unit.network.{RemotePath, RemoteStore}
 
 class TestScala extends Specification {
 
- /* //private val settings = Settings(context.system)
+ //private val settings = Settings(context.system)
   "parse" should {
     implicit val formats = DefaultFormats
     case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
@@ -45,13 +45,13 @@ class TestScala extends Specification {
                             """)
 
     val Person2 = json.extract[Person]
-    println(Person2)
-    "add two numbers" in {
+   // println(Person2)
+   "add two numbers" in {
       1 + 1 mustEqual 2
     }
 
   }
-*/
+
 
 
   "simpleTest" should {

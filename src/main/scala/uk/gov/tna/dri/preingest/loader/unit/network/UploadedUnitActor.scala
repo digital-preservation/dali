@@ -9,19 +9,21 @@ import uk.gov.tna.dri.preingest.loader.certificate._
 import grizzled.slf4j.Logging
 import uk.gov.tna.dri.preingest.loader.unit.network.{GlobalUtil, RemotePath, GPGCrypt, RemoteStore}
 import uk.gov.tna.dri.preingest.loader.store.DataStore
-import uk.gov.tna.dri.preingest.loader.unit.common.PhysicalMediaUnitActor
+import uk.gov.tna.dri.preingest.loader.unit.common.MediaUnitActor
 import uk.gov.tna.dri.preingest.loader.unit.common.unit.isJunkFile
 
 case class UploadedUnit(uid: UnitUID, interface: Interface, src: Source, label: Label, size: Bytes, timestamp: Milliseconds, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None)
-      extends EncryptedDRIUnit with PhysicalMediaUnit {
+      extends EncryptedDRIUnit with MediaUnit {
   def unitType = "Uploaded"
   override def humanId = label
 }
 
-class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) extends EncryptedDRIUnitActor[UploadedUnit] with PhysicalMediaUnitActor[UploadedUnit] with Logging{
+class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) extends EncryptedDRIUnitActor[UploadedUnit] with MediaUnitActor[UploadedUnit] with Logging{
 
   val opts  = RemoteStore.createOpt(settings.Unit.sftpServer, settings.Unit.username, settings.Unit.certificateFile, settings.Unit.timeout)
   var unit = UploadedUnit(uid, settings.Unit.uploadedInterface, settings.Unit.uploadedSource.path, unitPath.name, unitPath.size, unitPath.lastModified)
+
+  val remoteFileName = s"""${unit.src}/${unitPath.name}.${settings.Unit.uploadedGpgZipFileExtension}"""
 
   //TODO copying should be moved into a different actor, otherwise this actor cannot respond to GetStatus requests
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], clientSender: Option[ActorRef]) {
@@ -31,29 +33,25 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
   def copyData(username: String, parts: Seq[uk.gov.tna.dri.preingest.loader.unit.TargetedPart],certificate: (uk.gov.tna.dri.preingest.loader.certificate.CertificateName,
     uk.gov.tna.dri.preingest.loader.certificate.CertificateData),passphrase: Option[String],unitManager: Option[akka.actor.ActorRef]): Unit = {
       copyData(username, parts, unitManager)
-    //todo laura - verify
-      GlobalUtil.cleanupProcessing(opts, unit.src)
-    //todo laura - delete remote files
-  }
-
-  private def getFileNameFromStringPath(absolutePath: String): String = {
-    absolutePath.substring(absolutePath.lastIndexOf("/")+1)
+      GlobalUtil.cleanupProcessing(opts, getLoadFile(unit.label))
   }
 
   //creates a file "loading" to mark progress, copies the file locally, decrypts it and send the unit.parts to review
   def updateDecryptDetail(username: String, listener:ActorRef, certificate: CertificateDetail, passphrase: String) {
 
-   val remoteFileName = unitPath.name
     //create load file, mark processing = true
     GlobalUtil.initProcessing(opts, getLoadFile(remoteFileName))
 
     //extract parts and orphaned files
     tempMountPoint(username, unit.label) match {
       case Left(ioe) =>
-        error(s"Unable to update decrypted detail for unit: ${unit.uid}", ioe)
+
+        GlobalUtil.cleanupProcessing(opts, getLoadFile(remoteFileName))
+        listener ! UnitError(unit, "Unable to decrypt data for unit: " + remoteFileName)
+        error(s"Unable to mount unit: ${unit.uid}", ioe)
 
       case Right(tempMountPointPath) =>
-        val localFileName = tempMountPointPath.path +  "/" + getFileNameFromStringPath(remoteFileName)
+        val localFileName = tempMountPointPath.path + "/"  + unitPath.name + settings.Unit.uploadedGpgZipFileExtension
         //copy the file locally
         info("ld receiving file " + remoteFileName + " and copying to " + localFileName)
         try {
@@ -77,12 +75,15 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
         }
 
         //extract dirs and files info
-        val filesAndDirs = tempMountPointPath  * ((p: Path) => !isJunkFile(settings, p.name))
+        //add the unit folder
+
+        val partsLocationPath = tempMountPointPath / unit.label
+        val filesAndDirs = partsLocationPath * ((p: Path) => !isJunkFile(settings, p.name))
         val (dirs, files) = filesAndDirs.toSet.toSeq.partition(_.isDirectory)
 
         //update unit
         unit = this.unit.copy(parts = Option(dirs.map(_.name)), orphanedFiles = Option(files.map(_.name)))
-    }
+      }
   }
 
   def updateDecryptDetail(username: String,passphrase: String): Unit = ???
@@ -93,12 +94,14 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
       case Left(ioe) =>
         error(s"Unable to copy data for unit: ${unit.uid}", ioe)
         unitManager match {
-          case Some(sender) =>  sender ! UnitError(unit, "Unable to copy data for unit:" + ioe.getMessage)
+          case Some(sender) =>
+            sender ! UnitError(unit, "Unable to copy data for unit! :" + ioe.getMessage)
+            GlobalUtil.cleanupProcessing(opts, getLoadFile(remoteFileName))
           case None =>
         }
 
       case Right(mountPoint) =>
-          copyFiles( parts, mountPoint,  unitManager)
+          copyFiles( parts, mountPoint / unit.label,  unitManager)
     }
   }
 
@@ -106,4 +109,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
     val loadingExtension = settings.Unit.loadingExtension
     s"$fileName.$loadingExtension"
   }
+
+
+
 }

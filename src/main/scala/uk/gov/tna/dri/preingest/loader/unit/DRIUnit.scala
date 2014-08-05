@@ -80,6 +80,6 @@ trait EncryptedDRIUnit extends DRIUnit {
   val encrypted = true
 }
 
-trait PhysicalMediaUnit extends DRIUnit {
+trait MediaUnit extends DRIUnit {
   def humanId = src
 }

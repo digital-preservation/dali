@@ -34,13 +34,14 @@ object RemoteStore extends Logging {
     val dateFormat = new SimpleDateFormat("dd-MM-yyyy,kk:mm:ss")
     var i = 0
     try {
-      files.foreach(lfile => {
-        val o: String = lfile
+      files.foreach(file => {
+        val o: String = file
         o match {
           case TCListItemExtractor(fileSize, dateString, name) =>
             val d = dateFormat.parse(dateString)
             val longMillis = d.getTime
-            val rp = new RemotePath(name, fileSize.toLong, longMillis)
+            var shortName = name.substring(name.lastIndexOf("/")+1, name.indexOf("."))
+            val rp = new RemotePath(shortName, fileSize.toLong, longMillis)
             pathListBuffer += rp
          case _ =>
         }

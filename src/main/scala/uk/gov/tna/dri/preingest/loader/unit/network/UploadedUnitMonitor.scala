@@ -32,22 +32,24 @@ class UploadedUnitMonitor extends Actor with Logging {
   def receive = {
 
     case ScheduledExecution =>
-      if (!GlobalUtil.processing) {
 
-        println("Looking for units ")
-        val foundUnits = findRemoteUnits(settings.Unit.uploadedSource.path)
 
-        //additions
-        for (foundUnit <- foundUnits) {
-          val uid = unitnameUid(foundUnit.name)
-          if (!known.keySet.exists(p => unitnameUid(p.name) == uid)) {
-            this.known = known + (foundUnit -> uid)
-            val unitActor = context.actorOf(Props(new UploadedUnitActor(uid, foundUnit)))
-            context.parent ! RegisterUnit(uid, unitActor)
-            info("uploaded unit monitor registered a new uploaded unit " + foundUnit.name)
-          }
+     val foundUnits = findRemoteUnits(settings.Unit.uploadedSource.path)
+
+      //additions
+      for (foundUnit <- foundUnits) {
+        val uid = unitnameUid(foundUnit.name)
+        if (!known.keySet.exists(p => unitnameUid(p.name) == uid)) {
+          this.known = known + (foundUnit -> uid)
+          val unitActor = context.actorOf(Props(new UploadedUnitActor(uid, foundUnit)))
+          context.parent ! RegisterUnit(uid, unitActor)
+          info("uploaded unit monitor registered a new uploaded unit " + foundUnit.name)
         }
+      }
 
+      //processing is set while processing a unit, I don't want to substract it from knownUnits yet
+      //other machines will not discover it as it has the .loading file created
+      if (!GlobalUtil.processing) {
         //subtractions
         for (knownUnit <- this.known.keys) {
           //if(!foundUnits.contains(knownUnit)) {
@@ -77,7 +79,7 @@ class UploadedUnitMonitor extends Actor with Logging {
     val processingUploadedUnits = RemoteStore.listFiles(opts, path, (s"*.${settings.Unit.uploadedGpgZipFileExtension}.loading"))
 
     //filter out the ones we are already processing
-    val filteredUnits = uploadedUnits.filterNot(uu => processingUploadedUnits.exists(_.name.equals(uu.name+".loading"))).toList
+    val filteredUnits = uploadedUnits.filterNot(uu => processingUploadedUnits.exists(_.name.equals(uu.name))).toList
 
     filteredUnits
   }

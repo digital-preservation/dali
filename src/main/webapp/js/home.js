@@ -38,6 +38,10 @@ function PendingUnitsCtrl($scope) {
 
     $scope.loadDialog = function(pendingUnit) {
         //update the model
+        //reset to step 1 every time
+        $('#LoadWizard').wizard('selectedItem', { step: 1 });
+        mLoadModal.nextDisabled = false;
+
         mLoadModal.pendingUnit = pendingUnit;
 
         //show the load modal
@@ -57,8 +61,8 @@ function ErrorCtrl($scope) {
 //Controller for the Load modal dialog
 function LoadModalCtrl($scope, $http) {
     $scope.loadModal = mLoadModal;
-    
-    updateCertsModel($http);
+
+    updateCertsModel($http); 
 
     $scope.uploadCertDialog = function() {
         //show the uploadCert modal
@@ -111,7 +115,7 @@ function LoadModalCtrl($scope, $http) {
     };
 /*
     $scope.startLoad = function () {
-    
+
         //disable the load button on the main dialog for the unit
         //TODO
 
@@ -418,6 +422,11 @@ $(document).ready(function() {
              updatePending(function(model) {
                 $.each(json.update.unit, function(i, v) {
 
+                     $.each(mLoadedUnits, function(i2, v2) {
+                        if(v.label == v2.label) {
+                            v.loadDisabled = true
+                        }
+                     });
                      //format for display
                      v.size = toHumanSize(v.size);
                      v.timestamp = toHumanTime(v.timestamp);
@@ -443,30 +452,50 @@ $(document).ready(function() {
 
              //update the unit detail part of the load modal dialog
              $.each(json.update.unit, function(i, v) {
-                 updateLoadModal(function(model) {
-                     if(v.uid == model.pendingUnit.uid) {
-                         model.pendingUnit = v;
-                         //has part discovery completed? if so disable decrypting message
-                         if(v.parts) {
-                             model.pendingUnit.parts = expandPendingUnitParts(v);
-                             model.decrypting = false;    //hide decrypting message
-                             model.nextDisabled = false;
-                         }
-                     }
-                 });
+                updateLoadModal(function(model) {
+                    if(v.uid == model.pendingUnit.uid) {
+                        model.pendingUnit = v;
+                        //has part discovery completed? if so disable decrypting message
+                        if(v.parts) {
+                            model.pendingUnit.parts = expandPendingUnitParts(v);
+                            model.decrypting = false;    //hide decrypting message
+                            model.nextDisabled = false;
+                        }
+                    }
+                });
              });
+             
           }
-          
+
           // is this the loaded units?
           else if(json.loaded) {
             updateLoaded(function(model) {
                 $.each(json.loaded.unit, function(i, v) {
-                    v.loaded = toHumanTime(v.loaded);
-                    model.push(v)
+                    //does the model already contain details of this unit?
+                    var unitExists = false;
+                    for(var i = 0; i < model.length; i++) {
+                        if(model[i].label == v.label) {
+                            unitExists = true;
+                            break;
+                        }
+                    }
+                    if(!unitExists) {
+                        v.loaded = toHumanTime(v.loaded);
+                        model.push(v)
+                    }
                 });
             });
+            updatePending(function(pendingUnits) {
+                $.each(pendingUnits, function(i,v) {
+                    $.each(json.loaded.unit, function(i2, v2) {
+                        if(v.label == v2.label) {
+                            v.loadDisabled = true
+                        }
+                    });
+                });
+            });            
           }
-          
+
           // is this an error?
           else if(json.error) {
             console.log("Error processing unit [" + json.error.label + "] : " + json.error.message);
@@ -491,9 +520,9 @@ $(document).ready(function() {
                 model.pendingUnit.percentageLoaded = json.progress.percentage;
                 if (json.progress.percentage == 100) {
                     model.nextDisabled = false;
-                    model.nextText =  "Done >>";
-                    // update pending and loaded units for display
-                    subSocket.push(JSON.stringify({actions:[{ action: 'pending' },{ action: 'loaded', limit: 10 }]}));
+                    model.nextText =  "Done";
+                    // update loaded units for display
+                    subSocket.push(JSON.stringify({actions:[{ action: 'loaded', limit: 10 }]}));
                 }
             });
           }

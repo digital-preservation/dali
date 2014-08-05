@@ -26,7 +26,7 @@ import org.scalatra.atmosphere.Error
 import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
 import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
 import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
-import uk.gov.nationalarchives.dri.ingest.DriUnitType
+import uk.gov.nationalarchives.dri.ingest.{MediaType, DriUnitType}
 import scala.collection.mutable
 
 
@@ -150,8 +150,8 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
                   case("decrypt") =>
                     preIngestLoaderActor ! UpdateUnitDecryptDetail(username, a.unitRef.get.uid, a.certificate, a.passphrase.get, Option(uuid))
                   case("load") =>
-                    val parts = a.loadUnit.get.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
-                    preIngestLoaderActor ! LoadUnit(username, a.loadUnit.get.uid, parts, a.certificate, a.passphrase, Option(uuid), Option(preIngestLoaderActor))
+                    val parts = a.unit.get.parts.map(p => TargetedPart(Destination.withName(p.destination), Part(p.unit, p.series)))
+                    preIngestLoaderActor ! LoadUnit(username, a.unit.get.uid, parts, a.certificate, a.passphrase, Option(uuid), Option(preIngestLoaderActor))
                   case("loaded") =>
                     preIngestLoaderActor ! GetLoaded(a.limit.get)
                   //case(_) => ??? // throws exception (should never be reached, but needed to keep compiler warning quiet)
@@ -192,14 +192,16 @@ class PreIngestLoaderActor extends Actor with Logging {
         parts.map(p => {
           partIdType.setSeries(p.part.series)
           partIdType.setUnitId(p.part.unitId)
-          jmsClient.updateCataloguePartStatus("partLoadedTo"+Destination.invert(p.destination), partIdType, "")
+          val destString = getDestString(p)
+          logger.info("Updating catalog  partIdType  "+  partIdType + "loaded to " + destString)
+          jmsClient.updateCataloguePartStatus("partLoadedTo" + destString, partIdType, "Part loaded to " + destString)
         })
         // update catalogue unit status
         val unitIdType = of.createUnitIdType
         // temporary hack: unit.uid is UUID, not a UnitId, need to add UnitId to units
         // in the meantime, retrieve it from the first part
         unitIdType.setUnitId(parts(0).part.unitId)
-        jmsClient.updateCatalogueUnitStatus("unitLoaded", unitIdType, "")
+        jmsClient.updateCatalogueUnitStatus("unitLoaded", unitIdType, "Unit loaded")
       }
     }
 
@@ -267,10 +269,36 @@ class PreIngestLoaderActor extends Actor with Logging {
        units.map {
          unit =>
            ("label" -> unit.getLabel) ~
-           ("loaded" -> unit.getLoaded.toGregorianCalendar.getTimeInMillis) ~
-           ("source" -> unit.getMedium)
+           ("medium" -> getMediaLabel(unit.getMedium)) ~
+           ("loaded" -> unit.getLoaded.toGregorianCalendar.getTimeInMillis)
        }
       )
     )
+
+  def getMediaLabel(media: MediaType): String = {
+    media match {
+      case MediaType.FILE_SYSTEM_FOLDER => "File system folder"
+      case MediaType.FLOPPY_DISK => "Floppy disk"
+      case MediaType.HARD_DRIVE => "Hard drive"
+      case MediaType.PGPZ_FILE => "PGPZ file"
+      case MediaType.PORTABLE_NVRAM => "Portable NVRAM"
+      case MediaType.TAPE => "Tape"
+      case MediaType.TAR_FILE => "TAR file"
+      case MediaType.TRUE_CRYPT_VOLUME_FILE => "TrueCrypt volume file"
+      case _ => media.value
+    }
+  }
+
+  private def getDestString(p:TargetedPart): String = {
+    var destString = ""
+    val dest = Destination.invert(p.destination)
+    for (destLocation <- dest) {
+      destString = destString + destLocation + "_"
+    }
+    //remove "_" from the end
+    if (destString != "")
+      destString = destString.substring(0, destString.length-1)
+    return destString
+  }
 
 }
