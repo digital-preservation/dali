@@ -112,7 +112,18 @@ trait LDAPUserManager extends AuthManager[String, User] with Logging {
    *
    * @return Some(dn) or None if the user cannot be found in LDAP
    */
-  private def findUserDN(ldap: LDAPConnection, userName: String): Option[String] = ldapSearch(ldap, ldapUserFilter(userName), Seq(settings.Auth.ldapUserAttributeDN)).flatMap(_.get(settings.Auth.ldapUserAttributeDN).map(_.getValue))
+  private def findUserDN(ldap: LDAPConnection, userName: String): Option[String] = {
+    // ldap directories are not guaranteed to have the DN stored explicitly as an attribute. Active Directory does, ns-slapd (by default) doesn't
+    // It may be possible to force ns-slapd to do this; in the meantime, here is a hack: assume that the ldapUserAttributeDN is actually the distinguishing field of the
+    // DN (cn for ActiveDirectory, uid for ns-slapd) and append the ldapSearchBase to it. If one day this hack is not needed, just return the Option from the ldapSearch
+    // GS 20140807
+    ldapSearch(ldap, ldapUserFilter(userName), Seq(settings.Auth.ldapUserAttributeDN)).flatMap(_.get(settings.Auth.ldapUserAttributeDN).map(_.getValue)) match {
+      case None => None
+      case Some(dn) =>
+        Some(settings.Auth.ldapUserAttributeDN + "=" + dn + "," + settings.Auth.ldapSearchBase)
+    }
+  }
+
 
   /**
    * Gets a User from LDAP
