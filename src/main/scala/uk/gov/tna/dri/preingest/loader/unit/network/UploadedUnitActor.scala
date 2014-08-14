@@ -21,9 +21,10 @@ case class UploadedUnit(uid: UnitUID, interface: Interface, src: Source, label: 
 class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) extends EncryptedDRIUnitActor[UploadedUnit] with MediaUnitActor[UploadedUnit] with Logging{
 
   val opts  = RemoteStore.createOpt(settings.Unit.sftpServer, settings.Unit.username, settings.Unit.certificateFile, settings.Unit.timeout)
-  var unit = UploadedUnit(uid, settings.Unit.uploadedInterface, settings.Unit.uploadedSource.path, unitPath.name, unitPath.size, unitPath.lastModified)
+  var unit = UploadedUnit(uid, settings.Unit.uploadedInterface, settings.Unit.uploadedSource.path, unitPath.uniqueName, unitPath.fileSize, unitPath.lastModified)
 
-  val remoteFileName = s"""${unit.src}/${unitPath.name}.${settings.Unit.uploadedGpgZipFileExtension}"""
+  //val remoteFileName = s"""${unit.src}/${unitPath.name}.${settings.Unit.uploadedGpgZipFileExtension}"""
+  val remoteFileName = s"""${unit.src}/${unitPath.path}"""
 
   //TODO copying should be moved into a different actor, otherwise this actor cannot respond to GetStatus requests
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], clientSender: Option[ActorRef]) {
@@ -51,7 +52,7 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
         error(s"Unable to mount unit: ${unit.uid}", ioe)
 
       case Right(tempMountPointPath) =>
-        val localFileName = tempMountPointPath.path + "/"  + unitPath.name + settings.Unit.uploadedGpgZipFileExtension
+        val localFileName = tempMountPointPath.path + "/"  + unitPath.uniqueName + settings.Unit.uploadedGpgZipFileExtension
         //copy the file locally
         info("ld receiving file " + remoteFileName + " and copying to " + localFileName)
         try {

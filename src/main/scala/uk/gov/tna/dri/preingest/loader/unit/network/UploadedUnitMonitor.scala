@@ -38,12 +38,12 @@ class UploadedUnitMonitor extends Actor with Logging {
 
       //additions
       for (foundUnit <- foundUnits) {
-        val uid = unitnameUid(foundUnit.name)
-        if (!known.keySet.exists(p => unitnameUid(p.name) == uid)) {
+        val uid = unitnameUid(foundUnit.uniqueName)
+        if (!known.keySet.exists(p => unitnameUid(p.uniqueName) == uid)) {
           this.known = known + (foundUnit -> uid)
           val unitActor = context.actorOf(Props(new UploadedUnitActor(uid, foundUnit)))
           context.parent ! RegisterUnit(uid, unitActor)
-          info("uploaded unit monitor registered a new uploaded unit " + foundUnit.name)
+          info("uploaded unit monitor registered a new uploaded unit " + foundUnit.uniqueName)
         }
       }
 
@@ -53,8 +53,8 @@ class UploadedUnitMonitor extends Actor with Logging {
         //subtractions
         for (knownUnit <- this.known.keys) {
           //if(!foundUnits.contains(knownUnit)) {
-          val uid = unitnameUid(knownUnit.name)
-          if (!foundUnits.exists(p => unitnameUid(p.name) == uid)) {
+          val uid = unitnameUid(knownUnit.uniqueName)
+          if (!foundUnits.exists(p => unitnameUid(p.uniqueName) == uid)) {
             context.parent ! DeRegisterUnit(this.known(knownUnit))
             this.known = known.filterNot(kv => kv._1 == knownUnit)
           }
@@ -79,7 +79,7 @@ class UploadedUnitMonitor extends Actor with Logging {
     val processingUploadedUnits = RemoteStore.listFiles(opts, path, (s"*.${settings.Unit.uploadedGpgZipFileExtension}.loading"))
 
     //filter out the ones we are already processing
-    val filteredUnits = uploadedUnits.filterNot(uu => processingUploadedUnits.exists(_.name.equals(uu.name))).toList
+    val filteredUnits = uploadedUnits.filterNot(uu => processingUploadedUnits.exists(_.uniqueName.equals(uu.uniqueName))).toList
 
     filteredUnits
   }
