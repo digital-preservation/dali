@@ -47,7 +47,7 @@ class UploadedUnitMonitor extends Actor with Logging {
         }
       }
 
-      //processing is set while processing a unit, I don't want to substract it from knownUnits yet
+      //processing is set while processing a unit, I don't want to subtract it from knownUnits yet
       //other machines will not discover it as it has the .loading file created
       if (!GlobalUtil.processing) {
         //subtractions
@@ -76,7 +76,7 @@ class UploadedUnitMonitor extends Actor with Logging {
     }
 
     val uploadedUnits = RemoteStore.listFiles(opts, path, (s"*.${settings.Unit.uploadedGpgZipFileExtension}"))
-    val processingUploadedUnits = RemoteStore.listFiles(opts, path, (s"*.${settings.Unit.uploadedGpgZipFileExtension}.loading"))
+    val processingUploadedUnits = RemoteStore.listFiles(opts, path, (s"*.${settings.Unit.uploadedGpgZipFileExtension}.${settings.Unit.loadingExtension}"))
 
     //filter out the ones we are already processing
     val filteredUnits = uploadedUnits.filterNot(uu => processingUploadedUnits.exists(_.uniqueName.equals(uu.uniqueName))).toList

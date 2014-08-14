@@ -19,7 +19,8 @@ object RemoteStore extends Logging {
       sh =>
         // %u=username, %f=filename, %s=filesize, %A@= unix timestamp, %P=full path minus ${path}
         // send 'access denied' errors to /dev/null
-        val findCommand = s"""find ${path} -iname "*.${extension}" -printf  "%u %f %s %A@ %P\n" 2>/dev/null"""
+        //val findCommand = s"""'find $path -name "$extension" -printf  "%u %f %s %A@ %P"'"""
+        val findCommand = s"""find $path -name "$extension" -printf  "%u %f %s %A@ %P\n""""
         sh.executeAndTrimSplit(findCommand)
     }
     parseFindResultFiles(found)
@@ -30,8 +31,8 @@ object RemoteStore extends Logging {
     // expected input to regex has format:
     //  djclipsham gpg.tar.gpg 1174072 1406037709.0000000000 djclipsham/chroot/add_files_here/gpg.tar.gpg
     // need to extract:
-    // djclipsham gpg.tar 1174072 1406037709  djclipsham/chroot/add_files_here/gpg.tar.gpg
-    val fileDetailsExtractor = """^(\w+)\s([^\s]+)\.[^\.]+\s(\d+)\s(\d+)\.\d+\s([^\s]+)\s*$""".r
+    // djclipsham, gpg.tar, 1174072, 1406037709,  djclipsham/chroot/add_files_here/gpg.tar.gpg
+    val fileDetailsExtractor = """^(\w+)\s([^\s]+)\.[^\s]+\s(\d+)\s(\d+)\.\d+\s([^\s]+)\s*$""".r
     files.foreach(fileDetails => {
       fileDetails match {
         case fileDetailsExtractor(username, filename, filesize, timestamp, path)  =>

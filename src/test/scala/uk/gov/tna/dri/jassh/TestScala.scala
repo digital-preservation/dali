@@ -55,7 +55,7 @@ class TestScala extends Specification {
 
     //list files
     "list files" in {
-       val pathList = RemoteStore.listFiles(opts, "/home/dev/gitlab/dri-software/unit-loader/src/test", "gpg")
+       val pathList = RemoteStore.listFiles(opts, "/home/dev/gitlab/dri-software/unit-loader/src/test", "*.gpg")
 
        pathList(0).path mustEqual "resources/test.gpg"
 
