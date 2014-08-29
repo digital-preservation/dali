@@ -29,14 +29,14 @@ object RemoteStore extends Logging {
   private def parseFindResultFiles(files: Iterable[String]): List[RemotePath] = {
     var pathListBuffer = new ListBuffer[RemotePath]()
     // expected input to regex has format:
-    //  djclipsham gpg.tar.gpg 1174072 1406037709.0000000000 djclipsham/chroot/add_files_here/gpg.tar.gpg
+    //  djclipsham 210.tgz.gpg 1174072 1406037709.0000000000 djclipsham/chroot/add_files_here/gpg.tar.gpg
     // need to extract:
-    // djclipsham, gpg.tar, 1174072, 1406037709,  djclipsham/chroot/add_files_here/gpg.tar.gpg
-    val fileDetailsExtractor = """^(\w+)\s([^\s]+)\.[^\s]+\s(\d+)\s(\d+)\.\d+\s([^\s]+)\s*$""".r
+    // djclipsham, 210 1174072, 1406037709,  djclipsham/chroot/add_files_here/gpg.tar.gpg
+    val fileDetailsExtractor = """^(\w+)\s([^\.]+)\.[^\s]+\s(\d+)\s(\d+)\.\d+\s([^\s]+)\s*$""".r
     files.foreach(fileDetails => {
       fileDetails match {
         case fileDetailsExtractor(username, filename, filesize, timestamp, path)  =>
-          pathListBuffer += new RemotePath(username + "_" + timestamp + "_"  + filename, username, filename, filesize.toLong, timestamp.toLong, path)
+          pathListBuffer += new RemotePath(username, filename, filesize.toLong, timestamp.toLong, path)
         case _ =>
       }
     })
