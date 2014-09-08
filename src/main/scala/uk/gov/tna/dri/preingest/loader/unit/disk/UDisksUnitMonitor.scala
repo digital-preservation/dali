@@ -8,6 +8,7 @@ import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.{DeviceAdded, DeviceRemoved}
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DeviceFile, PartitionProperties, DiskProperties}
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
+import scalax.file.Path
 
 class UDisksUnitMonitor extends Actor with Logging {
 
@@ -18,7 +19,7 @@ class UDisksUnitMonitor extends Actor with Logging {
   var knownPartitions = Map.empty[DeviceFile, UnitUID]
 
   override def preStart() {
-    //get initial devices
+    //get initial devices (eg /dev/sda1: permanent partitions)
     udisks.getAttachedDevices()
   }
 
@@ -42,6 +43,9 @@ class UDisksUnitMonitor extends Actor with Logging {
       findDisk(partitionProperties) match {
 
         case Some(diskProperties) =>
+          // if it's not mounted, assume its because its encrypted. When a usb device is plugged in, dbus alerts
+          // the OS to mount it. If the OS takes longer than unit.manager.uploaded-check-schedule.delay, this test
+          // may incorrectly assume a device is encrypted.
           val (unit, unitActor) = if(!partitionProperties.lvmDevice && partitionProperties.mounted.isEmpty) {
             val unit = new TrueCryptedPartitionUnit(partitionProperties, diskProperties)
             (unit, () => new TrueCryptedPartitionUnitActor(unit))
@@ -50,7 +54,6 @@ class UDisksUnitMonitor extends Actor with Logging {
             (unit, () => new NonEncryptedPartitionUnitActor(unit))
           }
 
-          //val unitActorRef = context.actorOf(Props(unitActor.getClass))
           val unitActorRef = context.actorOf(Props(unitActor))
           this.knownPartitions += (partitionProperties.deviceFile -> unit.uid)
           context.parent ! RegisterUnit(unit.uid, unitActorRef)
