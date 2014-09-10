@@ -24,7 +24,9 @@ class UDisksMonitor(settings: SettingsImpl, udisksMonitor: ActorRef) extends Log
   dbus.addSigHandler(classOf[UDeviceAdded], new DBusSigHandler[UDeviceAdded] {
     def handle(event: UDeviceAdded) {
       val path = extractString(event.getWireData()(2))
-
+      //FIXME hack to allow gvfs-mount or similar to try mounting device before reading properties
+      // On my dev machine, 5 seconds is not enough, 30 seems always ok
+      Thread.sleep(settings.DBus.udisksMountDelay.toLong)
       val props = getProperties(event.getSource, path, classOf[Device])
       val sProps = getStoreProperties(props)
 

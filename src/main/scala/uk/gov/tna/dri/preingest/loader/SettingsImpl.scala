@@ -75,6 +75,7 @@ class SettingsImpl(config: Config) extends Extension {
   object DBus {
     val udisksBusName = config.getString("unit-loader.dbus.udisks.bus-name")
     val udisksPath = config.getString("unit-loader.dbus.udisks.path")
+    val udisksMountDelay = config.getString("unit-loader.dbus.udisks.mount-delay")
     val udisksIgnoreDevices = config.getStringList("unit-loader.dbus.udisks.ignore-devices").asScala.map(_.r)
   }
 
