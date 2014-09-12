@@ -38,8 +38,15 @@ function PendingUnitsCtrl($scope) {
 
     $scope.loadDialog = function(pendingUnit) {
         //update the model
-        //reset to step 1 every time
-        $('#LoadWizard').wizard('selectedItem', { step: 1 });
+        // skip decryption step if not needed
+        if (pendingUnit.encryptedUnit)
+            $('#LoadWizard').wizard('selectedItem', { step: 1 });
+        else {
+            pendingUnit.parts = expandPendingUnitParts(pendingUnit);
+            pendingUnit.decrypting = false;    //hide decrypting message
+            pendingUnit.nextDisabled = false;
+            $('#LoadWizard').wizard('selectedItem', { step: 2 });
+        }
         mLoadModal.nextDisabled = false;
 
         mLoadModal.pendingUnit = pendingUnit;
@@ -75,12 +82,16 @@ function LoadModalCtrl($scope, $http) {
       if(selected == 1) {
         //changed "Decrypt" -> "Review Unit"
 
-        //instruct the server to decrypt the unit
-        decrypt(mLoadModal.pendingUnit, mLoadModal.cert, mLoadModal.passphrase);
+        //instruct the server to decrypt the unit if needed
+        if (mloadModal.pendingUnit.encrypted) {
+            decrypt(mLoadModal.pendingUnit, mLoadModal.cert, mLoadModal.passphrase);
 
-        //show waiting for decrypt
-        mLoadModal.decrypting = true;
-        mLoadModal.nextDisabled = true;
+            //show waiting for decrypt
+            mLoadModal.decrypting = true;
+            mLoadModal.nextDisabled = true;
+        } else {
+            selected = 2;
+        }
       }
 
       //$('#LoadWizard').wizard('selectItem', { step: selectedIdx + 1 });
@@ -467,7 +478,7 @@ $(document).ready(function() {
              
           }
 
-          // is this the loaded units?
+          // is this the previously loaded units?
           else if(json.loaded) {
             updateLoaded(function(model) {
                 $.each(json.loaded.unit, function(i, v) {
