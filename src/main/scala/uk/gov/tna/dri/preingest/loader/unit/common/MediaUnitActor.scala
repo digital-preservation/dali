@@ -7,13 +7,14 @@ import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionPro
 import scalax.file.{PathSet, Path}
 import scalax.file.PathMatcher.IsFile
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
-import uk.gov.tna.dri.preingest.loader.Crypto
+import uk.gov.tna.dri.preingest.loader.{SettingsImpl, Crypto}
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
 import java.io.IOException
 import akka.actor.ActorRef
 import scala.util.control.Breaks._
 import grizzled.slf4j.Logger
+import uk.gov.tna.dri.preingest.loader.unit.disk.{PartitionUnit, NonEncryptedPartitionUnit}
 
 trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
 

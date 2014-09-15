@@ -8,7 +8,7 @@ object ClientAction {
   case class TargetUnitPart(unit: UnitUID, series: String, destination: String )
   case class LoadUnit(uid: UnitUID, parts: Seq[TargetUnitPart])
   case class Actions(actions: List[Action])
-  case class Action(action: String, limit: Option[Int], unitRef: Option[UnitRef], unit: Option[LoadUnit], certificate: Option[String], passphrase: Option[String])
+  case class Action(action: String, limit: Option[Int], unitRef: Option[UnitRef], loadUnit: Option[LoadUnit], certificate: Option[String], passphrase: Option[String])
 
 }
 

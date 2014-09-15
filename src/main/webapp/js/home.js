@@ -42,7 +42,10 @@ function PendingUnitsCtrl($scope) {
         if (pendingUnit.encryptedUnit)
             $('#LoadWizard').wizard('selectedItem', { step: 1 });
         else {
-            pendingUnit.parts = expandPendingUnitParts(pendingUnit);
+            // prevent re-expansion following cancel of load
+            if (typeof pendingUnit.parts[0] === 'string') {
+                pendingUnit.parts = expandPendingUnitParts(pendingUnit);
+            }
             pendingUnit.decrypting = false;    //hide decrypting message
             pendingUnit.nextDisabled = false;
             $('#LoadWizard').wizard('selectedItem', { step: 2 });
@@ -80,7 +83,6 @@ function LoadModalCtrl($scope, $http) {
       var selected = $('#LoadWizard').wizard('selectedItem').step;
 
       if(selected == 1) {
-        //changed "Decrypt" -> "Review Unit"
 
         //instruct the server to decrypt the unit if needed
         if (mloadModal.pendingUnit.encrypted) {
@@ -93,8 +95,6 @@ function LoadModalCtrl($scope, $http) {
             selected = 2;
         }
       }
-
-      //$('#LoadWizard').wizard('selectItem', { step: selectedIdx + 1 });
 
       else if (selected == 2) {
         mLoadModal.decrypting = false;
@@ -124,53 +124,17 @@ function LoadModalCtrl($scope, $http) {
 
       $('#LoadWizard').wizard('next');
     };
-/*
-    $scope.startLoad = function () {
-
-        //disable the load button on the main dialog for the unit
-        //TODO
-
-        //send message to initiate load
-        doStartLoad(mLoadModal.pendingUnit, mLoadModal.cert, mLoadModal.passphrase);
-
-        //hide the load button for this unit and show the progress bar for the load
-        updatePending(function(model) {
-            $.each(model, function(i, v) {
-                if(v.src == mLoadModal.pendingUnit.src) {
-                    v.showComplete = true;
-                }
-            });
-        });
-
-        //close modal dialog
-        $('#loadModal').modal('hide');
-
-        //reset dialog
-        mLoadModal.nextDisabled = false; // re-enable for next time
-    };
-*/
-    // Taken from https://coderwall.com/p/ngisma - but disabled as seems to cause other problems!
-    /*$scope.safeApply = function(fn) {
-        var phase = this.$root.$$phase;
-        if(phase == '$apply' || phase == '$digest') {
-            if(fn && (typeof(fn) === 'function')) {
-                fn();
-            }
-        } else {
-            this.$apply(fn);
-        }
-    }; */
 }
 
 function expandPendingUnitParts(pendingUnit) {
   var parts = [];
   var unitName = pendingUnit.label;
   $.each(pendingUnit.parts, function(i, v) {
-    parts.push({
-      unit: unitName,
-      series: v,
-      destination: ''
-    });
+     parts.push({
+        unit: unitName,
+        series: v,
+        destination: ''
+     });
   });
   return parts;
 }
@@ -181,18 +145,29 @@ function doStartLoad(pendingUnit, cert, pass) {
   $.each(partsCpy, function(i, v) {
     delete v.$$hashKey;
   });
-
-  subSocket.push(JSON.stringify({
-    actions: [{
-        action: 'load',
+  if (pendingUnit.encrypted) {
+    subSocket.push(JSON.stringify({
+        actions: [{
+            action: 'loadEncrypted',
+            loadUnit: {
+                uid: pendingUnit.uid,
+                parts: partsCpy
+            },
+            certificate: cert.name,
+            passphrase: pass
+        }]
+      }))
+  } else {
+    subSocket.push(JSON.stringify({
+      actions: [{
+        action: 'loadUnencrypted',
         loadUnit: {
-            uid: pendingUnit.uid,
-            parts: partsCpy
-        },
-        certificate: cert.name,
-        passphrase: pass
-    }]
-  }));
+          uid: pendingUnit.uid,
+          parts: partsCpy
+        }
+      }]
+    }));
+  }
 };
 
 function decrypt(pendingUnit, cert, pass) {

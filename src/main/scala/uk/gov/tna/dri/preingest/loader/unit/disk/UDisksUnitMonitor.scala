@@ -44,7 +44,7 @@ class UDisksUnitMonitor extends Actor with Logging {
 
         case Some(diskProperties) =>
           // if it's not mounted, assume its because its encrypted. When a usb device is plugged in, dbus alerts
-          // the OS to mount it. If the OS takes longer than unit.manager.uploaded-check-schedule.delay, this test
+          // gvfs-mount to mount it. If gvfs-mount takes longer than dbus.udisks.mount-delay, this test
           // may incorrectly assume a device is encrypted.
           val (unit, unitActor) = if(!partitionProperties.lvmDevice && partitionProperties.mounted.isEmpty) {
             val unit = new TrueCryptedPartitionUnit(partitionProperties, diskProperties)

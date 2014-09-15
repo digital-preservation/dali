@@ -140,15 +140,18 @@ class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extend
   }
 
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef]) {
-    tempMountPoint(username, unit.partition.deviceFile) match {
-      case Left(ioe) =>
-        error(s"Unable to copy data for unit: ${unit.uid}", ioe)
+
+    // we use the mountpoint created by the OS, not needing a new local one
+    unit.partition.mounted match {
+      case Some(mountPointList) => {
+        val mountPoint = scalax.file.Path.fromString(mountPointList.head)
+        copyFiles( parts, mountPoint, unitManager)
+      }
+      case None =>
         unitManager match {
-          case Some(sender) =>  sender ! UnitError(unit, "Unable to copy data for unit:" + ioe.getMessage)
+          case Some(sender) =>  sender ! UnitError(unit, "Unable to find mountpoint for unit: ${unit.uid}")
           case None =>
         }
-      case Right(mountPoint) =>
-        copyFiles( parts, mountPoint,  unitManager)
     }
   }
 }
