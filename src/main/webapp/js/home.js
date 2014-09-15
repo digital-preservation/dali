@@ -102,17 +102,16 @@ function LoadModalCtrl($scope, $http) {
         //hide the load button and show the progress bar for the load
         mLoadModal.loading = true;
         mLoadModal.nextDisabled = true;
-      }
-/*
+
         updatePending(function(model) {
           $.each(model, function(i, v) {
             if(v.src == mLoadModal.pendingUnit.src) {
                 v.showComplete = true;
             }
-          }
-        }
+          })
+        });
+      }
 
-*/
         //reset dialog
       else if (selected == 3) {
         mLoadModal.nextDisabled = false; // re-enable for next time
