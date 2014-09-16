@@ -32,11 +32,17 @@ trait DRIUnitActor[T <: DRIUnit] extends ComposableActor with Logging {
     //below case statement is for non certificate-encrypted units, certificate encrypted units
     //are handled in EncryptedDRIUnitActor
     case Load(username, parts, None, passphrase, clientId, unitManager) => //TODO specific client!
+      // test for fixity if requested
+      parts.foreach {
+         p => if (p.fixity)
+           fixityCheck(username, p, passphrase, unitManager)
+      }
       copyData(username, parts, passphrase, unitManager)
   }
 
   //TODO copying should be moved into a different actor, otherwise this actor cannot respond to GetStatus requests whilst a copy is happening!
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef])
+  def fixityCheck(username: String, part: TargetedPart, passphrase: Option[String], unitManager: Option[ActorRef])
 }
 
 case class WithCert(reply: Any, certificate: CertificateDetail)
@@ -86,4 +92,5 @@ trait EncryptedDRIUnitActor[T <: EncryptedDRIUnit] extends DRIUnitActor[T] {
   def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String], unitManager: Option[ActorRef])
   def updateDecryptDetail(username: String, passphrase: String )
   def updateDecryptDetail(username: String, listener: ActorRef, certificate: CertificateDetail, passphrase: String)
+  def fixityCheck(username: String, part: TargetedPart, passphrase: Option[String], unitManager: Option[ActorRef])
 }

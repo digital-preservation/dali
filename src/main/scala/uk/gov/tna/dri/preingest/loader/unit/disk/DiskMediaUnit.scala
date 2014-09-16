@@ -61,6 +61,11 @@ case class TrueCryptedPartitionUnit(partition: PartitionProperties, disk: DiskPr
 
 class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends MediaUnitActor[TrueCryptedPartitionUnit] with EncryptedDRIUnitActor[TrueCryptedPartitionUnit] { //TODO consider subclassing PhysicalUnit
 
+  //TODO stub
+  def fixityCheck(username: String, part: TargetedPart, passphrase: Option[String], unitManager: Option[ActorRef]) {
+
+  }
+
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef]): Unit = copyData(username, parts, None, passphrase, unitManager)
 
   def copyData(username: String, parts: Seq[TargetedPart], certificate: CertificateDetail, passphrase: Option[String], unitManager: Option[ActorRef]): Unit = {
@@ -118,6 +123,7 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
     }
   }
 
+
 case class NonEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends PartitionUnit with NonEncryptedDRIUnit
 
 
@@ -137,6 +143,10 @@ class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extend
     import uk.gov.tna.dri.preingest.loader.unit.common.unit.isJunkFile
     val files = mount * ((p: Path) => !isJunkFile(settings, p.name))
     f(files.toSet.toSeq)
+  }
+  //TODO fill in stub
+  def fixityCheck(username: String, part: TargetedPart, passphrase: Option[String], unitManager: Option[ActorRef]) {
+    info("In the fixity check")
   }
 
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef]) {

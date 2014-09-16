@@ -23,6 +23,8 @@ case class GetLoaded(limit: Int)
 case class LoadUnit(username: String, unitUid: UnitUID, parts: Seq[TargetedPart], certificate: Option[String], passphrase: Option[String], clientId: Option[String], unitManager: Option[ActorRef])
 case class UpdateUnitDecryptDetail(username: String, uid: UnitUID, certificate: Option[String], passphrase: String, clientId: Option[String] = None)
 case class UpdateDecryptDetail(username: String, listener: ActorRef, certificate: Option[String], passphrase: String, clientId: Option[String])
+case class UpdateUnitDecryptMethod(username: String, uid: UnitUID, method: String, clientId: Option[String] = None)
+case class UpdateDecryptMethod(username: String, listener: ActorRef, method: String, clientId: Option[String])
 case class UserProblemNotification(errorMsg: UserErrorMessage, clientId: Option[String])
 
 class UnitManagerActor extends Actor with Logging {
@@ -53,11 +55,17 @@ class UnitManagerActor extends Actor with Logging {
       this.units.values.map(_ ! SendUnitStatus(sender, Option(clientId)))
       info("UnitManagerActor listUnits clientId" + clientId)
 
-
+    // route a decrypt request to the correct Actor
     case UpdateUnitDecryptDetail(username, unitUid, certificate, passphrase, clientId) =>
       val unitActor = this.units(unitUid)
       info("UnitManagerActor UpdateUnitDecryptDetail clientId " + clientId + " unitUid " + unitUid + "unitActor " + unitActor )
       unitActor ! UpdateDecryptDetail(username, sender, certificate, passphrase, clientId)
+
+    // route a change in decryption method to the correct Actor
+    case UpdateUnitDecryptMethod(username, unitUid, method, clientId) =>
+      val unitActor = this.units(unitUid)
+      info("UnitManagerActor UpdateUnitDecryptMethod clientId " + clientId + " unitUid " + unitUid + "unitActor " + unitActor )
+      unitActor ! UpdateDecryptMethod(username, sender, method, clientId)
 
 
     case RegisterUnit(unitId, unit) =>
@@ -66,6 +74,7 @@ class UnitManagerActor extends Actor with Logging {
         unit ! SendUnitStatus(_)
       }
       info("UnitManagerActor RegisterUnit unitId " + unitId + " unit " + (unitId -> unit) )
+
 
 
     case DeRegisterUnit(unitId) =>

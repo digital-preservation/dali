@@ -132,7 +132,8 @@ function expandPendingUnitParts(pendingUnit) {
      parts.push({
         unit: unitName,
         series: v,
-        destination: ''
+        destination: '',
+        fixity: false
      });
   });
   return parts;

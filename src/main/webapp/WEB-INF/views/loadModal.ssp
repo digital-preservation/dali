@@ -57,6 +57,7 @@
                                 <tr>
                                     <th>Series Part</th>
                                     <th>Destination</th>
+                                    <th>Fixity check</th>
                                 </tr>
                             </thead>
                             <tbody id="pendingUnits"">
@@ -67,6 +68,7 @@
                                             <option value="">-- select destination --</option>
                                         </select>
                                     </td>
+                                    <td><input type="checkbox" ng-model="p.fixity"/></td>
                                 </tr>
                             </tbody>
                         </table>

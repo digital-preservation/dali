@@ -24,4 +24,4 @@ object Destination extends Enumeration {
 }
 
 
-case class TargetedPart(destination: Destination.Destination, part: Part)
+case class TargetedPart(destination: Destination.Destination, fixity: Boolean,  part: Part)

@@ -26,7 +26,11 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
   //val remoteFileName = s"""${unit.src}/${unitPath.name}.${settings.Unit.uploadedGpgZipFileExtension}"""
   val remoteFileName = s"""${unit.src}/${unitPath.path}"""
 
-  //TODO copying should be moved into a different actor, otherwise this actor cannot respond to GetStatus requests
+  //TODO fill in stub GS
+  def fixityCheck(username: String, part: TargetedPart, passphrase: Option[String], unitManager: Option[ActorRef]) {
+
+  }
+
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], clientSender: Option[ActorRef]) {
     println("ld it should first copy the data in order to decrypt it ")
   }
