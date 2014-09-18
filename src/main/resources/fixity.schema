@@ -1,0 +1,5 @@
+version 1.0
+// minimal schema requiring and testing only 3 columns; intended for fixity testing only
+identifier: uri fileExists unique if($folder/is("folder"),ends("/"))
+folder: is("folder") or is("file")
+checksum: if($folder/is("file"),checksum( file($identifier),"SHA-256"),is(""))          
