@@ -2,19 +2,23 @@ package uk.gov.tna.dri.preingest.loader.unit.common
 
 import uk.gov.tna.dri.preingest.loader.unit._
 import uk.gov.tna.dri.preingest.loader.store.DataStore
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
+import scalaz.{Success => SuccessZ, Failure => FailureZ, _}
+//import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
+//import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
 import scalax.file.{PathSet, Path}
 import scalax.file.PathMatcher.IsFile
-import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
+//import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
 import uk.gov.tna.dri.preingest.loader.{SettingsImpl, Crypto}
-import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
+//import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
 import java.io.IOException
 import akka.actor.ActorRef
 import scala.util.control.Breaks._
-import grizzled.slf4j.Logger
+//import grizzled.slf4j.Logger
 import uk.gov.tna.dri.preingest.loader.unit.disk.{PartitionUnit, NonEncryptedPartitionUnit}
+import uk.gov.nationalarchives.csv.validator.api.{TextFile, CsvValidator}
+import uk.gov.nationalarchives.csv.validator.ProgressCallback
+import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
 trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
 
@@ -49,6 +53,68 @@ trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
   }
 
   protected def totalSize(paths: PathSet[Path]) = paths.toList.map(_.size).map(_.getOrElse(0l)).reduceLeft(_ + _)
+
+  // test whether the checksums in the metadata file for a single part are correct
+  protected def fixityCheck(part: Part, mountPoint: Path, unitManager: Option[ActorRef]) {
+    val metadataPath =  mountPoint / part.series
+    val metadataFiles = metadataPath ** IsFile filter { f => f.name.startsWith("metadata_")} filter { f => f.name.endsWith(".csv")}
+
+    if (metadataFiles.isEmpty) {
+      unitManager match {
+        case Some(sender) =>
+          sender ! UnitError(unit, "No metadata file found in part " + part.series)
+          break
+        case None => break
+      }
+    } else if (metadataFiles.size > 1) {
+      unitManager match {
+        case Some(sender) =>
+          sender ! UnitError(unit, "Multiple metadata files found in part " + part.series)
+          break
+        case None => break
+      }
+    } else {
+      val csv = metadataFiles.head
+      // TODO make the substitute path without the settings constant (search for series name in Path?)
+      val replacementPath =  mountPoint / part.series / "content"
+      val substitutionList = List((settings.Unit.fixityPathToSubstitute, replacementPath.toString))
+      info("substitutionList: " + substitutionList)
+      // TODO schema path should be relative to work on live systems
+      val schema = settings.Unit.fixitySchemaPath
+      val validator = CsvValidator.createValidator(false, substitutionList, false)
+      validator.parseSchema(new TextFile(schema)) match {
+        case FailureZ(error) => {
+          logger.error("Failed schema validation " + error.list)
+        }
+        case SuccessZ(schema) => {
+          logger.info("Validating csv " + csv.toString + " against " + schema)
+          // TODO make progress callback compatible with Actor system
+          val progress = new ProgressCallback {
+            override def update(complete: this.type#Percentage) {
+              println(" complete" + complete)
+            }
+          }
+          validator.validate(new TextFile(Path.fromString(csv.toString)), schema, Option(progress)) match {
+            case FailureZ(err) => {
+              error("Failed fixity check: " + err.list)
+              unitManager match {
+                case Some(sender) =>
+                  sender ! UnitError(unit, "Failed fixity check: " + err.list)
+                  break
+                case None => break
+              }
+            }
+            case SuccessZ(_) => {
+              info("Successfully fixity validated ")
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+
 
   protected def copyFiles(parts: Seq[TargetedPart], mountPoint: Path, unitManager: Option[ActorRef]) {
     val all = mountPoint ** IsFile filter { f => true}

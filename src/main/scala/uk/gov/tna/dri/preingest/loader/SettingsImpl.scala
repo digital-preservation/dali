@@ -70,6 +70,8 @@ class SettingsImpl(config: Config) extends Extension {
 
     val tempDestination = Path.fromString(config.getString("unit-loader.unit.temp_destination")).path
     val destination = Path.fromString(config.getString("unit-loader.unit.destination"))
+    val fixityPathToSubstitute = config.getString("unit-loader.unit.fixity.path-to-substitute")
+    val fixitySchemaPath = Path.fromString(config.getString("unit-loader.unit.fixity.schema-path"))
   }
 
   object DBus {

@@ -144,9 +144,21 @@ class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extend
     val files = mount * ((p: Path) => !isJunkFile(settings, p.name))
     f(files.toSet.toSeq)
   }
-  //TODO fill in stub
+
   def fixityCheck(username: String, part: TargetedPart, passphrase: Option[String], unitManager: Option[ActorRef]) {
-    info("In the fixity check")
+
+    // we use the mountpoint created by the OS, not needing a new local one
+    unit.partition.mounted match {
+      case Some(mountPointList) => {
+        val mountPoint = scalax.file.Path.fromString(mountPointList.head)
+        fixityCheck( part.part, mountPoint, unitManager)
+      }
+      case None =>
+        unitManager match {
+          case Some(sender) =>  sender ! UnitError(unit, "Unable to find mountpoint for unit: ${unit.uid}")
+          case None =>
+        }
+    }
   }
 
   def copyData(username: String, parts: Seq[TargetedPart], passphrase: Option[String], unitManager: Option[ActorRef]) {

@@ -8,6 +8,7 @@ Currently Supports:
 
 2. GNUPG Zipped files
 
+3. Unencrypted file systems
 
 Technologies
 ------------
