@@ -8,9 +8,9 @@
     <version>1.1-SNAPSHOT</version>
 
     <properties>
-        <scala.version>2.10</scala.version>
-        <scala.lib.version>${scala.version}.4</scala.lib.version>
-        <scalatra.version>2.2.2</scalatra.version>
+        <scala.version>2.11</scala.version>
+        <scala.lib.version>${scala.version}.2</scala.lib.version>
+        <scalatra.version>2.3.0</scalatra.version>
 		<jetty.version>8.1.15.v20140411</jetty.version>
         <bouncycastle.version>1.50</bouncycastle.version>
     </properties>
@@ -19,12 +19,29 @@
         <finalName>unit-loader</finalName>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <execution>
+                        <id>analyze</id>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <configuration>
+                            <failOnWarning>true</failOnWarning>
+                            <ignoreNonCompile>true</ignoreNonCompile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
 				<version>3.1.6</version>
 				<configuration>
-					<recompileMode>incremental</recompileMode>	<!-- NOTE: "incremental" compilation although faster may require passing to MAVEN_OPTS="-XX:MaxPermSize=128m" -->
+					<!-- <recompileMode>incremental</recompileMode> -->	<!-- NOTE: "incremental" compilation although faster may require passing to MAVEN_OPTS="-XX:MaxPermSize=128m" -->
 					<useZincServer>true</useZincServer>	<!-- NOTE: if you have Zinc server installed and running, you can get faster compilation by enabling this -->
 					<zincPort>3040</zincPort>
 				</configuration>
@@ -119,7 +136,7 @@
         </dependency>
         <dependency>
             <groupId>com.jsuereth</groupId>
-            <artifactId>scala-arm_2.10</artifactId>
+            <artifactId>scala-arm_${scala.version}</artifactId>
             <version>1.4</version>
         </dependency>
         <dependency>
@@ -145,11 +162,17 @@
             <version>1.33.10</version>
         </dependency>
 
+        <dependency>
+            <groupId>uk.gov.nationalarchives</groupId>
+            <artifactId>csv-validator-core</artifactId>
+            <version>1.0</version>
+        </dependency>
+
         <!-- todo: migrate to a newer version of akka-->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.10</artifactId>
-            <version>2.1.2</version>
+            <artifactId>akka-actor_${scala.version}</artifactId>
+            <version>2.3.6</version>
         </dependency>
 
         <!-- Dependency for PGP and GPG Encryption-Decryption -->
@@ -168,15 +191,15 @@
         <!-- dependency for secure copy -->
         <dependency>
             <groupId>fr.janalyse</groupId>
-            <artifactId>janalyse-ssh_2.10</artifactId>
-            <version>0.9.12</version>
+            <artifactId>janalyse-ssh_${scala.version}</artifactId>
+            <version>0.9.13</version>
         </dependency>
         <!-- dependency for secure copy -->
 
 		<dependency>
 			<groupId>com.typesafe.slick</groupId>
 			<artifactId>slick_${scala.version}</artifactId>
-			<version>1.0.1</version>
+			<version>2.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>c3p0</groupId>
@@ -199,7 +222,7 @@
         <!-- testing -->
         <dependency>
             <groupId>org.specs2</groupId>
-            <artifactId>specs2_2.10</artifactId>
+            <artifactId>specs2_${scala.version}</artifactId>
             <version>2.3.11</version>
             <scope>test</scope>
         </dependency>
@@ -217,7 +240,7 @@
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.version}</artifactId>
             <version>2.1.5</version>
             <scope>test</scope>
         </dependency>
@@ -267,9 +290,9 @@
         <!--</pluginRepository>-->
     </pluginRepositories>
 
-   <profiles>
+   <!-- <profiles>
         <profile>
-            <!-- used with mvn -DreleaseProfiles=live-deploy release:perform to release to live -->
+            <!- - used with mvn -DreleaseProfiles=live-deploy release:perform to release to live - ->
             <id>live-deploy</id>
             <distributionManagement>
                 <repository>
@@ -281,7 +304,7 @@
         </profile>
 
 	 <profile>
-            <!-- used with mvn -DreleaseProfiles=uat-deploy release:perform to release to live -->
+            <!- - used with mvn -DreleaseProfiles=uat-deploy release:perform to release to live - ->
             <id>uat-deploy</id>
             <distributionManagement>
                 <repository>
@@ -292,7 +315,7 @@
             </distributionManagement>
         </profile>
 
-    </profiles>
+    </profiles> -->
 
     <!-- used for Artifactory deployment - ensure settings.xml file has these repository ids in the servers section -->
       <distributionManagement>
