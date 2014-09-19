@@ -2,23 +2,23 @@ package uk.gov.tna.dri.preingest.loader.auth
 
 import java.util.UUID
 import com.mchange.v2.c3p0.ComboPooledDataSource
-import scala.slick.session.Database
 import scala.slick.driver.H2Driver.simple._
-import Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 object RememberMeDb {
 
   lazy val cpds = new ComboPooledDataSource
   lazy val db = Database.forDataSource(cpds)
+  val mapping = TableQuery[Mapping]
 
   withDb {
-    Mapping.ddl.create
+    mapping.ddl.create
   }
 
   private def withDb[B](f: => B) : B = {
-    db withSession {
+    db withDynSession {
       // The session is never named explicitly. It is bound to the current
-      // thread as the threadLocalSession that we imported
+      // thread as the dynamicSession that we imported
       f
     }
   }
@@ -30,26 +30,28 @@ object RememberMeDb {
   def +(user: User) : String = {
     withDb {
       val token = UUID.randomUUID().toString
-      Mapping.insert(user.id, token)
+      mapping.insert(user.id, token)
       token
     }
   }
 
   def ?(token: String) : Option[String] = {
     withDb {
-      Query(Mapping).filter(_.token === token).firstOption.map(_._1)
+     // Query(mapping).filter(_.token === token).firstOption.map(_._1)
+      mapping.filter(_.token === token).firstOption.map(_._1)
+
     }
   }
 
   def -(user: User) {
     withDb {
-      Query(Mapping).filter(_.id === user.id).delete
+      mapping.filter(_.id === user.id).delete
     }
   }
 }
 
-object Mapping extends Table[(String, String)]("remember_me_mapping") {
+class Mapping(tag: Tag) extends Table[(String, String)](tag, "remember_me_mapping") {
   def id = column[String]("id", O.PrimaryKey)
   def token = column[String]("token")
-  def * = id ~ token
+  def * = (id, token)
 }
