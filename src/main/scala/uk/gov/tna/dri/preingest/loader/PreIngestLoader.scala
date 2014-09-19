@@ -184,8 +184,12 @@ class PreIngestLoaderActor extends Actor with Logging {
   def receive = {
 
     //send unit status (i.e. add of update)
-    case UnitStatus(unit, action, clientId) =>
-      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("update", unit)), allOrOne(clientId))
+    case UnitStatus(unit, action, clientId) => {
+      clientId match {
+        case Some(clientId) => AtmosphereClient.broadcast("/unit", JsonMessage(toJson("update", unit)), new OnlySelf(clientId))
+        case None => AtmosphereClient.broadcast("/unit", JsonMessage(toJson("update", unit)), new Everyone)
+      }
+    }
 
     case UnitProgress(unit, parts, progressPercentage) => {
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("progress", unit.uid, progressPercentage)))
@@ -231,15 +235,6 @@ class PreIngestLoaderActor extends Actor with Logging {
           AtmosphereClient.broadcast("/unit", JsonMessage(toJson("loaded", units.getValue.getUnits.asScala)))
         case None =>
       }
-  }
-
-  def allOrOne(maybeClientId: Option[String])(client: AtmosphereClient) : Boolean = {
-    maybeClientId match {
-      case Some(clientId) =>
-        client.uuid == clientId
-      case None =>
-        true
-    }
   }
 
   def toJson(action: String, unit: DRIUnit) : JObject = toJson(action, List(unit))
