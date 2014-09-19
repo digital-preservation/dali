@@ -11,7 +11,7 @@ import uk.gov.tna.dri.preingest.loader.{SettingsImpl, Crypto}
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
 import java.io.{InputStream, OutputStream, IOException}
-import akka.actor.ActorRef
+import akka.actor.{Props, ActorRef}
 import scala.util.control.Breaks._
 import grizzled.slf4j.Logger
 import uk.gov.tna.dri.preingest.loader.unit.common.MediaUnitActor
@@ -123,6 +123,10 @@ class TrueCryptedPartitionUnitActor(var unit: TrueCryptedPartitionUnit) extends 
     }
   }
 
+// See http://doc.akka.io/docs/akka/snapshot/scala/actors.html : Recommended Practices
+object TrueCryptedPartitionUnitActor {
+  def props(unit: TrueCryptedPartitionUnit): Props = Props(new TrueCryptedPartitionUnitActor(unit))
+}
 
 case class NonEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends PartitionUnit with NonEncryptedDRIUnit
 
@@ -177,4 +181,6 @@ class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extend
     }
   }
 }
-
+object NonEncryptedPartitionUnitActor {
+  def props(unit: NonEncryptedPartitionUnit): Props = Props(new NonEncryptedPartitionUnitActor(unit))
+}

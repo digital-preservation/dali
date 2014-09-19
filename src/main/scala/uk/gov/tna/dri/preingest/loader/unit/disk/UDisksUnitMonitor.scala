@@ -8,6 +8,7 @@ import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.{DeviceAdded, DeviceRemoved}
 import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DeviceFile, PartitionProperties, DiskProperties}
 import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
+import uk.gov.tna.dri.preingest.loader.unit.common.MediaUnitActor
 import scalax.file.Path
 
 class UDisksUnitMonitor extends Actor with Logging {
@@ -43,18 +44,21 @@ class UDisksUnitMonitor extends Actor with Logging {
       findDisk(partitionProperties) match {
 
         case Some(diskProperties) =>
-          // if it's not mounted, assume its because its encrypted. When a usb device is plugged in, dbus alerts
+          // if it's not mounted, assume that is because it's encrypted. When a usb device is plugged in, dbus alerts
           // gvfs-mount to mount it. If gvfs-mount takes longer than dbus.udisks.mount-delay, this test
           // may incorrectly assume a device is encrypted.
           val (unit, unitActor) = if(!partitionProperties.lvmDevice && partitionProperties.mounted.isEmpty) {
             val unit = new TrueCryptedPartitionUnit(partitionProperties, diskProperties)
-            (unit, () => new TrueCryptedPartitionUnitActor(unit))
+            //(unit, () => new TrueCryptedPartitionUnitActor(unit))
+            (unit, TrueCryptedPartitionUnitActor.props(unit))
           } else {
             val unit = new NonEncryptedPartitionUnit(partitionProperties, diskProperties)
-            (unit, () => new NonEncryptedPartitionUnitActor(unit))
+            //(unit, () => new NonEncryptedPartitionUnitActor(unit))
+            (unit, NonEncryptedPartitionUnitActor.props(unit))
           }
 
-          val unitActorRef = context.actorOf(Props(unitActor))
+          //val unitActorRef = context.actorOf(Props(unitActor))
+          val unitActorRef = context.actorOf(unitActor)
           this.knownPartitions += (partitionProperties.deviceFile -> unit.uid)
           context.parent ! RegisterUnit(unit.uid, unitActorRef)
 
