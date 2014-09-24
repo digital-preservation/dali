@@ -74,24 +74,27 @@ trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
         case None => break
       }
     } else {
-      val csv = metadataFiles.head
+      val csv = metadataFiles.head.path
       // TODO make the substitute path without the settings constant (search for series name in Path?)
-      val replacementPath =  mountPoint / part.series / "content"
-      val substitutionList = List((settings.Unit.fixityPathToSubstitute, replacementPath.toString))
+      val replacementPath =  "file://" + mountPoint.path
+      val substitutionList = List((settings.Unit.fixityPathToSubstitute, replacementPath))
       info("substitutionList: " + substitutionList)
+      // TODO schema name should be fetched from catalogue
       // TODO schema path should be relative to work on live systems
       val schema = settings.Unit.fixitySchemaPath
       val validator = CsvValidator.createValidator(false, substitutionList, false)
-      validator.parseSchema(new TextFile(schema)) match {
+      val schemaFile = new TextFile(schema)
+      validator.parseSchema(schemaFile) match {
         case FailureZ(error) => {
           logger.error("Failed schema validation " + error.list)
         }
         case SuccessZ(schema) => {
-          logger.info("Validating csv " + csv.toString + " against " + schema)
+          logger.info("Validating csv " + csv + " against " + schema)
           // TODO make progress callback compatible with Actor system
           val progress = new ProgressCallback {
             override def update(complete: this.type#Percentage) {
               println(" complete" + complete)
+              sender ! PartFixityProgress(part, complete.toInt)
             }
           }
           validator.validate(new TextFile(Path.fromString(csv.toString)), schema, Option(progress)) match {
@@ -99,13 +102,14 @@ trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
               error("Failed fixity check: " + err.list)
               unitManager match {
                 case Some(sender) =>
-                  sender ! UnitError(unit, "Failed fixity check: " + err.list)
+                  sender ! PartFixityError(part, "Failed fixity check: " + err.list)
                   break
                 case None => break
               }
             }
             case SuccessZ(_) => {
               info("Successfully fixity validated ")
+              sender ! PartFixityProgress(part, 100)
             }
           }
         }

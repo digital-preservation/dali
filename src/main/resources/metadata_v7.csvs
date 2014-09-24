@@ -1,0 +1,12 @@
+version 1.0
+@totalColumns 10
+identifier: uri fileExists unique if($folder/is("folder"),ends("/"))
+filename: length(1,*)
+folder: is("folder") or is("file")
+date_created: xDateTime or xDate @optional
+checksum: if($folder/is("file"),checksum( file($identifier),"SHA-256"),is("")) 
+series_number: range(0, 99999) @optional
+creating_body: is("IMF") or is("BL") or is("IA")
+crawl_start: xDateTime or xDate @optional 
+crawl_end: xDateTime or xDate @optional 
+filesize: if($folder/is("file"), range(1, 2000000000000000)) 

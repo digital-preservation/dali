@@ -190,6 +190,10 @@ class PreIngestLoaderActor extends Actor with Logging {
         case None => AtmosphereClient.broadcast("/unit", JsonMessage(toJson("update", unit)), new Everyone)
       }
     }
+    // notify browser of need to display fixity progress bar if 0, of progress otherwise
+    case PartFixityProgress(part, fixityProgressPercentage) => {
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("fixityprogress", part.unitId, fixityProgressPercentage)))
+    }
 
     case UnitProgress(unit, parts, progressPercentage) => {
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("progress", unit.uid, progressPercentage)))
@@ -211,6 +215,8 @@ class PreIngestLoaderActor extends Actor with Logging {
         jmsClient.updateCatalogueUnitStatus("unitLoaded", unitIdType, "Unit loaded")
       }
     }
+    case PartFixityError(part, errorMessage) =>
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("error", part.unitId, part.series, errorMessage)))
 
     case UnitError(unit, errorMessage) =>
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("error", unit.uid, unit.label, errorMessage)))

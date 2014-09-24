@@ -76,6 +76,14 @@
 
                 </div>
                 <div class="step-pane" id="step3">
+                  <div class="progress-block" ng-show="loadModal.fixity">
+                     <div class="progress progress-striped active">
+                        <div class="progress-bar"  role="progressbar" aria-valuenow="{{loadModal.pendingUnit.percentageFixed}}" aria-valuemin="0" aria-valuemax="100" style="width: {{loadModal.pendingUnit.percentageFixed}}%" id="fixityCheckingUnit">
+                             <span class="sr-only">{{loadModal.pendingUnit.percentageFixed}}% Complete</span>
+                        </div>
+                        <span>Fixity check...</span>
+                     </div>
+                  </div>
                   <div class="progress-block" ng-show="loadModal.loading">
                         <div class="progress progress-striped active">
                             <div class="progress-bar"  role="progressbar" aria-valuenow="{{loadModal.pendingUnit.percentageLoaded}}" aria-valuemin="0" aria-valuemax="100" style="width: {{loadModal.pendingUnit.percentageLoaded}}%" id="loadingUnit">

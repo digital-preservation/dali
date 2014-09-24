@@ -24,6 +24,7 @@ var mLoadModal = {
     nextDisabled: false,
     nextText: "Next >>",
     percentageLoaded: 0,
+    percentageFixed: 0,
     destinations: [
         "Holding",
         "Pre-Ingest",
@@ -199,6 +200,7 @@ function updateCertsModel(http) {
 //Controller for the UploadCert modal dialog
 function UploadCertModalCtrl($scope, $http) {
     $scope.selectedFiles = [];
+    $scope.fixityProgress = 0;
     $scope.progress = 0;
     $scope.showProgress = false;
 
@@ -215,6 +217,7 @@ function UploadCertModalCtrl($scope, $http) {
                 $scope.selectedFiles.push(v);
             });
             $scope.progress = 0;
+            $scope.fixityProgress = 0;
         })
     };
 
@@ -229,6 +232,15 @@ function UploadCertModalCtrl($scope, $http) {
             fd.append("certificate", $scope.selectedFiles[i]);
         }
         var xhr = new XMLHttpRequest();
+
+       xhr.upload.addEventListener("fixityprogress", function(evt){
+            $scope.$apply(function(){
+                if(!$scope.showProgress) {
+                    $scope.showProgress = true;
+                }
+                $scope.fixityProgress = evt.fixed;
+            });
+        }, false);
 
         xhr.upload.addEventListener("progress", function(evt){
             $scope.$apply(function(){
@@ -492,7 +504,7 @@ $(document).ready(function() {
                 error.label = json.error.label;
             });
             updatePending(function(pendingUnits) {
-                $.each(pendingUnits, function(i,v) {l
+                $.each(pendingUnits, function(i,v) {
                     if(v.uid == json.error.uid) {
                         v.showComplete = false;
                         v.loadDisabled = true;
@@ -500,6 +512,18 @@ $(document).ready(function() {
                 });
             });
             $('#loadModal').modal('hide');
+          }
+          else if(json.fixityprogress) {
+            updateLoadModal(function(model) {
+                model.pendingUnit.percentageFixed = json.fixityprogress.percentage;
+                if (model.pendingUnit.percentageFixed == 0);
+                    mLoadModal.fixity = true; // turn on fixity progress display
+                    mloadModal.loading = false; // hide loading progress display
+                if (model.pendingUnit.percentageFixed == 100) {
+                    model.nextText = "Loading unit...";
+                    mloadModal.loading = true; // restore loading progress display
+                }
+            });
           }
           else if(json.progress) {
             updateLoadModal(function(model) {
@@ -524,65 +548,6 @@ $(document).ready(function() {
               });
            });
           }
-
-          //is this a pending unit initial status
-//          if(json.pending) {
-//            updatePending(function(model) {
-//                model.length = 0; //empty the model
-//                $.each(json.pending.unit, function(i, v) {
-//                    v.size = toHumanSize(v.size);
-//                    v.timestamp = toHumanTime(v.timestamp);
-//                    model.push(v); //add to the model
-//                });
-//            });
-//
-//          //is this an addition to the pending units
-//          } else if(json.pendingAdd) {
-//            updatePending(function(model) {
-//                $.each(json.pendingAdd.unit, function(i, v) {
-//                    v.size = toHumanSize(v.size);
-//                    v.timestamp = toHumanTime(v.timestamp);
-//                    model.push(v); //add to the model
-//                });
-//            });
-//
-//            //update the unit detail part of the load modal dialog
-//            $.each(json.pendingAdd.unit, function(i, v) {
-//                updateLoadModal(function(model) {
-//                    if(v.src == model.pendingUnit.src) {
-//                        model.pendingUnit = v;
-//                        //has part discovery completed? if so disable decrypting message
-//                        if(v.part) {
-//                            model.decrypting = false;    //hide decrypting message
-//                        }
-//                    }
-//                });
-//            });
-//
-//          //is this a removal from the pending units
-//          } else if(json.pendingRemove) {
-//            updatePending(function(model) {
-//               $.each(model, function(i, v) {
-//                $.each(json.pendingRemove.unit, function(y, vv) {
-//                   if((!(v === undefined)) && v.src == vv.src) {
-//                       model.splice(i, 1);
-//                   }
-//                });
-//               });
-//            });
-//          }
-//
-//          //is this a UnitLoadStatus update?
-//          else if(json.loadStatus) {
-//            updatePending(function(model) {
-//              $.each(model, function(i, v) {
-//                if(v.src == json.loadStatus.unit.src) {
-//                    v.complete = json.loadStatus.complete;
-//                }
-//              });
-//            });
-//          }
-
       } catch (e) {
           console.log('Error: ', message.data);
           return;

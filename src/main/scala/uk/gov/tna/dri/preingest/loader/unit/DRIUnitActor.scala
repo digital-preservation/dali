@@ -34,8 +34,13 @@ trait DRIUnitActor[T <: DRIUnit] extends ComposableActor with Logging {
     case Load(username, parts, None, passphrase, clientId, unitManager) => //TODO specific client!
       // test for fixity if requested
       parts.foreach {
-         p => if (p.fixity)
+         p => if (p.fixity) {
+           unitManager match {
+            case Some(actor) => actor ! PartFixityProgress(p.part, 0) // trigger display of progress bar
+            case None =>
+           }
            fixityCheck(username, p, passphrase, unitManager)
+         }
       }
       copyData(username, parts, passphrase, unitManager)
   }

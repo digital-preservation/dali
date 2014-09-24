@@ -16,6 +16,8 @@ case class DeRegisterUnit(unitUid: UnitUID)
 case class SendUnitStatus(listener: ActorRef, clientId: Option[String] = None)
 case class UnitStatus(unit: DRIUnit, action: Option[UnitAction] = None, clientId: Option[String] = None)
 case class UnitProgress(unit: DRIUnit, parts: Seq[TargetedPart], progressPercentage: Integer)
+case class PartFixityProgress(part: Part, progressPercentage: Integer)
+case class PartFixityError(part: Part, errorMessage: String)
 //case class UnitError(unit: DRIUnit, errorMessage: String)
 case class RemoveUnit(unitUid: UnitUID)
 case class ListUnits(clientId: String)
@@ -99,5 +101,11 @@ class UnitManagerActor extends Actor with Logging {
 
     case pm: UnitProgress =>
       listeners.map(_ ! pm)
+
+    case fpm: PartFixityProgress =>
+      listeners.map(_ ! fpm)
+
+    case fue: PartFixityError =>
+      listeners.map(_ ! fue)
   }
 }
