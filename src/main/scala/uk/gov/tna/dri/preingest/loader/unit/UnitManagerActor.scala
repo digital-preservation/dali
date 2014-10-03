@@ -18,6 +18,7 @@ case class UnitStatus(unit: DRIUnit, action: Option[UnitAction] = None, clientId
 case class UnitProgress(unit: DRIUnit, parts: Seq[TargetedPart], progressPercentage: Integer)
 case class PartFixityProgress(part: Part, progressPercentage: Integer)
 case class PartFixityError(part: Part, errorMessage: String)
+case class PartsCatalogued(uid: String, parts: Seq[Part])
 //case class UnitError(unit: DRIUnit, errorMessage: String)
 case class RemoveUnit(unitUid: UnitUID)
 case class ListUnits(clientId: String)

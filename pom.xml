@@ -230,7 +230,7 @@
         <dependency>
             <groupId>uk.gov.tna.dri.catalogue</groupId>
             <artifactId>dri-catalogue-jms-client</artifactId>
-            <version>1.33.10</version>
+            <version>1.34.6-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.clapper</groupId>
@@ -242,7 +242,7 @@
         <dependency>
             <groupId>uk.gov.tna.dri.catalogue</groupId>
             <artifactId>dri-catalogue-schema</artifactId>
-            <version>1.33.10</version>
+            <version>1.34.6-SNAPSHOT</version>
         </dependency>
 
         <dependency>

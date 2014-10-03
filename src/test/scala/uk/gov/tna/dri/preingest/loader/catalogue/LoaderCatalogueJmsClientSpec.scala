@@ -1,7 +1,7 @@
 package uk.gov.tna.dri.preingest.loader.catalogue
 
 import org.specs2.mutable.Specification
-import uk.gov.nationalarchives.dri.ingest.PartIdType
+import uk.gov.nationalarchives.dri.catalogue.api.ingest.PartIdType
 import org.specs2.mock.Mockito
 import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
 

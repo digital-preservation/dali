@@ -2,9 +2,9 @@ package uk.gov.tna.dri.preingest.loader.catalogue
 
 import uk.gov.tna.dri.catalogue.jms.client.{JmsConfig, CatalogueJmsClient}
 import javax.xml.bind.JAXBElement
-import uk.gov.nationalarchives.dri.ingest.DriUnitsType
-import akka.actor.Actor
-import uk.gov.tna.dri.preingest.loader.unit.GetLoaded
+import uk.gov.nationalarchives.dri.catalogue.api.ingest.DriUnitsType
+//import akka.actor.Actor
+//import uk.gov.tna.dri.preingest.loader.unit.GetLoaded
 
 /**
  * Created with IntelliJ IDEA.

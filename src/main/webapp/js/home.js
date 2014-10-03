@@ -137,7 +137,21 @@ function expandPendingUnitParts(pendingUnit) {
         fixity: false
      });
   });
+  doCheckCatalogue(pendingUnit, parts);
   return parts;
+}
+
+// check that the parts already have catalogue entries
+function doCheckCatalogue(pendingUnit, parts) {
+    subSocket.push(JSON.stringify({
+        actions: [{
+            action: 'checkCatalogued',
+            loadUnit: {
+              uid: pendingUnit.uid,
+              parts: parts
+            }
+          }]
+        }));
 }
 
 function doStartLoad(pendingUnit, cert, pass) {

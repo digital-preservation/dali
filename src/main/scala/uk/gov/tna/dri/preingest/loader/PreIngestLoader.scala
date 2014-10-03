@@ -26,7 +26,7 @@ import org.scalatra.atmosphere.Error
 import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
 import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
 import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
-import uk.gov.nationalarchives.dri.ingest.{MediaType, DriUnitType}
+import uk.gov.nationalarchives.dri.catalogue.api.ingest.{PartIdType, MediaType, DriUnitType}
 import scala.collection.mutable
 
 
@@ -149,6 +149,9 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
                     preIngestLoaderActor ! ListUnits(uuid)
                   case("decrypt") =>
                     preIngestLoaderActor ! UpdateUnitDecryptDetail(username, a.unitRef.get.uid, a.certificate, a.passphrase.get, Option(uuid))
+                  case("checkCatalogued") =>
+                    val parts = a.loadUnit.get.parts.map(p => Part(p.unit, p.series))
+                    preIngestLoaderActor !  PartsCatalogued(a.loadUnit.get.uid, parts)
                   case("loadEncrypted") =>
                     val parts = a.loadUnit.get.parts.map(p => TargetedPart(Destination.withName(p.destination), p.fixity, Part(p.unit, p.series)))
                     preIngestLoaderActor ! LoadUnit(username, a.loadUnit.get.uid, parts, a.certificate, a.passphrase, Option(uuid), Option(preIngestLoaderActor))
@@ -168,6 +171,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
   }
 }
 
+// The PreIngestLoaderActor is responsible for external communications only; ie messages to catalogue and to browser
 class PreIngestLoaderActor extends Actor with Logging {
 
   import scala.collection.JavaConverters._
@@ -179,7 +183,7 @@ class PreIngestLoaderActor extends Actor with Logging {
   val jmsConfig = new JmsConfig(settings.brokerName, settings.username, settings.password, settings.queueName, settings.timeout.toLong)
   lazy val jmsClient = new LoaderCatalogueJmsClient(jmsConfig)
 
-  val of = new uk.gov.nationalarchives.dri.ingest.ObjectFactory
+  val of = new uk.gov.nationalarchives.dri.catalogue.api.ingest.ObjectFactory
 
   def receive = {
 
@@ -193,6 +197,20 @@ class PreIngestLoaderActor extends Actor with Logging {
     // notify browser of need to display fixity progress bar if 0, of progress otherwise
     case PartFixityProgress(part, fixityProgressPercentage) => {
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("fixityprogress", part.unitId, fixityProgressPercentage)))
+    }
+
+    // check for presence of parts to load in catalogue, and notify browser if failed
+    case PartsCatalogued(uid, parts) => {
+      val partIdType = of.createPartIdType
+      parts.map(p => {
+        partIdType.setSeries(p.series)
+        partIdType.setUnitId(p.unitId)
+        jmsClient.getCataloguePartStatus(partIdType) match {
+          // should have status Identified
+          case Some(status) =>  logger.info("Part " + partIdType + " has status " + status)
+          case None =>  AtmosphereClient.broadcast("/unit", JsonMessage(toJson("error", p.unitId, p.unitId, "Part " + p.series + " not in catalogue")))
+        }
+      })
     }
 
     case UnitProgress(unit, parts, progressPercentage) => {
