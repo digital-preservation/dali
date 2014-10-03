@@ -57,6 +57,7 @@ trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
   // test whether the checksums in the metadata file for a single part are correct
   protected def fixityCheck(part: Part, mountPoint: Path, unitManager: Option[ActorRef]) {
     val metadataPath =  mountPoint / part.series
+    // avoiding looking up configuration for a specific metadata version - is this wise?
     val metadataFiles = metadataPath ** IsFile filter { f => f.name.startsWith("metadata_")} filter { f => f.name.endsWith(".csv")}
 
     if (metadataFiles.isEmpty) {
@@ -77,9 +78,9 @@ trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
       val csv = metadataFiles.head.path
       // TODO make the substitute path without the settings constant (search for series name in Path?)
       val replacementPath =  "file://" + mountPoint.path
+      // TODO get the PathToSubstitute from the catalogue substitution Map key???
       val substitutionList = List((settings.Unit.fixityPathToSubstitute, replacementPath))
       info("substitutionList: " + substitutionList)
-      // TODO schema name should be fetched from catalogue
       // TODO schema path should be relative to work on live systems
       val schema = settings.Unit.fixitySchemaPath
       val validator = CsvValidator.createValidator(false, substitutionList, false)
