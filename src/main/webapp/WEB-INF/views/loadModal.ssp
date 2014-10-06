@@ -60,7 +60,7 @@
                                     <th>Fixity check</th>
                                 </tr>
                             </thead>
-                            <tbody id="pendingUnits"">
+                            <tbody id="pendingUnits">
                                 <tr ng-repeat="p in loadModal.pendingUnit.parts">
                                     <td>{{p.series}}</td>
                                     <td>
