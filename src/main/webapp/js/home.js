@@ -49,6 +49,19 @@ function UnitsCtrl($scope) {
 function PendingUnitsCtrl($scope) {
     $scope.pendingUnits = mPendingUnits;
 
+    $scope.setEncryption = function(pendingUnit, encryptionMethod) {
+        pendingUnit.encryptionMethod = encryptionMethod;
+        alert("method = " + pendingUnit.encryptionMethod);
+        if (encryptionMethod  == null) {
+            // return to generic Encryption module; disable load
+            doSetEncryptionMethod(pendingUnit, "none");
+        }
+        else {
+            // instantiate new encryption method object; enable load
+            doSetEncryptionMethod(pendingUnit, encryptionMethod);
+        }
+    };
+
     $scope.loadDialog = function(pendingUnit) {
         //update the model
         // skip decryption step if not needed
@@ -151,6 +164,19 @@ function expandPendingUnitParts(pendingUnit) {
   });
   doCheckCatalogue(pendingUnit, parts);
   return parts;
+}
+
+// instantiate a new encryption method object
+function doSetEncryptionMethod(pendingUnit, encryptionMethod) {
+    subSocket.push(JSON.stringify({
+        actions: [{
+            action: 'setEncryptionMethod',
+            loadUnit: {
+              uid: pendingUnit.uid,
+              method: encryptionMethod
+            }
+          }]
+        }));
 }
 
 // check that the parts already have catalogue entries

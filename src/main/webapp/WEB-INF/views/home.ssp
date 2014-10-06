@@ -76,7 +76,7 @@
                         </td>
                         <td><span class="glyphicon glyphicon-lock" ng-show="pendingUnit.encrypted"></span> {{pendingUnit.label}}
                              <span ng-show="pendingUnit.encrypted">
-                                  <select ng-model="pendingUnit.encryptionMethod" ng-options="e for e in units.encryptionMethods" class="form-control" ng-required="!pendingUnit.encryptionMethod">
+                                  <select ng-model="encryptionMethod" ng-change="setEncryption(pendingUnit, encryptionMethod)" ng-options="e for e in units.encryptionMethods" class="form-control" ng-required="!pendingUnit.encryptionMethod">
                                     <option value="">-- Select method  --</option>
                                   </select>
                              </span>
