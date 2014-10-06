@@ -37,7 +37,7 @@
 #end
 
 <div>
-    <div id="pending" class="panel panel-default">
+    <div id="units" ng-controller="UnitsCtrl" class="panel panel-default">
         <div class="panel-heading"><h4>Units Awaiting Load</h4></div>
         <div class="panel-body">
             <div id="error" class="alert alert-danger" ng-controller="ErrorCtrl" ng-show="error.show">
@@ -74,7 +74,13 @@
                                 <div>S/N: {{pendingUnit.disk.serial}}</div>
                             </span>
                         </td>
-                        <td><span class="glyphicon glyphicon-lock" ng-show="pendingUnit.encrypted"></span> {{pendingUnit.label}}</td>
+                        <td><span class="glyphicon glyphicon-lock" ng-show="pendingUnit.encrypted"></span> {{pendingUnit.label}}
+                             <span ng-show="pendingUnit.encrypted">
+                                  <select ng-model="pendingUnit.encryptionMethod" ng-options="e for e in units.encryptionMethods" class="form-control" ng-required="!pendingUnit.encryptionMethod">
+                                    <option value="">-- Select method  --</option>
+                                  </select>
+                             </span>
+                        </td>
                         <td>{{pendingUnit.size}}</td>
                         <td>{{pendingUnit.timestamp}}</td>
                     </tr>

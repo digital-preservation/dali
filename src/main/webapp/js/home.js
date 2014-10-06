@@ -4,6 +4,14 @@ var mPendingUnits = [];
 
 var mLoadedUnits = [];
 
+// rootScope ( page globals)
+var mUnits = {
+   encryptionMethods: [
+       "Truecrypt",
+       "LUKS"
+   ]
+}
+
 var mError = {
     uid: null,
     message: null,
@@ -32,6 +40,10 @@ var mLoadModal = {
     ],
     exception: null
 };
+
+function UnitsCtrl($scope) {
+    $scope.units = mUnits;
+}
 
 //Controller for displaying Pending Units grid
 function PendingUnitsCtrl($scope) {
