@@ -82,7 +82,7 @@
         <script src="${baseUrl}bootstrap-3.0.0/assets/js/jquery.js"></script>
         <script src="${baseUrl}bootstrap-3.0.0/dist/js/bootstrap.min.js"></script>
 
-        <script src="${baseUrl}js/jquery-1.9.0.js"></script>
+        <script src="${baseUrl}js/jquery-2.1.1.js"></script>
         <script src="${baseUrl}js/angular.min.js"></script>
 
         <%= unescape(pageScripts) %>
