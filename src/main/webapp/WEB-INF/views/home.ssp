@@ -58,7 +58,7 @@
                 <tbody id="pendingUnits" ng-controller="PendingUnitsCtrl">
                     <tr ng-repeat="pendingUnit in pendingUnits">
                         <td>
-                            <a href="" ng-click="loadDialog(pendingUnit)" class="btn btn-primary" ng-hide="pendingUnit.showComplete" ng-disabled="pendingUnit.loadDisabled">Load</a>
+                            <a href="" ng-click="loadDialog(pendingUnit)" class="btn btn-primary" ng-hide="pendingUnit.showComplete" ng-disabled="isDisabled(pendingUnit)">Load</a>
                             <div class="progress progress-striped active" ng-show="pendingUnit.showComplete">
                               <div class="progress-bar"  role="progressbar" aria-valuenow="{{pendingUnit.complete}}" aria-valuemin="0" aria-valuemax="100" style="width: {{pendingUnit.complete}}%">
                                 <span class="sr-only">{{pendingUnit.complete}}% Complete</span>

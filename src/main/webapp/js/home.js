@@ -49,23 +49,31 @@ function UnitsCtrl($scope) {
 function PendingUnitsCtrl($scope) {
     $scope.pendingUnits = mPendingUnits;
 
+    // disable the load button if encrypted and no method selected
+    // FIXME this enables the button immediately without waiting for a response from the Actors
+    $scope.isDisabled = function(pendingUnit) {
+        if (pendingUnit.encrypted && ! pendingUnit.encryptionMethod)
+            return true;
+        else
+            return false;
+    }
     $scope.setEncryption = function(pendingUnit, encryptionMethod) {
-        pendingUnit.encryptionMethod = encryptionMethod;
-        alert("method = " + pendingUnit.encryptionMethod);
+        //pendingUnit.encryptionMethod = encryptionMethod;
+        alert("DEBUG method = " + encryptionMethod);
         if (encryptionMethod  == null) {
             // return to generic Encryption module; disable load
-            doSetEncryptionMethod(pendingUnit, "none");
         }
         else {
             // instantiate new encryption method object; enable load
-            doSetEncryptionMethod(pendingUnit, encryptionMethod);
+
         }
+        doSetEncryptionMethod(pendingUnit, encryptionMethod);
     };
 
     $scope.loadDialog = function(pendingUnit) {
         //update the model
         // skip decryption step if not needed
-        if (pendingUnit.encryptedUnit)
+        if (pendingUnit.encrypted)
             $('#LoadWizard').wizard('selectedItem', { step: 1 });
         else {
             // prevent re-expansion following cancel of load
@@ -171,9 +179,9 @@ function doSetEncryptionMethod(pendingUnit, encryptionMethod) {
     subSocket.push(JSON.stringify({
         actions: [{
             action: 'setEncryptionMethod',
-            loadUnit: {
+            encryptedUnit: {
               uid: pendingUnit.uid,
-              method: encryptionMethod
+              encryptionMethod: encryptionMethod
             }
           }]
         }));
@@ -467,6 +475,8 @@ $(document).ready(function() {
       try {
           var json = JSON.parse(message);
 
+
+          //TODO massive case statement -refactor (subroutinise each case to start?)
           //is this an add/update of unit status?
           if(json.update) {
              updatePending(function(model) {
@@ -586,6 +596,15 @@ $(document).ready(function() {
                     // update loaded units for display
                     subSocket.push(JSON.stringify({actions:[{ action: 'loaded', limit: 10 }]}));
                 }
+            });
+          }
+          else if(json.encryptionchanged) {
+            updatePending(function(model) {
+                $.each(model, function(i,v) {
+                    if(v.uid == json.encryptionchanged.uid) {
+                      v.encryptionMethod = json.encryptionchanged.method;
+                    }
+                });
             });
           }
           // is this a removal from the pending units?

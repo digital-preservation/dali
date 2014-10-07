@@ -30,6 +30,7 @@ case class UpdateUnitDecryptMethod(username: String, uid: UnitUID, method: Strin
 case class UpdateDecryptMethod(username: String, listener: ActorRef, method: String, clientId: Option[String])
 case class UserProblemNotification(errorMsg: UserErrorMessage, clientId: Option[String])
 
+
 class UnitManagerActor extends Actor with Logging {
 
   private val settings = Settings(context.system)

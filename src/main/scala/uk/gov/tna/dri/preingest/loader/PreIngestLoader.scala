@@ -28,6 +28,7 @@ import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
 import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
 import uk.gov.nationalarchives.dri.catalogue.api.ingest.{PartIdType, MediaType, DriUnitType}
 import scala.collection.mutable
+import uk.gov.tna.dri.preingest.loader.ClientAction.EncryptedUnit
 
 
 class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certificateManagerActor: ActorRef) extends ScalatraServlet
@@ -147,6 +148,8 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
                 a.action match {
                   case("pending") =>
                     preIngestLoaderActor ! ListUnits(uuid)
+                  case("setEncryptionMethod") =>
+                    preIngestLoaderActor ! EncryptedUnit(a.encryptedUnit.get.uid, a.encryptedUnit.get.encryptionMethod)
                   case("decrypt") =>
                     preIngestLoaderActor ! UpdateUnitDecryptDetail(username, a.unitRef.get.uid, a.certificate, a.passphrase.get, Option(uuid))
                   case("checkCatalogued") =>
@@ -197,6 +200,11 @@ class PreIngestLoaderActor extends Actor with Logging {
     // notify browser of need to display fixity progress bar if 0, of progress otherwise
     case PartFixityProgress(part, fixityProgressPercentage) => {
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("fixityprogress", part.unitId, fixityProgressPercentage)))
+    }
+
+    // tell Encryption Actor to replace itself, then notify web page
+    case EncryptedUnit(uid, encryptionMethod) => {
+      AtmosphereClient.broadcast("/unit", JsonMessage(toJson("encryptionchanged", uid, encryptionMethod)))
     }
 
     // check for presence of parts to load in catalogue, and notify browser if failed
@@ -278,6 +286,11 @@ class PreIngestLoaderActor extends Actor with Logging {
   def toJson(action:String, unitUid: DRIUnit.UnitUID, progressPercentage: Integer) = (action ->
     ("uid" -> unitUid) ~
       ("percentage" -> progressPercentage.toString)
+    )
+
+  def toJson(action:String, unitUid: DRIUnit.UnitUID, encryptionMethod: Option[String]) = (action ->
+    ("uid" -> unitUid) ~
+      ("method" -> encryptionMethod)
     )
 
   def toJson(action: String, unitUid: DRIUnit.UnitUID, label: DRIUnit.Label, errorMessage: String) = (action ->
