@@ -7,6 +7,7 @@ import uk.gov.tna.dri.preingest.loader._
 import uk.gov.tna.dri.preingest.loader.certificate.NoCertificate
 import uk.gov.tna.dri.preingest.loader.certificate.GetCertificate
 import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
+import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.UnitUID
 
 
 case class Load(username: String, parts: Seq[TargetedPart], certificate: Option[String], passphrase: Option[String], clientId: Option[String], unitManager: Option[ActorRef])

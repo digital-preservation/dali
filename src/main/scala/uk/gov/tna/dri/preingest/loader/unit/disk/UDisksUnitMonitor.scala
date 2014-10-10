@@ -48,12 +48,10 @@ class UDisksUnitMonitor extends Actor with Logging {
           // gvfs-mount to mount it. If gvfs-mount takes longer than dbus.udisks.mount-delay, this test
           // may incorrectly assume a device is encrypted.
           val (unit, unitActor) = if(!partitionProperties.lvmDevice && partitionProperties.mounted.isEmpty) {
-            val unit = new TrueCryptedPartitionUnit(partitionProperties, diskProperties)
-            //(unit, () => new TrueCryptedPartitionUnitActor(unit))
-            (unit, TrueCryptedPartitionUnitActor.props(unit))
+            val unit = new EncryptedPartitionUnit(partitionProperties, diskProperties)
+            (unit, EncryptedPartitionUnitActor.props(unit))
           } else {
             val unit = new NonEncryptedPartitionUnit(partitionProperties, diskProperties)
-            //(unit, () => new NonEncryptedPartitionUnitActor(unit))
             (unit, NonEncryptedPartitionUnitActor.props(unit))
           }
 

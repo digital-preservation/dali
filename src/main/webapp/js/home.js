@@ -7,7 +7,7 @@ var mLoadedUnits = [];
 // rootScope ( page globals)
 var mUnits = {
    encryptionMethods: [
-       "Truecrypt",
+       "truecrypt",
        "LUKS"
    ]
 }

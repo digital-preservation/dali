@@ -202,8 +202,9 @@ class PreIngestLoaderActor extends Actor with Logging {
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("fixityprogress", part.unitId, fixityProgressPercentage)))
     }
 
-    // tell Encryption Actor to replace itself, then notify web page
+    // tell UnitManager to replace Encryption Actor, and notify web page
     case EncryptedUnit(uid, encryptionMethod) => {
+      unitManagerActor ! ReplaceDecryptMethod(uid, encryptionMethod)
       AtmosphereClient.broadcast("/unit", JsonMessage(toJson("encryptionchanged", uid, encryptionMethod)))
     }
 

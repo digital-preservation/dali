@@ -10,7 +10,7 @@ import scalax.file.PathMatcher.IsFile
 //import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
 import uk.gov.tna.dri.preingest.loader.{SettingsImpl, Crypto}
 //import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
-import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
+import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{UnitUID, OrphanedFileName, PartName}
 import java.io.IOException
 import akka.actor.ActorRef
 import scala.util.control.Breaks._
@@ -21,6 +21,7 @@ import uk.gov.nationalarchives.csv.validator.ProgressCallback
 import uk.gov.tna.dri.preingest.loader.SettingsImpl
 
 trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
+
 
   protected def tempMountPoint(username: String, volume: String) : Either[IOException , Path] = {
     DataStore.userStore(settings, username) match {

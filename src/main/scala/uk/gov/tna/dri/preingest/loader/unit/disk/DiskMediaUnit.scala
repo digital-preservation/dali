@@ -9,7 +9,7 @@ import scalax.file.PathMatcher.IsFile
 import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
 import uk.gov.tna.dri.preingest.loader.{SettingsImpl, Crypto}
 import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
-import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
+import uk.gov.tna.dri.preingest.loader.unit.DRIUnit._
 import java.io.{InputStream, OutputStream, IOException}
 import akka.actor.{Props, ActorRef}
 import scala.util.control.Breaks._
@@ -24,10 +24,14 @@ import scalax.file.Path.AccessModes.AccessMode
 import scalax.io.{Seekable, ResourceContext, SeekableByteChannel, OpenOption}
 import scalax.io.managed.{InputStreamResource, SeekableByteChannelResource, OutputStreamResource}
 import java.net.URI
+import uk.gov.tna.dri.preingest.loader.unit.PartitionDetailsForEncryptionMethodChange
+import uk.gov.tna.dri.preingest.loader.unit.SendPartitionDetails
+import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
+import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
 
 trait PartitionUnit extends MediaUnit {
-  protected val partition: PartitionProperties
-  protected val disk: DiskProperties
+  val partition: PartitionProperties
+  val disk: DiskProperties
 
   def uid = Crypto.hexUnsafe(Crypto.digest(partition.nativePath, None, DigestAlgorithm.MD5))
   def unitType = "Partition"
@@ -53,13 +57,19 @@ trait PartitionUnit extends MediaUnit {
     )
   }
 
+  def getProperties():(PartitionProperties, DiskProperties) = {
+    (this.partition, this.disk)
+  }
+
 }
 
-trait EncryptedPartitionUnit extends PartitionUnit with EncryptedDRIUnit
+trait GenericEncryptedPartitionUnit extends PartitionUnit with EncryptedDRIUnit
 
 case class NonEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends PartitionUnit with NonEncryptedDRIUnit
 
-case class TrueCryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends EncryptedPartitionUnit
+case class EncryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends GenericEncryptedPartitionUnit
 
-case class LUKSEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends EncryptedPartitionUnit
+case class TrueCryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends GenericEncryptedPartitionUnit
+
+case class LUKSEncryptedPartitionUnit(partition: PartitionProperties, disk: DiskProperties, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None) extends GenericEncryptedPartitionUnit
 
