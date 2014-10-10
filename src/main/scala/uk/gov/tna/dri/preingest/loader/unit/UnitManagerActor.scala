@@ -73,6 +73,9 @@ class UnitManagerActor extends Actor with Logging {
   context.system.scheduler.schedule(settings.Unit.uploadedScheduleDelay, settings.Unit.uploadedScheduleFrequency, uploadedUnitMonitor, ScheduledExecution)
   info("Scheduled: " + uploadedUnitMonitor.path)
 
+  // this val may appear unused but is essential to start the dbus monitor - do not delete
+  private val udisksUnitMonitor = context.actorOf(Props[UDisksUnitMonitor], name="UDisksUnitMonitor")
+
   //state
   private var units = Map.empty[UnitUID, ActorRef]
   private var listeners = List.empty[ActorRef]
