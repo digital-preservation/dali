@@ -51,6 +51,7 @@ function PendingUnitsCtrl($scope) {
 
     // disable the load button if encrypted and no method selected
     // FIXME this enables the button immediately without waiting for a response from the Actors
+    // responsable for setting the encryptionMethod
     $scope.isDisabled = function(pendingUnit) {
         if (pendingUnit.encrypted && ! pendingUnit.encryptionMethod)
             return true;
@@ -58,15 +59,6 @@ function PendingUnitsCtrl($scope) {
             return false;
     }
     $scope.setEncryption = function(pendingUnit, encryptionMethod) {
-        //pendingUnit.encryptionMethod = encryptionMethod;
-        alert("DEBUG method = " + encryptionMethod);
-        if (encryptionMethod  == null) {
-            // return to generic Encryption module; disable load
-        }
-        else {
-            // instantiate new encryption method object; enable load
-
-        }
         doSetEncryptionMethod(pendingUnit, encryptionMethod);
     };
 
@@ -119,7 +111,7 @@ function LoadModalCtrl($scope, $http) {
       if(selected == 1) {
 
         //instruct the server to decrypt the unit if needed
-        if (mloadModal.pendingUnit.encrypted) {
+        if (mLoadModal.pendingUnit.encrypted) {
             decrypt(mLoadModal.pendingUnit, mLoadModal.cert, mLoadModal.passphrase);
 
             //show waiting for decrypt

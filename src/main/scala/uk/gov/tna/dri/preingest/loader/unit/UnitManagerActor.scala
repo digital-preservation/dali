@@ -40,7 +40,7 @@ object EncryptionUnitType extends Enumeration {
   type EncryptionUnitType = Value
   val GenericEncryption = Value("genericEncryption")
   val Truecrypt = Value("truecrypt")
-//  val LUKS = Value("luks")
+  val LUKS = Value("LUKS")
 
   // ensure the JSON value sent from the interface makes sense
   def getOption(s: Option[String]): Option[Value] = {
@@ -170,6 +170,10 @@ class UnitManagerActor extends Actor with Logging {
       case Truecrypt =>
         val newUnit = new TrueCryptedPartitionUnit(partition, disk)
         val newUnitActor = TrueCryptedPartitionUnitActor.props(newUnit)
+        (newUnit, newUnitActor)
+      case LUKS =>
+        val newUnit = new LUKSEncryptedPartitionUnit(partition, disk)
+        val newUnitActor = LUKSEncryptedPartitionUnitActor.props(newUnit)
         (newUnit, newUnitActor)
       case GenericEncryption =>
         // regressing to stublike EncryptedUnitActor

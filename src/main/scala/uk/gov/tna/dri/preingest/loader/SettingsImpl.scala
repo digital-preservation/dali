@@ -85,6 +85,16 @@ class SettingsImpl(config: Config) extends Extension {
     val bin = Path.fromString(config.getString("unit-loader.truecrypt.bin"))
   }
 
+  object Luks {
+    val bin = Path.fromString(config.getString("unit-loader.luks.bin"))
+    val mapPoint = Path.fromString(config.getString("unit-loader.luks.mappoint"))
+  }
+
+  object Gpg {
+    val bin = Path.fromString(config.getString("unit-loader.gpg.bin"))
+  }
+
+
   object NtfsProgs {
     val labelBin = Path.fromString(config.getString("unit-loader.ntfs.label-bin"))
   }
