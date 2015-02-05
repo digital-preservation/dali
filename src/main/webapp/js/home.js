@@ -1,3 +1,7 @@
+// TODO: fix in configuration somehow
+//const URLBASE = "/"; // for jetty
+const URLBASE = "/unit-loader/"; // for tomcat
+
 var subSocket = null;
 
 var mPendingUnits = [];
@@ -237,7 +241,7 @@ function decrypt(pendingUnit, cert, pass) {
 };
 
 function updateCertsModel(http) {
-    http({method: "GET", url: "/certificate"})
+    http({method: "GET", url: URLBASE + "certificate"})
         .success(function(data, status, headers, config) {
             mLoadModal.certs.length = 0;
             $.each(data.certificate, function(i, v) {
@@ -436,7 +440,7 @@ $(document).ready(function() {
   var transport = 'websocket';
 
   var request = {
-    url: "/unit",
+    url: URLBASE  + "unit",
     contentType: "application/json",
     logLevel: 'debug',
     transport: transport,
