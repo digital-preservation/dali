@@ -1,12 +1,13 @@
 package uk.gov.tna.dri.jassh
 
+import org.scalatest.{Matchers, FlatSpec}
 import org.specs2.mutable.Specification
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 /**
  * Created by dev on 6/9/14.
 */
-object testJSON extends Specification{
+object testJSON extends FlatSpec with Matchers{
 
   implicit val formats = DefaultFormats // Brings in default date formats etc.
   case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
@@ -72,11 +73,11 @@ object testJSON extends Specification{
   val person = json.extract[Person]
   println("person " + person)
 
-  "json parse test"  should {
-    "check name is joe" in {
-      person.name mustEqual "joe"
+
+  "json parse test"  should "check name is joe" in {
+      person.name === "joe"
     }
-  }
+
 
 
 

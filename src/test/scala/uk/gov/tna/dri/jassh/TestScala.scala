@@ -2,6 +2,7 @@ package uk.gov.tna.dri.jassh
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import org.scalatest.{FlatSpec, Matchers}
 
 import org.specs2.mutable.Specification
 import fr.janalyse.ssh._
@@ -16,26 +17,26 @@ import uk.gov.tna.dri.preingest.loader.unit.network.{RemotePath, RemoteStore}
  */
 
 
-class TestScala extends Specification {
+class TestScala extends FlatSpec with Matchers {
 
  //private val settings = Settings(context.system)
 
   //IMPORTANT - to test with localhost, the public key should be in the authorized_keys
   //cp ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys
-  "sshTest" should {
+
     import util.Properties.{userName => user}
     val sshPrivateFile = "id_rsa"
     val opts = SSHOptions("localhost", username = "dev", sshKeyFile = Some(sshPrivateFile), timeout = 10000)
-    "test my name " in {
+    "sshTest" should "test my name " in {
       SSH.shell(opts) {
         sh =>
           val name = sh.whoami
-          name mustEqual "dev"
+          name === "dev"
       }
     }
 
     //create a file
-    "create and verify file" in {
+    "sshTest" should "create and verify file" in {
       val content = ""
       val testedfile = "/home/dev/test/loading"
 
@@ -49,28 +50,28 @@ class TestScala extends Specification {
       SSH.shell(opts) {
         sh =>
           val fileExists = sh.exists(testedfile)
-          fileExists mustEqual true
+          fileExists === true
       }
     }
 
     //list files
-    "list files" in {
+    "sshTest" should "list files" in {
        val pathList = RemoteStore.listFiles(opts, "/home/dev/gitlab/dri-software/unit-loader/src/test", "*.gpg")
 
-       pathList(0).path mustEqual "resources/test.gpg"
+       pathList(0).path === "resources/test.gpg"
 
     }
 
 
     //get a file
-    "get file" in {
+    "sshTest" should  "get file" in {
       SSH.ftp(opts) {
         ftp=>
           val remoteFile = "/home/dev/test/loading"
           val localFile = "/home/dev/test/loading2"
           ftp.receive(remoteFile, localFile)
           val file = new java.io.File(localFile)
-          file.exists mustEqual true
+          file.exists === true
       }
     }
 
@@ -86,24 +87,24 @@ class TestScala extends Specification {
 //          val localFile = "/tmp/" + remoteFile.substring(remoteFile.lastIndexOf("/")+1)
 //          scp.receive(remoteFile, localFile)
 //          val file = new java.io.File(localFile)
-//          file.exists mustEqual true
+//          file.exists === true
 //      }
 //
 //
 //    }
 
     //delete file
-    "delete files" in {
+  "sshTest" should  "delete files" in {
       SSH.shell(opts) {
         sh =>
           val testedfile = "/home/dev/test/loading2"
           val filesToDel = List(testedfile)
           sh.rm(filesToDel)
           val fileExists = sh.exists(testedfile)
-          fileExists mustEqual false
+          fileExists === false
       }
     }
 
-  }
+
 }
 
