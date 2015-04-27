@@ -7,19 +7,100 @@
     <packaging>war</packaging>
     <version>1.1-SNAPSHOT</version>
 
+    <url>http://digital-preservation.github.com/DALI/</url>
+    <inceptionYear>2013</inceptionYear>
+
+    <organization>
+        <name>The National Archives</name>
+        <url>http://www.nationalarchives.gov.uk</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Laura Damian</name>
+        </developer>
+        <developer>
+            <name>Valy Diarrassouba</name>
+        </developer>
+        <developer>
+            <name>Adam Retter</name>
+        </developer>
+        <developer>
+            <name>Graham Seaman</name>
+        </developer>
+        <developer>
+            <name>Rob Walpole</name>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>The Mozilla Public License Version 2.0</name>
+            <url>http://opensource.org/licenses/MPL-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <properties>
         <scala.version>2.11</scala.version>
         <scala.lib.version>${scala.version}.2</scala.lib.version>
         <scalatra.version>2.3.0</scalatra.version>
 		<jetty.version>8.1.15.v20140411</jetty.version>
         <bouncycastle.version>1.50</bouncycastle.version>
-        <catalogue.version>1.35.10-SNAPSHOT</catalogue.version>
+        <catalogue.version>1.35.12-SNAPSHOT</catalogue.version>
+        <contact.email>digitalpreservation@nationalarchives.gov.uk</contact.email>
     </properties>
 
     <build>
         <finalName>unit-loader</finalName>
 
         <plugins>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <header>MPL2-template.txt</header>
+                    <failIfMissing>true</failIfMissing>
+                    <aggregate>true</aggregate>
+                    <strictCheck>true</strictCheck>
+                    <properties>
+                        <organisation>${project.organization.name}</organisation>
+                        <email>${contact.email}</email>
+                        <url>${project.organization.url}</url>
+                    </properties>
+                    <mapping>
+                        <ssp>XML_STYLE</ssp>
+                    </mapping>
+                    <excludes>
+                        <exclude>**/pom.xml</exclude>
+                        <exclude>**/*.sbt</exclude>
+                        <exclude>**/project/**</exclude>
+                        <exclude>**/README.md</exclude>
+                        <exclude>**/README</exclude>
+                        <exclude>**/LICENSE</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.gpg</exclude>
+                        <exclude>**/*.map</exclude>
+                        <!-- home.js license added manually -->
+                        <exclude>**/*.js</exclude>
+                        <exclude>**/src/main/resources/**</exclude>
+                        <exclude>src/main/java/**</exclude>
+                        <exclude>src/main/webapp/bootstrap-3.0.0/**</exclude>
+                        <exclude>src/main/webapp/fuelux-2.4.1/**</exclude>
+                    </excludes>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-headers</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -31,7 +112,7 @@
                             <goal>analyze-only</goal>
                         </goals>
                         <configuration>
-                            <failOnWarning>true</failOnWarning>
+                            <failOnWarning>false</failOnWarning>
                             <ignoreNonCompile>true</ignoreNonCompile>
                         </configuration>
                     </execution>
@@ -142,19 +223,26 @@
         </dependency>
         <dependency>
             <groupId>org.atmosphere</groupId>
-            <artifactId>atmosphere-compat-tomcat7</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.atmosphere</groupId>
             <artifactId>atmosphere-compat-tomcat</artifactId>
             <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-compat-tomcat7</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-runtime-native</artifactId>
+            <version>2.1.5</version>
+        </dependency>
+        <!--
+        <dependency>
+            <groupId>org.atmosphere</groupId>
             <artifactId>atmosphere-runtime</artifactId>
             <version>2.1.5</version>
         </dependency>
+        -->
         <dependency>
             <groupId>org.atmosphere</groupId>
             <artifactId>atmosphere-compat-jbossweb</artifactId>
