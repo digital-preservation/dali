@@ -6,36 +6,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.unit.disk
+package uk.gov.nationalarchives.dri.preingest.loader.unit.disk
 
-import uk.gov.tna.dri.preingest.loader.unit._
-import uk.gov.tna.dri.preingest.loader.store.DataStore
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
+import uk.gov.nationalarchives.dri.preingest.loader.unit._
+import uk.gov.nationalarchives.dri.preingest.loader.store.DataStore
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
 import scalax.file.{PathMatcherFactory, LinkOption, PathSet, Path}
 import scalax.file.PathMatcher.IsFile
-import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
-import uk.gov.tna.dri.preingest.loader.{SettingsImpl, Crypto}
-import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
-import uk.gov.tna.dri.preingest.loader.unit.DRIUnit._
+import uk.gov.nationalarchives.dri.preingest.loader.certificate.CertificateDetail
+import uk.gov.nationalarchives.dri.preingest.loader.{SettingsImpl, Crypto}
+import uk.gov.nationalarchives.dri.preingest.loader.Crypto.DigestAlgorithm
+import uk.gov.nationalarchives.dri.preingest.loader.unit.DRIUnit._
 import java.io.{InputStream, OutputStream, IOException}
 import akka.actor.{Props, ActorRef}
 import scala.util.control.Breaks._
 import grizzled.slf4j.Logger
-import uk.gov.tna.dri.preingest.loader.unit.common.MediaUnitActor
-import uk.gov.tna.dri.preingest.loader.unit.TargetedPart
+import uk.gov.nationalarchives.dri.preingest.loader.unit.common.MediaUnitActor
+import uk.gov.nationalarchives.dri.preingest.loader.unit.TargetedPart
 import scala.Some
-import uk.gov.tna.dri.preingest.loader.unit.UnitError
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
+import uk.gov.nationalarchives.dri.preingest.loader.unit.UnitError
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
 import scalax.file.Path.AccessModes.AccessMode
 import scalax.io.{Seekable, ResourceContext, SeekableByteChannel, OpenOption}
 import scalax.io.managed.{InputStreamResource, SeekableByteChannelResource, OutputStreamResource}
 import java.net.URI
-import uk.gov.tna.dri.preingest.loader.unit.PartitionDetailsForEncryptionMethodChange
-import uk.gov.tna.dri.preingest.loader.unit.SendPartitionDetails
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
+import uk.gov.nationalarchives.dri.preingest.loader.unit.PartitionDetailsForEncryptionMethodChange
+import uk.gov.nationalarchives.dri.preingest.loader.unit.SendPartitionDetails
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
 
 trait PartitionUnit extends MediaUnit {
   val partition: PartitionProperties

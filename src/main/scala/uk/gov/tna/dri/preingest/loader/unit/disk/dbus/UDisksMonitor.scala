@@ -6,14 +6,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.unit.disk.dbus
+package uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus
 
 import akka.actor.ActorRef
 import org.freedesktop.dbus._
 import scala.collection.mutable
 import org.freedesktop.{DBus, UDisks}
-import uk.gov.tna.dri.preingest.loader.SettingsImpl
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DiskProperties, PartitionProperties, StoreProperties, DeviceFile}
+import uk.gov.nationalarchives.dri.preingest.loader.SettingsImpl
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DiskProperties, PartitionProperties, StoreProperties, DeviceFile}
 import grizzled.slf4j.Logging
 
 case class DeviceAdded(storeProperties: StoreProperties)

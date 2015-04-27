@@ -6,7 +6,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.jassh
+package uk.gov.nationalarchives.dri.jassh
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -17,8 +17,8 @@ import fr.janalyse.ssh._
 import scalax.file._
 import java.text.SimpleDateFormat
 import scala.collection.mutable.ListBuffer
-import uk.gov.tna.dri.preingest.loader.Settings
-import uk.gov.tna.dri.preingest.loader.unit.network.{RemotePath, RemoteStore}
+import uk.gov.nationalarchives.dri.preingest.loader.Settings
+import uk.gov.nationalarchives.dri.preingest.loader.unit.network.{RemotePath, RemoteStore}
 
 /**
  * Created by dev on 5/8/14.

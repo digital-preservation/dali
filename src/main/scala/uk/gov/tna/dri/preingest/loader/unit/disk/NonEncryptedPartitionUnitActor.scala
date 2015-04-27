@@ -6,21 +6,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.unit.disk
+package uk.gov.nationalarchives.dri.preingest.loader.unit.disk
 
-import uk.gov.tna.dri.preingest.loader.unit._
+import uk.gov.nationalarchives.dri.preingest.loader.unit._
 import scalax.file.Path
-import uk.gov.tna.dri.preingest.loader.SettingsImpl
-import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
+import uk.gov.nationalarchives.dri.preingest.loader.SettingsImpl
+import uk.gov.nationalarchives.dri.preingest.loader.unit.DRIUnit.{OrphanedFileName, PartName}
 import akka.actor.{Props, ActorRef}
 import scala.util.control.Breaks._
 import grizzled.slf4j.Logger
-import uk.gov.tna.dri.preingest.loader.unit.common.MediaUnitActor
-import uk.gov.tna.dri.preingest.loader.unit.TargetedPart
+import uk.gov.nationalarchives.dri.preingest.loader.unit.common.MediaUnitActor
+import uk.gov.nationalarchives.dri.preingest.loader.unit.TargetedPart
 import scala.Some
-import uk.gov.tna.dri.preingest.loader.unit.UnitError
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
+import uk.gov.nationalarchives.dri.preingest.loader.unit.UnitError
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
 
 
 class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extends MediaUnitActor[NonEncryptedPartitionUnit] {
@@ -36,7 +36,7 @@ class NonEncryptedPartitionUnitActor(var unit: NonEncryptedPartitionUnit) extend
   }
 
   private def listTopLevel[T](settings: SettingsImpl, volume: String, mount: Path)(f: Seq[Path] => T): T = {
-    import uk.gov.tna.dri.preingest.loader.unit.common.unit.isJunkFile
+    import uk.gov.nationalarchives.dri.preingest.loader.unit.common.unit.isJunkFile
     val files = mount * ((p: Path) => !isJunkFile(settings, p.name))
     f(files.toSet.toSeq)
   }

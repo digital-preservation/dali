@@ -6,13 +6,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.auth
+package uk.gov.nationalarchives.dri.preingest.loader.auth
 
 import org.scalatra.{CookieOptions, ScalatraBase}
 import org.scalatra.auth.ScentryStrategy
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.concurrent.duration._
-import uk.gov.tna.dri.preingest.loader.SettingsImpl
+import uk.gov.nationalarchives.dri.preingest.loader.SettingsImpl
 
 class RememberMeStrategy(protected override val app: ScalatraBase, val settings: SettingsImpl)
   extends ScentryStrategy[User]

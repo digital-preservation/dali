@@ -6,9 +6,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.unit.network
+package uk.gov.nationalarchives.dri.preingest.loader.unit.network
 
-import uk.gov.tna.dri.preingest.loader.Settings
+import uk.gov.nationalarchives.dri.preingest.loader.Settings
 import fr.janalyse.ssh.SSHOptions
 
 //global variable

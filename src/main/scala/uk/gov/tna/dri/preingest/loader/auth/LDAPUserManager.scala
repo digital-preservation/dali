@@ -6,12 +6,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.auth
+package uk.gov.nationalarchives.dri.preingest.loader.auth
 
 import com.unboundid.ldap.sdk._
 import grizzled.slf4j.Logging
 import resource._
-import uk.gov.tna.dri.preingest.loader.SettingsImpl
+import uk.gov.nationalarchives.dri.preingest.loader.SettingsImpl
 
 /**
  * @author Adam Retter <adam.retter@googlemail.com>

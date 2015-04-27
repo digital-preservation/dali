@@ -6,11 +6,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.unit.disk
+package uk.gov.nationalarchives.dri.preingest.loader.unit.disk
 
 import grizzled.slf4j.Logging
 import scala.collection.mutable
-import uk.gov.tna.dri.preingest.loader.SettingsImpl
+import uk.gov.nationalarchives.dri.preingest.loader.SettingsImpl
 
 object NTFS extends Logging {
 

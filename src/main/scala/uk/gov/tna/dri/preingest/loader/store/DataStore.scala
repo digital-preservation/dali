@@ -6,12 +6,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.store
+package uk.gov.nationalarchives.dri.preingest.loader.store
 
 import scalax.file.Path
-import uk.gov.tna.dri.preingest.loader.{SettingsImpl, Crypto}
+import uk.gov.nationalarchives.dri.preingest.loader.{SettingsImpl, Crypto}
 import java.io.IOException
-import uk.gov.tna.dri.preingest.loader.unit.TargetedPart
+import uk.gov.nationalarchives.dri.preingest.loader.unit.TargetedPart
 
 object DataStore {
 

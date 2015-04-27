@@ -6,11 +6,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.auth
+package uk.gov.nationalarchives.dri.preingest.loader.auth
 
 import org.scalatra.auth.{ScentryConfig, ScentrySupport}
 import org.scalatra.ScalatraBase
-import uk.gov.tna.dri.preingest.loader.SettingsImpl
+import uk.gov.nationalarchives.dri.preingest.loader.SettingsImpl
 
 trait LDAPAuthenticationSupport extends ScentrySupport[User]
   with UserPasswordAuthSupport[User]

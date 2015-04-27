@@ -6,7 +6,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.unit
+package uk.gov.nationalarchives.dri.preingest.loader.unit
 
 import org.json4s.JObject
 import org.json4s.JsonAST.JNull
@@ -26,7 +26,7 @@ object DRIUnit {
 }
 
 trait DRIUnit {
-  import uk.gov.tna.dri.preingest.loader.unit.DRIUnit._
+  import uk.gov.nationalarchives.dri.preingest.loader.unit.DRIUnit._
 
   def uid: UnitUID
   def unitType: UnitType

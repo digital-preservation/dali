@@ -9,9 +9,9 @@
 import akka.actor.{Props, ActorSystem}
 import org.scalatra.LifeCycle
 import javax.servlet.ServletContext
-import uk.gov.tna.dri.preingest.loader.auth.RememberMeDb
-import uk.gov.tna.dri.preingest.loader.certificate.CertificateManagerActor
-import uk.gov.tna.dri.preingest.loader.{PreIngestLoaderActor, PreIngestLoader}
+import uk.gov.nationalarchives.dri.preingest.loader.auth.RememberMeDb
+import uk.gov.nationalarchives.dri.preingest.loader.certificate.CertificateManagerActor
+import uk.gov.nationalarchives.dri.preingest.loader.{PreIngestLoaderActor, PreIngestLoader}
 
 class ScalatraBootstrap extends LifeCycle {
 

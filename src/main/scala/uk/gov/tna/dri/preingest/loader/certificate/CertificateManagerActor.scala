@@ -6,16 +6,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.certificate
+package uk.gov.nationalarchives.dri.preingest.loader.certificate
 
 import akka.actor.Actor
 import grizzled.slf4j.Logging
 import scalax.file.{NotFileException, FileOps, Path}
 import java.net.NetworkInterface
 import java.io.FileNotFoundException
-import uk.gov.tna.dri.preingest.loader.store.DataStore
-import uk.gov.tna.dri.preingest.loader.{Settings, Crypto}
-import uk.gov.tna.dri.preingest.loader.Crypto.{SymetricAlgorithm, DigestAlgorithm}
+import uk.gov.nationalarchives.dri.preingest.loader.store.DataStore
+import uk.gov.nationalarchives.dri.preingest.loader.{Settings, Crypto}
+import uk.gov.nationalarchives.dri.preingest.loader.Crypto.{SymetricAlgorithm, DigestAlgorithm}
 
 
 case class StoreCertificates(username: String, certificates: Seq[CertificateDetail])

@@ -6,27 +6,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.unit.common
+package uk.gov.nationalarchives.dri.preingest.loader.unit.common
 
-import uk.gov.tna.dri.preingest.loader.unit._
-import uk.gov.tna.dri.preingest.loader.store.DataStore
+import uk.gov.nationalarchives.dri.preingest.loader.unit._
+import uk.gov.nationalarchives.dri.preingest.loader.store.DataStore
 import scalaz.{Success => SuccessZ, Failure => FailureZ, _}
-//import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
-//import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
+//import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.DiskProperties
+//import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.PartitionProperties
 import scalax.file.{PathSet, Path}
 import scalax.file.PathMatcher.IsFile
-//import uk.gov.tna.dri.preingest.loader.certificate.CertificateDetail
-import uk.gov.tna.dri.preingest.loader.{SettingsImpl, Crypto}
-//import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm
-import uk.gov.tna.dri.preingest.loader.unit.DRIUnit.{UnitUID, OrphanedFileName, PartName}
+//import uk.gov.nationalarchives.dri.preingest.loader.certificate.CertificateDetail
+import uk.gov.nationalarchives.dri.preingest.loader.{SettingsImpl, Crypto}
+//import uk.gov.nationalarchives.dri.preingest.loader.Crypto.DigestAlgorithm
+import uk.gov.nationalarchives.dri.preingest.loader.unit.DRIUnit.{UnitUID, OrphanedFileName, PartName}
 import java.io.IOException
 import akka.actor.ActorRef
 import scala.util.control.Breaks._
 //import grizzled.slf4j.Logger
-import uk.gov.tna.dri.preingest.loader.unit.disk.{PartitionUnit, NonEncryptedPartitionUnit}
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.{PartitionUnit, NonEncryptedPartitionUnit}
 import uk.gov.nationalarchives.csv.validator.api.{TextFile, CsvValidator}
 import uk.gov.nationalarchives.csv.validator.ProgressCallback
-import uk.gov.tna.dri.preingest.loader.SettingsImpl
+import uk.gov.nationalarchives.dri.preingest.loader.SettingsImpl
 
 trait MediaUnitActor[T <: MediaUnit] extends DRIUnitActor[T] {
 

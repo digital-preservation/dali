@@ -6,14 +6,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader
+package uk.gov.nationalarchives.dri.preingest.loader
 
 import akka.actor.{ActorRef, ActorSystem, Props, Actor}
 import akka.pattern._
 import akka.util.Timeout
 import org.scalatra._
 import org.scalatra.scalate.ScalateSupport
-import uk.gov.tna.dri.preingest.loader.auth.{User, LDAPAuthenticationSupport}
+import uk.gov.nationalarchives.dri.preingest.loader.auth.{User, LDAPAuthenticationSupport}
 import org.scalatra.atmosphere._
 import org.scalatra.json.{JValueResult, JacksonJsonSupport}
 import org.json4s._
@@ -22,21 +22,21 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 import grizzled.slf4j.Logging
-import uk.gov.tna.dri.preingest.loader.unit._
+import uk.gov.nationalarchives.dri.preingest.loader.unit._
 import org.scalatra.servlet.FileUploadSupport
-import uk.gov.tna.dri.preingest.loader.certificate.CertificateList
+import uk.gov.nationalarchives.dri.preingest.loader.certificate.CertificateList
 import org.scalatra.atmosphere.Disconnected
 import org.scalatra.atmosphere.JsonMessage
 import org.scalatra.atmosphere.TextMessage
 import scala.Some
-import uk.gov.tna.dri.preingest.loader.certificate.ListCertificates
+import uk.gov.nationalarchives.dri.preingest.loader.certificate.ListCertificates
 import org.scalatra.atmosphere.Error
-import uk.gov.tna.dri.preingest.loader.certificate.StoreCertificates
-import uk.gov.tna.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
+import uk.gov.nationalarchives.dri.preingest.loader.certificate.StoreCertificates
+import uk.gov.nationalarchives.dri.preingest.loader.catalogue.LoaderCatalogueJmsClient
 import uk.gov.tna.dri.catalogue.jms.client.JmsConfig
 import uk.gov.nationalarchives.dri.catalogue.api.ingest.{PartIdType, MediaType, DriUnitType}
 import scala.collection.mutable
-import uk.gov.tna.dri.preingest.loader.ClientAction.EncryptedUnit
+import uk.gov.nationalarchives.dri.preingest.loader.ClientAction.EncryptedUnit
 
 
 class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certificateManagerActor: ActorRef) extends ScalatraServlet
@@ -148,7 +148,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
           //val username = user.username //TODO causes NPE at the moment
           val username = x.username //TODO fix above, this is a temp solution
 
-          import uk.gov.tna.dri.preingest.loader.ClientAction.Actions
+          import uk.gov.nationalarchives.dri.preingest.loader.ClientAction.Actions
           try{
             val clientActions = json.extract[Actions]
             clientActions.actions map {

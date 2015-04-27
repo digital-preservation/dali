@@ -6,14 +6,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.unit.disk
+package uk.gov.nationalarchives.dri.preingest.loader.unit.disk
 
 import grizzled.slf4j.Logging
 import scalax.file.Path
 import scala.collection.mutable
-import uk.gov.tna.dri.preingest.loader.store.DataStore
+import uk.gov.nationalarchives.dri.preingest.loader.store.DataStore
 import scalax.file.PathMatcher.IsDirectory
-import uk.gov.tna.dri.preingest.loader.{certificate, SettingsImpl}
+import uk.gov.nationalarchives.dri.preingest.loader.{certificate, SettingsImpl}
 import java.util.UUID
 
 /**
@@ -288,7 +288,7 @@ object LUKSEncryptedPartition {
 
   def listTopLevel[T](settings: SettingsImpl, volume: String, mount: Path, certificate: Option[Path], passphrase: String)(f: Seq[Path] => T): T = {
     LUKS.withVolume(settings: SettingsImpl, volume: String, certificate, passphrase, mount) {
-      import uk.gov.tna.dri.preingest.loader.unit.common.unit.isJunkFile
+      import uk.gov.nationalarchives.dri.preingest.loader.unit.common.unit.isJunkFile
       val files = mount * ((p: Path) => !isJunkFile(settings, p.name))
       f(files.toSet.toSeq)
     }

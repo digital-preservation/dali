@@ -6,7 +6,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader
+package uk.gov.nationalarchives.dri.preingest.loader
 
 import java.security.{NoSuchAlgorithmException, Security, MessageDigest}
 import org.bouncycastle.util.encoders.{Hex, Base64}
@@ -37,7 +37,7 @@ object Crypto {
   }
 
 
-  import uk.gov.tna.dri.preingest.loader.Crypto.DigestAlgorithm.DigestAlgorithm
+  import uk.gov.nationalarchives.dri.preingest.loader.Crypto.DigestAlgorithm.DigestAlgorithm
 
   type DigestProvider[E <: Exception] = { def calculate(): Either[E, Array[Byte]] }
 

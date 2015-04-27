@@ -6,7 +6,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.jassh
+package uk.gov.nationalarchives.dri.jassh
 
 import org.scalatest.{Matchers, FlatSpec}
 import org.specs2.mutable.Specification
@@ -73,7 +73,7 @@ object testJSON extends FlatSpec with Matchers{
 
   println("json" + jsonLoad)
 
-  import uk.gov.tna.dri.preingest.loader.ClientAction.Actions
+  import uk.gov.nationalarchives.dri.preingest.loader.ClientAction.Actions
   val clientActions = json.extract[Actions]
 
   println("Client actions" + clientActions)

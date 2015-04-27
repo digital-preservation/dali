@@ -6,19 +6,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.unit
+package uk.gov.nationalarchives.dri.preingest.loader.unit
 
 import scalax.file.Path
-import uk.gov.tna.dri.preingest.loader.unit.DRIUnit._
+import uk.gov.nationalarchives.dri.preingest.loader.unit.DRIUnit._
 import akka.actor.ActorRef
-import uk.gov.tna.dri.preingest.loader.{UserErrorMessages, PreIngestLoaderActor}
-import uk.gov.tna.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DiskProperties, PartitionProperties}
-import uk.gov.tna.dri.preingest.loader.certificate._
+import uk.gov.nationalarchives.dri.preingest.loader.{UserErrorMessages, PreIngestLoaderActor}
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.dbus.UDisksMonitor.{DiskProperties, PartitionProperties}
+import uk.gov.nationalarchives.dri.preingest.loader.certificate._
 import grizzled.slf4j.Logging
-import uk.gov.tna.dri.preingest.loader.unit.network.{GlobalUtil, RemotePath, GPGCrypt, RemoteStore}
-import uk.gov.tna.dri.preingest.loader.store.DataStore
-import uk.gov.tna.dri.preingest.loader.unit.common.MediaUnitActor
-import uk.gov.tna.dri.preingest.loader.unit.common.unit.isJunkFile
+import uk.gov.nationalarchives.dri.preingest.loader.unit.network.{GlobalUtil, RemotePath, GPGCrypt, RemoteStore}
+import uk.gov.nationalarchives.dri.preingest.loader.store.DataStore
+import uk.gov.nationalarchives.dri.preingest.loader.unit.common.MediaUnitActor
+import uk.gov.nationalarchives.dri.preingest.loader.unit.common.unit.isJunkFile
 
 case class UploadedUnit(uid: UnitUID, interface: Interface, src: Source, label: Label, size: Bytes, timestamp: Milliseconds, parts: Option[Seq[PartName]] = None, orphanedFiles: Option[Seq[OrphanedFileName]] = None)
       extends EncryptedDRIUnit with MediaUnit {
@@ -43,8 +43,8 @@ class UploadedUnitActor(val uid: DRIUnit.UnitUID, val unitPath: RemotePath) exte
     println("ld it should first copy the data in order to decrypt it ")
   }
 
-  def copyData(username: String, parts: Seq[uk.gov.tna.dri.preingest.loader.unit.TargetedPart],certificate: (uk.gov.tna.dri.preingest.loader.certificate.CertificateName,
-    uk.gov.tna.dri.preingest.loader.certificate.CertificateData),passphrase: Option[String],unitManager: Option[akka.actor.ActorRef]): Unit = {
+  def copyData(username: String, parts: Seq[uk.gov.nationalarchives.dri.preingest.loader.unit.TargetedPart],certificate: (uk.gov.nationalarchives.dri.preingest.loader.certificate.CertificateName,
+    uk.gov.nationalarchives.dri.preingest.loader.certificate.CertificateData),passphrase: Option[String],unitManager: Option[akka.actor.ActorRef]): Unit = {
       copyData(username, parts, unitManager)
       GlobalUtil.cleanupProcessing(opts, getLoadFile(unit.label))
   }

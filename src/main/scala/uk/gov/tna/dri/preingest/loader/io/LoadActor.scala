@@ -6,15 +6,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package uk.gov.tna.dri.preingest.loader.io
+package uk.gov.nationalarchives.dri.preingest.loader.io
 
 import akka.actor.Actor
 import grizzled.slf4j.Logging
-import uk.gov.tna.dri.preingest.loader.unit.LoadUnit
-import uk.gov.tna.dri.preingest.loader.store.DataStore
+import uk.gov.nationalarchives.dri.preingest.loader.unit.LoadUnit
+import uk.gov.nationalarchives.dri.preingest.loader.store.DataStore
 import scalax.file.{PathSet, Path}
 import scalax.file.PathMatcher.IsFile
-import uk.gov.tna.dri.preingest.loader.unit.disk.{TrueCrypt, TrueCryptedPartition}
+import uk.gov.nationalarchives.dri.preingest.loader.unit.disk.{TrueCrypt, TrueCryptedPartition}
 
 
 object LoadStatus extends Enumeration {
