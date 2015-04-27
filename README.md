@@ -6,9 +6,11 @@ Currently Supports:
 
 1. TrueCrypted NTFS partitions
 
-2. GNUPG Zipped files
+2. LUKS-encrypted partitions
 
-3. Unencrypted file systems
+3. GNUPG Zipped files
+
+4. Unencrypted file systems
 
 Technologies
 ------------
