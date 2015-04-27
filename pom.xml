@@ -3,10 +3,12 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.gov.nationalarchives.dri</groupId>
-    <artifactId>unit-loader</artifactId>
+    <artifactId>DALI</artifactId>
     <packaging>war</packaging>
     <version>1.1-SNAPSHOT</version>
 
+    <name>DALI - Data Autoloading Infrastructure</name>
+    <description>Automatically decrypt and load partitions to a designated device</description>
     <url>http://digital-preservation.github.com/DALI/</url>
     <inceptionYear>2013</inceptionYear>
 
