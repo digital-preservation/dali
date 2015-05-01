@@ -250,7 +250,6 @@
             <artifactId>atmosphere-compat-jbossweb</artifactId>
             <version>2.0.1</version>
         </dependency>
-
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
@@ -265,17 +264,17 @@
         <dependency>
             <groupId>org.json4s</groupId>
             <artifactId>json4s-jackson_${scala.version}</artifactId>
-            <version>3.2.10</version>
+            <version>3.2.11</version>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
             <artifactId>json4s-core_${scala.version}</artifactId>
-            <version>3.2.10</version>
+            <version>3.2.11</version>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
             <artifactId>json4s-ast_${scala.version}</artifactId>
-            <version>3.2.10</version>
+            <version>3.2.11</version>
         </dependency>
 		<dependency>
 			<groupId>org.scalatra</groupId>
