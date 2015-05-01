@@ -46,7 +46,7 @@
     <properties>
         <scala.version>2.11</scala.version>
         <scala.lib.version>${scala.version}.2</scala.lib.version>
-        <scalatra.version>2.3.0</scalatra.version>
+        <scalatra.version>2.4.0.RC1</scalatra.version> 
 		<jetty.version>8.1.15.v20140411</jetty.version>
         <bouncycastle.version>1.50</bouncycastle.version>
         <catalogue.version>1.35.12-SNAPSHOT</catalogue.version>
@@ -250,7 +250,6 @@
             <artifactId>atmosphere-compat-jbossweb</artifactId>
             <version>2.0.1</version>
         </dependency>
-
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
@@ -265,17 +264,17 @@
         <dependency>
             <groupId>org.json4s</groupId>
             <artifactId>json4s-jackson_${scala.version}</artifactId>
-            <version>3.2.10</version>
+            <version>3.2.11</version>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
             <artifactId>json4s-core_${scala.version}</artifactId>
-            <version>3.2.10</version>
+            <version>3.2.11</version>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
             <artifactId>json4s-ast_${scala.version}</artifactId>
-            <version>3.2.10</version>
+            <version>3.2.11</version>
         </dependency>
 		<dependency>
 			<groupId>org.scalatra</groupId>
