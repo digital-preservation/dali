@@ -51,7 +51,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
 
   protected val settings = Settings(system)
 
-  implicit protected val jsonFormats: Formats = DefaultFormats
+  implicit protected lazy val jsonFormats: Formats = DefaultFormats
   protected implicit def executor: ExecutionContext = system.dispatcher
 
   def toJson(cl: CertificateList) : JValue = {

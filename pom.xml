@@ -46,7 +46,7 @@
     <properties>
         <scala.version>2.11</scala.version>
         <scala.lib.version>${scala.version}.2</scala.lib.version>
-        <scalatra.version>2.3.0</scalatra.version>
+        <scalatra.version>2.4.0.RC1</scalatra.version> 
 		<jetty.version>8.1.15.v20140411</jetty.version>
         <bouncycastle.version>1.50</bouncycastle.version>
         <catalogue.version>1.35.12-SNAPSHOT</catalogue.version>
