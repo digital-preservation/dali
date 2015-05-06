@@ -13,7 +13,7 @@ import akka.pattern._
 import akka.util.Timeout
 import org.scalatra._
 import org.scalatra.scalate.ScalateSupport
-import uk.gov.nationalarchives.dri.preingest.loader.auth.{User, LDAPAuthenticationSupport}
+import uk.gov.nationalarchives.dri.preingest.loader.auth.{BasicAuthenticationSupport, User, LDAPAuthenticationSupport}
 import org.scalatra.atmosphere._
 import org.scalatra.json.{JValueResult, JacksonJsonSupport}
 import org.json4s._
@@ -47,6 +47,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
   with AtmosphereSupport
   with FutureSupport
   with LDAPAuthenticationSupport
+  with BasicAuthenticationSupport
   with Logging {
 
   protected val settings = Settings(system)
@@ -65,14 +66,14 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
 
 
   get("/") {
-    userPasswordAuth
+    userPasswordAuth(settings)
     contentType = "text/html"
     ssp("home", "title" -> "DRI Pre-Ingest Loader", "username" -> user.username)
   }
 
   //TODO ideally would be implemented with web-sockets
   post("/certificate") {
-    userPasswordAuth
+    userPasswordAuth(settings)
     fileMultiParams.get("certificate") match {
 
       case Some(certificates) =>
@@ -87,7 +88,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
 
   //TODO ideally would be implemented with web-sockets
   get("/certificate") {
-    userPasswordAuth
+    userPasswordAuth(settings)
     new AsyncResult {
       val is = ask(certificateManagerActor, ListCertificates(user.username))(Timeout(10 seconds)).mapTo[CertificateList].map(toJson(_))
     }
@@ -100,7 +101,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
   }
 
   post("/login") {
-    userPasswordAuth
+    userPasswordAuth(settings)
     redirect("/")
   }
 
@@ -124,7 +125,7 @@ class PreIngestLoader(system: ActorSystem, preIngestLoaderActor: ActorRef, certi
 //  }
 
   atmosphere("/unit") {
-    userPasswordAuth
+    userPasswordAuth(settings)
     val x: User = user  //TODO this is not very safe! what happens when the user's session expires etc!
 
     new AtmosphereClient {

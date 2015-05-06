@@ -24,7 +24,8 @@ import scala.collection.JavaConverters._
 class SettingsImpl(config: Config) extends Extension {
 
   object Auth {
-
+    val basicAuthUser = config.getString("unit-loader.auth.basic.user")
+    val basicAuthPassword = config.getString("unit-loader.auth.basic.password")
     val ldapServer = config.getStringList("unit-loader.auth.ldap.server").asScala.toList
     val ldapPort = config.getInt("unit-loader.auth.ldap.port")
     val ldapBindUser = config.getString("unit-loader.auth.ldap.bind.user")

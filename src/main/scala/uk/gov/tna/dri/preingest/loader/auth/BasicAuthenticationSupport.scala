@@ -12,24 +12,18 @@ import org.scalatra.auth.{ScentryConfig, ScentrySupport}
 import org.scalatra.ScalatraBase
 import uk.gov.nationalarchives.dri.preingest.loader.SettingsImpl
 
-trait LDAPAuthenticationSupport extends AuthenticationSupport
-  with LDAPUserManager {
+trait BasicAuthenticationSupport extends AuthenticationSupport {
   self: ScalatraBase =>
+
 
   override protected def fromSession = {
     case id: String =>
-      find(id).getOrElse(null)
-  }
-
-  override protected def configureScentry = {
-    scentry.unauthenticated {
-      scentry.strategies(UserPasswordStrategy.STRATEGY_NAME).unauthenticated()
-    }
+      User(id, settings.Auth.basicAuthUser, settings.Auth.basicAuthPassword, None)
   }
 
   override protected def registerAuthStrategies = {
     super.registerAuthStrategies
-    scentry.register(new UserPasswordStrategy(self, settings))
+    scentry.register(new ConstantPasswordStrategy(self, settings))
   }
 
 }

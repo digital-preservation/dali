@@ -11,16 +11,21 @@ package uk.gov.nationalarchives.dri.preingest.loader.auth
 import org.scalatra.auth.{ScentryConfig, ScentrySupport}
 import org.scalatra.ScalatraBase
 import uk.gov.nationalarchives.dri.preingest.loader.SettingsImpl
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-trait LDAPAuthenticationSupport extends AuthenticationSupport
-  with LDAPUserManager {
+trait AuthenticationSupport extends ScentrySupport[User]
+  with UserPasswordAuthSupport[User] {
   self: ScalatraBase =>
 
-  override protected def fromSession = {
-    case id: String =>
-      find(id).getOrElse(null)
-  }
+  protected val settings: SettingsImpl
 
+  protected def toSession = {
+    case user: User =>
+      user.id
+  }
+  protected val scentryConfig = (new ScentryConfig{}).asInstanceOf[ScentryConfiguration]
+
+  //FIXME sharing LDAP redirect with BasicAuth
   override protected def configureScentry = {
     scentry.unauthenticated {
       scentry.strategies(UserPasswordStrategy.STRATEGY_NAME).unauthenticated()
@@ -28,8 +33,8 @@ trait LDAPAuthenticationSupport extends AuthenticationSupport
   }
 
   override protected def registerAuthStrategies = {
-    super.registerAuthStrategies
     scentry.register(new UserPasswordStrategy(self, settings))
+    scentry.register(new RememberMeStrategy(self, settings))
   }
 
 }
