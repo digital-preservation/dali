@@ -51,6 +51,7 @@
         <bouncycastle.version>1.50</bouncycastle.version>
         <catalogue.version>1.35.19-SNAPSHOT</catalogue.version>
         <contact.email>digitalpreservation@nationalarchives.gov.uk</contact.email>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
